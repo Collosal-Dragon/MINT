@@ -61,6 +61,8 @@
   .btn-primary:hover{filter:brightness(1.1);transform:translateY(-1px)}
   .btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border)}
   .btn-ghost:hover{background:var(--bg3);color:var(--text)}
+  .btn-danger{background:transparent;color:var(--red);border:1px solid var(--red)}
+  .btn-danger:hover{background:rgba(224,108,117,.1)}
   .btn-link{background:none;border:none;color:var(--primary);font-size:13px;padding:2px 0;cursor:pointer;font-family:var(--font-body)}
   .btn-link:hover{text-decoration:underline}
   .btn-sm{padding:6px 12px;font-size:12.5px}
@@ -79,18 +81,10 @@
   .search-input:focus{border-color:var(--primary)}
   .search-input::placeholder{color:var(--text3)}
 
-  .tabs-list{display:flex;gap:4px;background:var(--bg2);border:1px solid var(--border);border-radius:9px;padding:4px;width:fit-content;margin-bottom:20px}
-  .tab-btn{padding:7px 18px;border-radius:6px;border:none;font-family:var(--font-body);font-size:13.5px;font-weight:500;cursor:pointer;background:transparent;color:var(--text2);transition:all .15s}
-  .tab-btn.active{background:var(--primary);color:#fff;box-shadow:0 2px 8px rgba(92,184,122,.3)}
-  .tab-btn:not(.active):hover{background:var(--bg3);color:var(--text)}
-
   .question-card{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:12px;cursor:pointer;transition:all .15s;box-shadow:var(--shadow);display:flex;overflow:hidden;text-decoration:none;color:inherit}
   .question-card:hover{background:var(--card-hover);border-color:var(--border2);transform:translateY(-1px);box-shadow:var(--shadow-lg)}
 
   .vote-col{display:flex;flex-direction:column;align-items:center;gap:4px;padding:18px 14px;min-width:58px;border-right:1px solid var(--border)}
-  .vote-btn{background:none;border:none;cursor:pointer;color:var(--text3);padding:4px;border-radius:6px;transition:all .15s;display:flex;align-items:center}
-  .vote-btn.voted-up{color:var(--green)}
-  .vote-btn.voted-down{color:var(--red)}
   .vote-score{font-weight:700;font-size:15px;color:var(--text);line-height:1;font-family:var(--font-mono)}
   .vote-score.positive{color:var(--green)}
   .vote-score.negative{color:var(--red)}
@@ -109,13 +103,11 @@
   .empty-state{text-align:center;padding:48px 24px;color:var(--text3);font-size:14px}
   .empty-state-icon{font-size:32px;margin-bottom:12px}
 
-  /* HERO */
   .hero{text-align:center;padding:48px 24px 36px;max-width:640px;margin:0 auto}
   .hero-title{font-family:var(--font-display);font-size:2rem;font-weight:700;line-height:1.25;margin-bottom:12px}
   .hero-title span{color:var(--primary)}
   .hero-subtitle{font-size:.95rem;color:var(--text2);margin-bottom:24px;line-height:1.6}
 
-  /* TOPIC GRID */
   .section-title{font-family:var(--font-display);font-size:1.1rem;font-weight:600;margin-bottom:16px;color:var(--text)}
   .topic-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-bottom:40px}
   .topic-card{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:20px 18px;cursor:pointer;transition:all .2s;text-decoration:none;display:block;box-shadow:var(--shadow)}
@@ -126,7 +118,6 @@
   .topic-subtopics{display:flex;flex-wrap:wrap;gap:4px}
   .topic-sub-tag{padding:2px 8px;border-radius:12px;font-size:11px;font-weight:500;background:var(--bg3);color:var(--text3);border:1px solid var(--border)}
 
-  /* SEARCH RESULTS */
   .search-results-title{font-size:13px;color:var(--text3);margin-bottom:14px}
   .search-results-title strong{color:var(--text)}
 
@@ -144,15 +135,17 @@
   .auth-tab.active{background:var(--bg2);color:var(--text);box-shadow:var(--shadow)}
   .form-group{margin-bottom:16px}
   .form-label{display:block;font-size:13px;font-weight:600;color:var(--text2);margin-bottom:6px}
-  .form-input,.form-textarea,.form-select{width:100%;padding:9px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:var(--font-body);font-size:14px;outline:none;transition:border-color .15s}
-  .form-input:focus,.form-textarea:focus,.form-select:focus{border-color:var(--primary)}
-  .form-input::placeholder,.form-textarea::placeholder{color:var(--text3)}
-  .form-textarea{resize:vertical;min-height:90px}
-  .form-select{appearance:none;cursor:pointer}
+  .form-input{width:100%;padding:9px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:var(--font-body);font-size:14px;outline:none;transition:border-color .15s}
+  .form-input:focus{border-color:var(--primary)}
+  .form-input::placeholder{color:var(--text3)}
+
+  /* Toast notification */
+  .toast{position:fixed;bottom:24px;right:24px;z-index:999;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px 18px;font-size:13.5px;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:10px;animation:toastIn .25s ease;max-width:340px}
+  .toast.success{border-color:var(--green);color:var(--green)}
+  .toast.error{border-color:var(--red);color:var(--red)}
+  @keyframes toastIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 
   .hidden{display:none!important}
-  .tab-content{display:none}
-  .tab-content.active{display:block}
   @media(max-width:600px){
     .header-inner{padding:12px 16px}
     main{padding:20px 16px}
@@ -177,7 +170,7 @@
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
       </div>
       <span class="user-badge hidden" id="userBadge"></span>
-      <button class="btn btn-ghost btn-sm" id="authBtn" onclick="openAuthModal()">Log in</button>
+      <button class="btn btn-ghost btn-sm" id="authBtn">Log in</button>
     </div>
   </div>
 </header>
@@ -192,13 +185,11 @@
     </div>
   </div>
 
-  <!-- SEARCH RESULTS -->
   <div id="searchSection" class="hidden">
     <p class="search-results-title" id="searchResultsTitle"></p>
     <div id="searchResultsList"></div>
   </div>
 
-  <!-- TOPICS + RECENT -->
   <div id="topicSection">
     <div class="section-title">Browse by Topic</div>
     <div class="topic-grid" id="topicGrid"></div>
@@ -218,14 +209,20 @@
       <button class="auth-tab active" id="loginTab" onclick="switchAuthTab('login')">Log in</button>
       <button class="auth-tab" id="signupTab" onclick="switchAuthTab('signup')">Sign up</button>
     </div>
-    <div id="authError"   style="color:var(--red);font-size:13px;margin-bottom:12px;display:none;padding:8px 12px;background:rgba(224,108,117,.1);border-radius:7px;border:1px solid var(--red)"></div>
+    <div id="authError" style="color:var(--red);font-size:13px;margin-bottom:12px;display:none;padding:8px 12px;background:rgba(224,108,117,.1);border-radius:7px;border:1px solid var(--red)"></div>
     <div id="authSuccess" style="color:var(--green);font-size:13px;margin-bottom:12px;display:none;padding:8px 12px;background:rgba(92,184,122,.1);border-radius:7px;border:1px solid var(--green)"></div>
-    <div class="form-group"><label class="form-label">Email</label>
-      <input class="form-input" id="authEmail" type="email" placeholder="you@example.com" /></div>
-    <div class="form-group" id="usernameWrap" style="display:none"><label class="form-label">Username</label>
-      <input class="form-input" id="authUsername" type="text" placeholder="e.g. mathwiz42" autocomplete="off" /></div>
-    <div class="form-group"><label class="form-label">Password</label>
-      <input class="form-input" id="authPassword" type="password" placeholder="••••••••" /></div>
+    <div class="form-group">
+      <label class="form-label">Email</label>
+      <input class="form-input" id="authEmail" type="email" placeholder="you@example.com" />
+    </div>
+    <div class="form-group hidden" id="usernameWrap">
+      <label class="form-label">Username</label>
+      <input class="form-input" id="authUsername" type="text" placeholder="e.g. mathwiz42" autocomplete="off" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <input class="form-input" id="authPassword" type="password" placeholder="••••••••" />
+    </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeAuthModal()">Cancel</button>
       <button class="btn btn-primary" id="authSubmitBtn" onclick="handleAuthSubmit()">Log in</button>
@@ -234,10 +231,17 @@
 </div>
 
 <script>
+// ── SUPABASE INIT ────────────────────────────────────────
 const SUPABASE_URL = 'https://idlrmpecdvsofaykphfe.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlkbHJtcGVjZHZzb2ZheWtwaGZlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMzk5NTAsImV4cCI6MjA4OTgxNTk1MH0.FWSllmspL4twQ1aF2q20---HmoLxBM1NqFnQ2OPOoUg';
 const { createClient } = supabase;
-const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+const db = createClient(SUPABASE_URL, SUPABASE_KEY, {
+  auth: {
+    persistSession: true,       // keep session in localStorage
+    autoRefreshToken: true,     // auto-refresh before expiry
+    detectSessionInUrl: true,   // handle email confirmation links
+  }
+});
 
 const CATEGORIES = {
   'Algebra':      { icon:'𝑥', color:'#7c9ff5', desc:'Expressions, equations, polynomials and algebraic structures', subs:['Exponents','Polynomials','Inequalities','AM-GM','Cauchy-Schwarz'], page:'algebra.html' },
@@ -246,44 +250,117 @@ const CATEGORIES = {
   'Number Theory':{ icon:'ℕ', color:'#f5a623', desc:'Primes, divisibility, modular arithmetic and number systems', subs:['Divisibility','GCD/LCM','Modular Arithmetic','Primes'], page:'number-theory.html' },
 };
 
-// ── AUTH ─────────────────────────────────────────────────
-let currentUser = null, currentProfile = null, authMode = 'login';
+// ── STATE ────────────────────────────────────────────────
+let currentUser = null;
+let currentProfile = null;
+let authMode = 'login';
+let katexReady = false;
 
+// ── AUTH STATE ───────────────────────────────────────────
 db.auth.onAuthStateChange(async (event, session) => {
+  console.log('[auth]', event, session?.user?.email ?? 'no user');
   currentUser = session?.user ?? null;
+
   if (currentUser) {
-    const { data } = await db.from('profiles').select('username').eq('id', currentUser.id).single();
-    currentProfile = data;
-    // Auto-create profile if missing (e.g. confirmed email in a different session)
-    if (!currentProfile) {
-      const username = currentUser.email.split('@')[0] + '_' + Math.random().toString(36).slice(2,6);
-      await db.from('profiles').insert({ id: currentUser.id, username });
-      currentProfile = { username };
-    }
-  } else { currentProfile = null; }
+    await loadProfile(currentUser);
+  } else {
+    currentProfile = null;
+  }
+
   updateAuthUI();
 });
+
+async function loadProfile(user) {
+  // Try to fetch existing profile
+  const { data, error } = await db
+    .from('profiles')
+    .select('username')
+    .eq('id', user.id)
+    .maybeSingle(); // won't error if row is missing
+
+  if (error) {
+    console.error('[profile fetch error]', error.message);
+    currentProfile = null;
+    return;
+  }
+
+  if (data) {
+    currentProfile = data;
+    return;
+  }
+
+  // Profile missing — create one (e.g. email-confirmed in another tab)
+  const fallbackUsername = user.email.split('@')[0] + '_' + Math.random().toString(36).slice(2, 6);
+  const { data: inserted, error: insertError } = await db
+    .from('profiles')
+    .insert({ id: user.id, username: fallbackUsername })
+    .select('username')
+    .maybeSingle();
+
+  if (insertError) {
+    console.error('[profile insert error]', insertError.message);
+    // Profile might have been created by trigger — try fetching once more
+    const { data: retry } = await db
+      .from('profiles')
+      .select('username')
+      .eq('id', user.id)
+      .maybeSingle();
+    currentProfile = retry ?? null;
+  } else {
+    currentProfile = inserted;
+  }
+}
 
 function updateAuthUI() {
   const btn = document.getElementById('authBtn');
   const badge = document.getElementById('userBadge');
+
   if (currentUser && currentProfile) {
-    btn.textContent = 'Log out'; btn.onclick = () => db.auth.signOut();
-    badge.textContent = currentProfile.username; badge.classList.remove('hidden');
+    badge.textContent = currentProfile.username;
+    badge.classList.remove('hidden');
+    btn.textContent = 'Log out';
+    btn.className = 'btn btn-ghost btn-sm';
+    btn.onclick = async () => {
+      await db.auth.signOut();
+      showToast('Logged out.', 'success');
+    };
+  } else if (currentUser && !currentProfile) {
+    // Logged in but profile still loading — show email fallback
+    badge.textContent = currentUser.email.split('@')[0];
+    badge.classList.remove('hidden');
+    btn.textContent = 'Log out';
+    btn.className = 'btn btn-ghost btn-sm';
+    btn.onclick = async () => {
+      await db.auth.signOut();
+      showToast('Logged out.', 'success');
+    };
   } else {
-    btn.textContent = 'Log in'; btn.onclick = openAuthModal;
     badge.classList.add('hidden');
+    btn.textContent = 'Log in';
+    btn.className = 'btn btn-ghost btn-sm';
+    btn.onclick = openAuthModal;
   }
 }
-function openAuthModal() { document.getElementById('authModalOverlay').classList.add('open'); switchAuthTab('login'); }
+
+// ── AUTH MODAL ───────────────────────────────────────────
+function openAuthModal() {
+  document.getElementById('authModalOverlay').classList.add('open');
+  switchAuthTab('login');
+  setTimeout(() => document.getElementById('authEmail').focus(), 100);
+}
+
 function closeAuthModal() {
   document.getElementById('authModalOverlay').classList.remove('open');
   document.getElementById('authEmail').value = '';
   document.getElementById('authPassword').value = '';
-  const u = document.getElementById('authUsername'); if (u) u.value = '';
+  document.getElementById('authUsername').value = '';
   document.getElementById('authError').style.display = 'none';
   document.getElementById('authSuccess').style.display = 'none';
+  const btn = document.getElementById('authSubmitBtn');
+  btn.disabled = false;
+  btn.textContent = authMode === 'login' ? 'Log in' : 'Create account';
 }
+
 function switchAuthTab(mode) {
   authMode = mode;
   document.getElementById('loginTab').classList.toggle('active', mode === 'login');
@@ -291,40 +368,99 @@ function switchAuthTab(mode) {
   document.getElementById('authSubmitBtn').textContent = mode === 'login' ? 'Log in' : 'Create account';
   document.getElementById('authError').style.display = 'none';
   document.getElementById('authSuccess').style.display = 'none';
-  const uWrap = document.getElementById('usernameWrap');
-  if (uWrap) uWrap.style.display = mode === 'signup' ? 'block' : 'none';
+  document.getElementById('usernameWrap').classList.toggle('hidden', mode === 'login');
 }
+
 function showAuthMsg(type, msg) {
   const el = document.getElementById(type === 'error' ? 'authError' : 'authSuccess');
   const other = document.getElementById(type === 'error' ? 'authSuccess' : 'authError');
-  el.textContent = msg; el.style.display = 'block'; other.style.display = 'none';
+  el.textContent = msg;
+  el.style.display = 'block';
+  other.style.display = 'none';
 }
+
 async function handleAuthSubmit() {
   const email = document.getElementById('authEmail').value.trim();
   const pass  = document.getElementById('authPassword').value;
   const btn   = document.getElementById('authSubmitBtn');
-  if (!email || !pass) { showAuthMsg('error','Please fill in both fields.'); return; }
-  if (pass.length < 6) { showAuthMsg('error','Password must be at least 6 characters.'); return; }
-  btn.disabled = true; btn.textContent = authMode === 'login' ? 'Logging in...' : 'Creating account...';
+
+  if (!email || !pass) { showAuthMsg('error', 'Please fill in both fields.'); return; }
+  if (pass.length < 6) { showAuthMsg('error', 'Password must be at least 6 characters.'); return; }
+
+  btn.disabled = true;
+  btn.textContent = authMode === 'login' ? 'Logging in…' : 'Creating account…';
+
   if (authMode === 'login') {
-    const { error } = await db.auth.signInWithPassword({ email, password: pass });
-    if (error) { showAuthMsg('error', error.message); btn.disabled = false; btn.textContent = 'Log in'; return; }
-    closeAuthModal();
-  } else {
-    const username = (document.getElementById('authUsername')?.value || '').trim();
-    if (!username) { showAuthMsg('error','Please choose a username.'); btn.disabled = false; btn.textContent = 'Create account'; return; }
-    if (!/^[a-zA-Z0-9_]{3,20}$/.test(username)) { showAuthMsg('error','Username: 3-20 chars, letters/numbers/underscores only.'); btn.disabled = false; btn.textContent = 'Create account'; return; }
-    const { data: existing } = await db.from('profiles').select('id').eq('username', username).maybeSingle();
-    if (existing) { showAuthMsg('error','Username already taken.'); btn.disabled = false; btn.textContent = 'Create account'; return; }
-    const { data: signUpData, error } = await db.auth.signUp({ email, password: pass });
-    if (error) { showAuthMsg('error', error.message); btn.disabled = false; btn.textContent = 'Create account'; return; }
-    if (signUpData?.user) {
-      await db.from('profiles').insert({ id: signUpData.user.id, username });
+    const { data, error } = await db.auth.signInWithPassword({ email, password: pass });
+    if (error) {
+      showAuthMsg('error', friendlyError(error.message));
+      btn.disabled = false;
+      btn.textContent = 'Log in';
+      return;
     }
-    showAuthMsg('success','✅ Account created! Check your email to confirm, then log in.');
-    btn.disabled = false; btn.textContent = 'Create account';
+    // onAuthStateChange will fire and call updateAuthUI
+    closeAuthModal();
+    showToast('Welcome back!', 'success');
+
+  } else {
+    // Sign up
+    const username = document.getElementById('authUsername').value.trim();
+    if (!username) { showAuthMsg('error', 'Please choose a username.'); btn.disabled = false; btn.textContent = 'Create account'; return; }
+    if (!/^[a-zA-Z0-9_]{3,20}$/.test(username)) { showAuthMsg('error', 'Username: 3–20 chars, letters/numbers/underscores only.'); btn.disabled = false; btn.textContent = 'Create account'; return; }
+
+    // Check username availability
+    const { data: existing } = await db.from('profiles').select('id').eq('username', username).maybeSingle();
+    if (existing) { showAuthMsg('error', 'Username already taken.'); btn.disabled = false; btn.textContent = 'Create account'; return; }
+
+    const { data: signUpData, error } = await db.auth.signUp({
+      email,
+      password: pass,
+      options: { data: { username } } // pass username in metadata for trigger
+    });
+
+    if (error) {
+      showAuthMsg('error', friendlyError(error.message));
+      btn.disabled = false;
+      btn.textContent = 'Create account';
+      return;
+    }
+
+    // If email confirmation is disabled, user is immediately active
+    if (signUpData?.session) {
+      closeAuthModal();
+      showToast('Account created! Welcome 🎉', 'success');
+    } else {
+      // Email confirmation required
+      showAuthMsg('success', '✅ Check your email to confirm your account, then log in.');
+      btn.disabled = false;
+      btn.textContent = 'Create account';
+    }
   }
 }
+
+// Turn technical Supabase errors into friendly messages
+function friendlyError(msg) {
+  if (!msg) return 'Something went wrong. Please try again.';
+  if (msg.includes('Invalid login credentials')) return 'Incorrect email or password.';
+  if (msg.includes('Email not confirmed')) return 'Please confirm your email before logging in.';
+  if (msg.includes('User already registered')) return 'An account with this email already exists.';
+  if (msg.includes('Password should be')) return 'Password must be at least 6 characters.';
+  return msg;
+}
+
+// ── TOAST ────────────────────────────────────────────────
+let toastTimer = null;
+function showToast(msg, type = 'success') {
+  const existing = document.querySelector('.toast');
+  if (existing) existing.remove();
+  clearTimeout(toastTimer);
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.innerHTML = `<span>${type === 'success' ? '✓' : '✕'}</span> ${msg}`;
+  document.body.appendChild(t);
+  toastTimer = setTimeout(() => t.remove(), 3000);
+}
+
 // ── THEME ────────────────────────────────────────────────
 function initTheme() {
   const t = localStorage.getItem('theme') || 'dark';
@@ -333,48 +469,67 @@ function initTheme() {
 }
 document.getElementById('themeToggle').addEventListener('change', e => {
   const t = e.target.checked ? 'dark' : 'light';
-  document.documentElement.className = t; localStorage.setItem('theme', t);
+  document.documentElement.className = t;
+  localStorage.setItem('theme', t);
 });
 
 // ── HELPERS ──────────────────────────────────────────────
 function timeAgo(ts) {
-  const d=Date.now()-new Date(ts).getTime(), m=Math.floor(d/60000), h=Math.floor(d/3600000), dy=Math.floor(d/86400000), w=Math.floor(d/604800000);
-  if(m<1)return'just now'; if(m<60)return`${m}m ago`; if(h<24)return`${h}h ago`; if(dy<7)return`${dy}d ago`; return`${w}w ago`;
-}
-function processText(raw) {
-  if(!raw)return'';
-  return raw.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')
-    .replace(/\|\|([^|]+)\|\|/g,(_,c)=>`<span class="spoiler" onclick="this.classList.toggle('revealed')">${c}</span>`);
-}
-function renderLatex(el) {
-  if(window.renderMathInElement) renderMathInElement(el,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false});
+  const d = Date.now() - new Date(ts).getTime();
+  const m = Math.floor(d / 60000), h = Math.floor(d / 3600000), dy = Math.floor(d / 86400000), w = Math.floor(d / 604800000);
+  if (m < 1) return 'just now';
+  if (m < 60) return `${m}m ago`;
+  if (h < 24) return `${h}h ago`;
+  if (dy < 7) return `${dy}d ago`;
+  return `${w}w ago`;
 }
 
-// ── VOTE COUNTS (separate fetch — fixes schema cache error) ──
+function processText(raw) {
+  if (!raw) return '';
+  return raw
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+    .replace(/\|\|([^|]+)\|\|/g, (_, c) => `<span class="spoiler" onclick="this.classList.toggle('revealed')">${c}</span>`);
+}
+
+function renderLatex(el) {
+  if (window.renderMathInElement) {
+    renderMathInElement(el, {
+      delimiters: [{ left: '$$', right: '$$', display: true }, { left: '$', right: '$', display: false }],
+      throwOnError: false
+    });
+  }
+}
+
+// ── VOTE COUNTS ──────────────────────────────────────────
 async function fetchVoteCounts(ids, type) {
-  if(!ids.length) return {};
-  const { data } = await db.from('vote_counts').select('target_id,upvotes,downvotes').eq('target_type',type).in('target_id',ids);
+  if (!ids.length) return {};
+  const { data } = await db.from('vote_counts').select('target_id,upvotes,downvotes').eq('target_type', type).in('target_id', ids);
   const map = {};
-  (data||[]).forEach(v => { map[v.target_id] = { upvotes:+v.upvotes, downvotes:+v.downvotes }; });
+  (data || []).forEach(v => { map[v.target_id] = { upvotes: +v.upvotes, downvotes: +v.downvotes }; });
   return map;
 }
 
-// ── RENDER TOPIC GRID ────────────────────────────────────
+// ── TOPIC GRID ───────────────────────────────────────────
 function renderTopicGrid() {
   document.getElementById('topicGrid').innerHTML = Object.entries(CATEGORIES).map(([name, cat]) => `
     <a class="topic-card" href="${cat.page}">
       <span class="topic-icon" style="color:${cat.color}">${cat.icon}</span>
       <div class="topic-name" style="color:${cat.color}">${name}</div>
       <div class="topic-desc">${cat.desc}</div>
-      <div class="topic-subtopics">${cat.subs.slice(0,3).map(s=>`<span class="topic-sub-tag">${s}</span>`).join('')}${cat.subs.length>3?`<span class="topic-sub-tag">+${cat.subs.length-3}</span>`:''}</div>
+      <div class="topic-subtopics">
+        ${cat.subs.slice(0, 3).map(s => `<span class="topic-sub-tag">${s}</span>`).join('')}
+        ${cat.subs.length > 3 ? `<span class="topic-sub-tag">+${cat.subs.length - 3}</span>` : ''}
+      </div>
     </a>`).join('');
 }
 
 // ── RECENT QUESTIONS ─────────────────────────────────────
 async function loadRecent() {
-  const { data, error } = await db.from('questions')
+  const { data, error } = await db
+    .from('questions')
     .select('id,title,about,created_at,question_tags(tags(name,category)),intuitions(id),takeaways(id)')
-    .order('created_at',{ascending:false}).limit(10);
+    .order('created_at', { ascending: false })
+    .limit(10);
 
   if (error) {
     document.getElementById('recentList').innerHTML = `<div class="error-banner">Could not load questions: ${error.message}</div>`;
@@ -382,15 +537,18 @@ async function loadRecent() {
   }
 
   let questions = data.map(q => ({
-    id:q.id, title:q.title, about:q.about,
-    createdAt:timeAgo(q.created_at), createdAtRaw:q.created_at,
-    tags:q.question_tags.map(qt=>qt.tags?.name).filter(Boolean),
-    intuitionCount:q.intuitions.length, takeawayCount:q.takeaways.length,
-    upvotes:0, downvotes:0,
+    id: q.id, title: q.title, about: q.about,
+    createdAt: timeAgo(q.created_at),
+    tags: q.question_tags.map(qt => qt.tags?.name).filter(Boolean),
+    intuitionCount: q.intuitions.length,
+    upvotes: 0, downvotes: 0,
   }));
 
-  const voteCounts = await fetchVoteCounts(questions.map(q=>q.id), 'question');
-  questions.forEach(q => { const v=voteCounts[q.id]||{upvotes:0,downvotes:0}; q.upvotes=v.upvotes; q.downvotes=v.downvotes; });
+  const voteCounts = await fetchVoteCounts(questions.map(q => q.id), 'question');
+  questions.forEach(q => {
+    const v = voteCounts[q.id] || { upvotes: 0, downvotes: 0 };
+    q.upvotes = v.upvotes; q.downvotes = v.downvotes;
+  });
 
   const container = document.getElementById('recentList');
   if (!questions.length) {
@@ -402,10 +560,10 @@ async function loadRecent() {
 }
 
 function questionCardHTML(q) {
-  const score = q.upvotes-q.downvotes;
-  const sc = score>0?'positive':score<0?'negative':'';
+  const score = q.upvotes - q.downvotes;
+  const sc = score > 0 ? 'positive' : score < 0 ? 'negative' : '';
   const cat = q.tags[0] || '';
-  const catData = Object.entries(CATEGORIES).find(([k])=>k===cat);
+  const catData = Object.entries(CATEGORIES).find(([k]) => k === cat);
   const page = catData ? catData[1].page : 'algebra.html';
   return `
   <a class="question-card" href="${page}?q=${q.id}">
@@ -421,7 +579,7 @@ function questionCardHTML(q) {
     <div class="card-content">
       <div class="card-title katex-render">${processText(q.title)}</div>
       <div class="card-about"><span class="label">About: </span><span class="katex-render">${processText(q.about)}</span></div>
-      <div class="tags">${q.tags.map((t,i)=>`<span class="tag ${i===0?'tag-primary':'tag-secondary'}">${t}</span>`).join('')}</div>
+      <div class="tags">${q.tags.map((t, i) => `<span class="tag ${i === 0 ? 'tag-primary' : 'tag-secondary'}">${t}</span>`).join('')}</div>
       <div class="card-meta">${q.createdAt}</div>
     </div>
   </a>`;
@@ -438,34 +596,71 @@ async function doSearch() {
   const topicSection  = document.getElementById('topicSection');
   const searchSection = document.getElementById('searchSection');
   if (!query) { topicSection.classList.remove('hidden'); searchSection.classList.add('hidden'); return; }
-  topicSection.classList.add('hidden'); searchSection.classList.remove('hidden');
+  topicSection.classList.add('hidden');
+  searchSection.classList.remove('hidden');
   document.getElementById('searchResultsList').innerHTML = `<div class="loading-state"><div class="loading-spinner"></div>Searching...</div>`;
 
-  const { data, error } = await db.from('questions')
+  const { data, error } = await db
+    .from('questions')
     .select('id,title,about,created_at,question_tags(tags(name,category)),intuitions(id),takeaways(id)')
     .or(`title.ilike.%${query}%,about.ilike.%${query}%`)
-    .order('created_at',{ascending:false}).limit(20);
+    .order('created_at', { ascending: false })
+    .limit(20);
 
   if (error) { document.getElementById('searchResultsList').innerHTML = `<div class="error-banner">Search error: ${error.message}</div>`; return; }
 
   let results = data.map(q => ({
-    id:q.id, title:q.title, about:q.about,
-    createdAt:timeAgo(q.created_at), createdAtRaw:q.created_at,
-    tags:q.question_tags.map(qt=>qt.tags?.name).filter(Boolean),
-    intuitionCount:q.intuitions.length, takeawayCount:q.takeaways.length, upvotes:0, downvotes:0,
+    id: q.id, title: q.title, about: q.about,
+    createdAt: timeAgo(q.created_at),
+    tags: q.question_tags.map(qt => qt.tags?.name).filter(Boolean),
+    intuitionCount: q.intuitions.length,
+    upvotes: 0, downvotes: 0,
   }));
-  const voteCounts = await fetchVoteCounts(results.map(q=>q.id), 'question');
-  results.forEach(q => { const v=voteCounts[q.id]||{upvotes:0,downvotes:0}; q.upvotes=v.upvotes; q.downvotes=v.downvotes; });
 
-  document.getElementById('searchResultsTitle').innerHTML = `<strong>${results.length}</strong> result${results.length!==1?'s':''} for "${query}"`;
-  if (!results.length) { document.getElementById('searchResultsList').innerHTML = `<div class="empty-state"><div class="empty-state-icon">🔍</div>No questions found for "${query}".</div>`; return; }
+  const voteCounts = await fetchVoteCounts(results.map(q => q.id), 'question');
+  results.forEach(q => {
+    const v = voteCounts[q.id] || { upvotes: 0, downvotes: 0 };
+    q.upvotes = v.upvotes; q.downvotes = v.downvotes;
+  });
+
+  document.getElementById('searchResultsTitle').innerHTML = `<strong>${results.length}</strong> result${results.length !== 1 ? 's' : ''} for "${query}"`;
+  if (!results.length) {
+    document.getElementById('searchResultsList').innerHTML = `<div class="empty-state"><div class="empty-state-icon">🔍</div>No questions found for "${query}".</div>`;
+    return;
+  }
   document.getElementById('searchResultsList').innerHTML = results.map(q => questionCardHTML(q)).join('');
   document.getElementById('searchResultsList').querySelectorAll('.katex-render').forEach(el => renderLatex(el));
 }
 
+// ── KEYBOARD SHORTCUTS ───────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeAuthModal();
+  if ((e.key === 'Enter') && document.getElementById('authModalOverlay').classList.contains('open')) {
+    const btn = document.getElementById('authSubmitBtn');
+    if (!btn.disabled) handleAuthSubmit();
+  }
+});
+
 // ── BOOT ─────────────────────────────────────────────────
-function onKatex() { initTheme(); renderTopicGrid(); loadRecent(); }
-if (document.readyState !== 'loading') { if (window.renderMathInElement) { initTheme(); renderTopicGrid(); loadRecent(); } }
+function boot() {
+  initTheme();
+  renderTopicGrid();
+  loadRecent();
+  // Restore auth state from localStorage (Supabase does this automatically,
+  // onAuthStateChange will fire with INITIAL_SESSION event)
+  updateAuthUI(); // show correct UI immediately while session loads
+}
+
+function onKatex() {
+  katexReady = true;
+  boot();
+}
+
+// Fallback: if KaTeX somehow already loaded before onload fires
+if (document.readyState !== 'loading' && window.renderMathInElement && !katexReady) {
+  katexReady = true;
+  boot();
+}
 </script>
 </body>
 </html>
