@@ -521,9 +521,11 @@ function setSubtopic(name, btn) {
 // ── LOAD QUESTIONS ────────────────────────────────────────
 async function loadQuestions() {
   document.getElementById('questionsList').innerHTML = `<div class="loading-state"><div class="loading-spinner"></div>Loading questions...</div>`;
-  const { data: tagData } = await db.from('tags').select('id,name').eq('category', TOPIC_NAME);
+  const { data: tagData, error: tagError } = await db.from('tags').select('id,name').eq('category', TOPIC_NAME);
+  if (tagError) { document.getElementById('questionsList').innerHTML=`<div class="error-banner">Error: ${tagError.message}</div>`; return; }
   if (!tagData||!tagData.length) { questions=[]; renderQuestions(); return; }
-  const { data: qtData } = await db.from('question_tags').select('question_id').in('tag_id', tagData.map(t=>t.id));
+  const { data: qtData, error: qtError } = await db.from('question_tags').select('question_id').in('tag_id', tagData.map(t=>t.id));
+  if (qtError) { document.getElementById('questionsList').innerHTML=`<div class="error-banner">Error: ${qtError.message}</div>`; return; }
   if (!qtData||!qtData.length) { questions=[]; renderQuestions(); return; }
   const qIds = [...new Set(qtData.map(qt=>qt.question_id))];
   const { data, error } = await db.from('questions')
