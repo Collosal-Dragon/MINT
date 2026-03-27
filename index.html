@@ -220,14 +220,12 @@
     </div>
     <div id="authError"   style="color:var(--red);font-size:13px;margin-bottom:12px;display:none;padding:8px 12px;background:rgba(224,108,117,.1);border-radius:7px;border:1px solid var(--red)"></div>
     <div id="authSuccess" style="color:var(--green);font-size:13px;margin-bottom:12px;display:none;padding:8px 12px;background:rgba(92,184,122,.1);border-radius:7px;border:1px solid var(--green)"></div>
-    <div class="form-group">
-      <label class="form-label">Email</label>
-      <input class="form-input" id="authEmail" type="email" placeholder="you@example.com" />
-    </div>
-    <div class="form-group">
-      <label class="form-label">Password</label>
-      <input class="form-input" id="authPassword" type="password" placeholder="••••••••" />
-    </div>
+    <div class="form-group"><label class="form-label">Email</label>
+      <input class="form-input" id="authEmail" type="email" placeholder="you@example.com" /></div>
+    <div class="form-group" id="usernameWrap" style="display:none"><label class="form-label">Username</label>
+      <input class="form-input" id="authUsername" type="text" placeholder="e.g. mathwiz42" autocomplete="off" /></div>
+    <div class="form-group"><label class="form-label">Password</label>
+      <input class="form-input" id="authPassword" type="password" placeholder="••••••••" /></div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeAuthModal()">Cancel</button>
       <button class="btn btn-primary" id="authSubmitBtn" onclick="handleAuthSubmit()">Log in</button>
@@ -256,6 +254,12 @@ db.auth.onAuthStateChange(async (event, session) => {
   if (currentUser) {
     const { data } = await db.from('profiles').select('username').eq('id', currentUser.id).single();
     currentProfile = data;
+    // Auto-create profile if missing (e.g. confirmed email in a different session)
+    if (!currentProfile) {
+      const username = currentUser.email.split('@')[0] + '_' + Math.random().toString(36).slice(2,6);
+      await db.from('profiles').insert({ id: currentUser.id, username });
+      currentProfile = { username };
+    }
   } else { currentProfile = null; }
   updateAuthUI();
 });
@@ -276,6 +280,7 @@ function closeAuthModal() {
   document.getElementById('authModalOverlay').classList.remove('open');
   document.getElementById('authEmail').value = '';
   document.getElementById('authPassword').value = '';
+  const u = document.getElementById('authUsername'); if (u) u.value = '';
   document.getElementById('authError').style.display = 'none';
   document.getElementById('authSuccess').style.display = 'none';
 }
@@ -286,6 +291,8 @@ function switchAuthTab(mode) {
   document.getElementById('authSubmitBtn').textContent = mode === 'login' ? 'Log in' : 'Create account';
   document.getElementById('authError').style.display = 'none';
   document.getElementById('authSuccess').style.display = 'none';
+  const uWrap = document.getElementById('usernameWrap');
+  if (uWrap) uWrap.style.display = mode === 'signup' ? 'block' : 'none';
 }
 function showAuthMsg(type, msg) {
   const el = document.getElementById(type === 'error' ? 'authError' : 'authSuccess');
@@ -304,13 +311,20 @@ async function handleAuthSubmit() {
     if (error) { showAuthMsg('error', error.message); btn.disabled = false; btn.textContent = 'Log in'; return; }
     closeAuthModal();
   } else {
-    const { error } = await db.auth.signUp({ email, password: pass });
+    const username = (document.getElementById('authUsername')?.value || '').trim();
+    if (!username) { showAuthMsg('error','Please choose a username.'); btn.disabled = false; btn.textContent = 'Create account'; return; }
+    if (!/^[a-zA-Z0-9_]{3,20}$/.test(username)) { showAuthMsg('error','Username: 3-20 chars, letters/numbers/underscores only.'); btn.disabled = false; btn.textContent = 'Create account'; return; }
+    const { data: existing } = await db.from('profiles').select('id').eq('username', username).maybeSingle();
+    if (existing) { showAuthMsg('error','Username already taken.'); btn.disabled = false; btn.textContent = 'Create account'; return; }
+    const { data: signUpData, error } = await db.auth.signUp({ email, password: pass });
     if (error) { showAuthMsg('error', error.message); btn.disabled = false; btn.textContent = 'Create account'; return; }
-    showAuthMsg('success','✅ Check your email to confirm, then log in.');
+    if (signUpData?.user) {
+      await db.from('profiles').insert({ id: signUpData.user.id, username });
+    }
+    showAuthMsg('success','✅ Account created! Check your email to confirm, then log in.');
     btn.disabled = false; btn.textContent = 'Create account';
   }
 }
-
 // ── THEME ────────────────────────────────────────────────
 function initTheme() {
   const t = localStorage.getItem('theme') || 'dark';
