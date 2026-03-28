@@ -652,7 +652,8 @@ function clearSearch() {
 
 async function doSearch() {
   const query = document.getElementById('globalSearch').value.trim().toLowerCase();
-  const topicSection  = document.getElementById('topicSection');
+
+  const topicSection = document.getElementById('topicSection');
   const searchSection = document.getElementById('searchSection');
 
   if (!query) {
@@ -663,37 +664,65 @@ async function doSearch() {
 
   topicSection.classList.add('hidden');
   searchSection.classList.remove('hidden');
-  document.getElementById('searchResultsList').innerHTML = `<div class="loading-state"><div class="loading-spinner"></div>Searching...</div>`;
 
-  const { data, error } = await db
-    .from('questions')
-    .select('id,title,about,created_at,question_tags(tags(name,category)),intuitions(id),takeaways(id)')
-    .or(`title.ilike.%${query}%,about.ilike.%${query}%`)
-    .order('created_at',{ascending:false})
-    .limit(20);
+  const listEl = document.getElementById('searchResultsList');
+  const titleEl = document.getElementById('searchResultsTitle');
 
-  if (error) { document.getElementById('searchResultsList').innerHTML = `<div class="error-banner">Search error: ${error.message}</div>`; return; }
+  listEl.innerHTML = `<div class="loading-state"><div class="loading-spinner"></div>Searching...</div>`;
 
-  let results = data.map(q=>({
-    id:q.id, title:q.title, about:q.about,
-    createdAt:timeAgo(q.created_at),
-    tags:q.question_tags.map(qt=>qt.tags?.name).filter(Boolean),
-    intuitionCount:q.intuitions.length,
-    upvotes:0, downvotes:0,
-  }));
+  // ✅ cancel previous request
+  if (searchController) searchController.abort();
+  searchController = new AbortController();
 
-  const voteCounts = await fetchVoteCounts(results.map(q=>q.id),'question');
-  results.forEach(q=>{const v=voteCounts[q.id]||{upvotes:0,downvotes:0};q.upvotes=v.upvotes;q.downvotes=v.downvotes;});
+  try {
+    const { data, error } = await db
+      .from('questions')
+      .select('id,title,about,created_at,question_tags(tags(name,category)),intuitions(id)')
+      .or(`title.ilike.%${query}%,about.ilike.%${query}%`)
+      .order('created_at', { ascending: false })
+      .limit(20)
+      .abortSignal(searchController.signal);
 
-  document.getElementById('searchResultsTitle').innerHTML = `<strong>${results.length}</strong> result${results.length!==1?'s':''} for "${query}"`;
+    if (error) throw error;
 
-  if (!results.length) {
-    document.getElementById('searchResultsList').innerHTML = `<div class="empty-state"><div class="empty-state-icon">🔍</div>No questions found for "${query}".</div>`;
-    return;
+    let results = data.map(q => ({
+      id: q.id,
+      title: q.title,
+      about: q.about,
+      createdAt: timeAgo(q.created_at),
+      tags: q.question_tags.map(qt => qt.tags?.name).filter(Boolean),
+      intuitionCount: q.intuitions.length,
+      upvotes: 0,
+      downvotes: 0
+    }));
+
+    const voteCounts = await fetchVoteCounts(results.map(q => q.id), 'question');
+
+    results.forEach(q => {
+      const v = voteCounts[q.id] || { upvotes: 0, downvotes: 0 };
+      q.upvotes = v.upvotes;
+      q.downvotes = v.downvotes;
+    });
+
+    titleEl.innerHTML = `<strong>${results.length}</strong> result${results.length !== 1 ? 's' : ''} for "${query}"`;
+
+    if (!results.length) {
+      listEl.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🔍</div>No results</div>`;
+      return;
+    }
+
+    // ✅ USE ORIGINAL CARD RENDERER (CRITICAL)
+    listEl.innerHTML = results.map(q => questionCardHTML(q)).join('');
+
+    // ✅ KEEP KaTeX rendering
+    listEl.querySelectorAll('.katex-render').forEach(el => renderLatex(el));
+
+  } catch (e) {
+    if (e.name !== 'AbortError') {
+      console.error(e);
+      listEl.innerHTML = `<div class="error-banner">Search error</div>`;
+    }
   }
-
-  document.getElementById('searchResultsList').innerHTML = results.map(q=>questionCardHTML(q)).join('');
-  document.getElementById('searchResultsList').querySelectorAll('.katex-render').forEach(el=>renderLatex(el));
 }
 
 // ── KEYBOARD SHORTCUTS ───────────────────────────────────
