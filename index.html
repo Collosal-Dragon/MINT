@@ -68,7 +68,6 @@
   .btn-sm{padding:6px 12px;font-size:12.5px}
   .btn:disabled{opacity:.45;cursor:not-allowed;transform:none!important}
 
-  /* Google sign-in button */
   .btn-google{background:var(--bg3);color:var(--text);border:1px solid var(--border2);width:100%;justify-content:center;padding:10px 16px;font-size:14px;border-radius:9px;margin-bottom:4px}
   .btn-google:hover{background:var(--card-hover);border-color:var(--primary)}
   .btn-google svg{flex-shrink:0}
@@ -130,7 +129,8 @@
   .search-results-title{font-size:13px;color:var(--text3);margin-bottom:14px}
   .search-results-title strong{color:var(--text)}
 
-  /* MODAL */
+  .login-hint{font-size:12px;color:var(--text3);margin-top:5px}
+
   .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:200;align-items:center;justify-content:center;padding:24px}
   .modal-overlay.open{display:flex}
   .modal{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:28px 28px 24px;max-width:560px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg);animation:modalIn .2s ease}
@@ -148,7 +148,6 @@
   .form-input:focus{border-color:var(--primary)}
   .form-input::placeholder{color:var(--text3)}
 
-  /* Toast notification */
   .toast{position:fixed;bottom:24px;right:24px;z-index:999;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px 18px;font-size:13.5px;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:10px;animation:toastIn .25s ease;max-width:340px}
   .toast.success{border-color:var(--green);color:var(--green)}
   .toast.error{border-color:var(--red);color:var(--red)}
@@ -228,7 +227,6 @@
       <div class="modal-subtitle">Log in or create an account to post intuitions and takeaways</div>
     </div>
 
-    <!-- Google Sign-In -->
     <button class="btn btn-google" onclick="handleGoogleSignIn()">
       <svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
         <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -247,17 +245,30 @@
     </div>
     <div id="authError" style="color:var(--red);font-size:13px;margin-bottom:12px;display:none;padding:8px 12px;background:rgba(224,108,117,.1);border-radius:7px;border:1px solid var(--red)"></div>
     <div id="authSuccess" style="color:var(--green);font-size:13px;margin-bottom:12px;display:none;padding:8px 12px;background:rgba(92,184,122,.1);border-radius:7px;border:1px solid var(--green)"></div>
-    <div class="form-group">
+
+    <!-- LOGIN: single identifier field (email OR username) -->
+    <div class="form-group" id="identifierWrap">
+      <label class="form-label" for="authIdentifier">Email or username</label>
+      <input class="form-input" id="authIdentifier" name="identifier" type="text"
+             placeholder="you@example.com or mathwiz42" autocomplete="username" />
+    </div>
+
+    <!-- SIGNUP: separate email + username fields (hidden during login) -->
+    <div class="form-group hidden" id="signupEmailWrap">
       <label class="form-label" for="authEmail">Email</label>
-      <input class="form-input" id="authEmail" name="email" type="email" placeholder="you@example.com" autocomplete="email" />
+      <input class="form-input" id="authEmail" name="email" type="email"
+             placeholder="you@example.com" autocomplete="email" />
     </div>
     <div class="form-group hidden" id="usernameWrap">
       <label class="form-label" for="authUsername">Username</label>
-      <input class="form-input" id="authUsername" name="username" type="text" placeholder="e.g. mathwiz42" autocomplete="username" />
+      <input class="form-input" id="authUsername" name="username" type="text"
+             placeholder="e.g. mathwiz42" autocomplete="off" />
     </div>
+
     <div class="form-group">
       <label class="form-label" for="authPassword">Password</label>
-      <input class="form-input" id="authPassword" name="password" type="password" placeholder="••••••••" autocomplete="current-password" id="authPasswordLogin" />
+      <input class="form-input" id="authPassword" name="password" type="password"
+             placeholder="••••••••" autocomplete="current-password" />
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeAuthModal()">Cancel</button>
@@ -267,23 +278,33 @@
 </div>
 
 <script>
-// ── SUPABASE INIT ────────────────────────────────────────
-// NOTE: Update SUPABASE_URL and SUPABASE_KEY with your project credentials.
-// For Google OAuth to work, you must:
-//   1. Enable Google provider in Supabase Dashboard → Authentication → Providers
-//   2. Add your site URL (https://math-intuitions.org) to Supabase → Auth → URL Configuration → Redirect URLs
+// ═══════════════════════════════════════════════════════════
+//  SUPABASE INIT
+//  ⚠️  Copy these exact SUPABASE_URL, SUPABASE_KEY, and storageKey
+//      values into EVERY other page (algebra.html, combinatorics.html,
+//      geometry.html, number-theory.html) so the session is shared
+//      automatically when the user navigates between pages.
+// ═══════════════════════════════════════════════════════════
 const SUPABASE_URL = 'https://idlrmpecdvsofaykphfe.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlkbHJtcGVjZHZzb2ZheWtwaGZlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMzk5NTAsImV4cCI6MjA4OTgxNTk1MH0.FWSllmspL4twQ1aF2q20---HmoLxBM1NqFnQ2OPOoUg';
 
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY, {
   auth: {
-    persistSession: true,        // persist session in localStorage so it survives page navigation
-    autoRefreshToken: true,      // silently refresh token before it expires
-    detectSessionInUrl: true,    // handles OAuth redirects and email confirmation links
-    storageKey: 'math-intuitions-auth', // stable key so all pages share the same session
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true,
+    storageKey: 'mint-auth-v1',   // ← MUST match on every page
   }
 });
+
+// ── DATABASE REQUIREMENT ─────────────────────────────────
+// For username login to work, your `profiles` table must have an `email`
+// column (text, not null). Run this migration if it's missing:
+//
+//   ALTER TABLE profiles ADD COLUMN IF NOT EXISTS email text;
+//
+// The email is saved automatically at sign-up time by this page.
 
 const CATEGORIES = {
   'Algebra':      { icon:'𝑥', color:'#7c9ff5', desc:'Expressions, equations, polynomials and algebraic structures', subs:['Exponents','Polynomials','Inequalities','AM-GM','Cauchy-Schwarz'], page:'algebra.html' },
@@ -293,44 +314,35 @@ const CATEGORIES = {
 };
 
 // ── STATE ────────────────────────────────────────────────
-let currentUser = null;
+let currentUser    = null;
 let currentProfile = null;
-let authMode = 'login';
-let katexReady = false;
+let authMode       = 'login';
+let katexReady     = false;
+let searchController = null;
 
-// ── BOOT: runs immediately on DOMContentLoaded, independent of KaTeX ─────────
-// KaTeX is loaded separately; page content must not block on it.
+// ── BOOT ─────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   initTheme();
   renderTopicGrid();
   loadRecent();
-  updateAuthUI(); // show correct UI right away; auth state comes in via onAuthStateChange
+  updateAuthUI();
 });
 
-// Called when KaTeX auto-render is ready — re-renders any math already in the DOM
 function onKatexReady() {
   katexReady = true;
-  // Re-render math in any cards already displayed
   document.querySelectorAll('.katex-render').forEach(el => renderLatex(el));
 }
 
 // ── AUTH STATE ───────────────────────────────────────────
-// onAuthStateChange fires on every page load with INITIAL_SESSION if a session exists,
-// so the user stays logged in across all pages on math-intuitions.org as long as
-// the same storageKey is used in every page's Supabase client.
 db.auth.onAuthStateChange(async (event, session) => {
   console.log('[auth]', event, session?.user?.email ?? 'no user');
   currentUser = session?.user ?? null;
-
   if (currentUser) {
     await loadProfile(currentUser);
   } else {
     currentProfile = null;
   }
-
   updateAuthUI();
-
-  // Close modal on successful OAuth redirect
   if (event === 'SIGNED_IN' && document.getElementById('authModalOverlay').classList.contains('open')) {
     closeAuthModal();
     showToast('Welcome back!', 'success');
@@ -339,49 +351,33 @@ db.auth.onAuthStateChange(async (event, session) => {
 
 async function loadProfile(user) {
   const { data, error } = await db
+    .from('profiles').select('username,email').eq('id', user.id).maybeSingle();
+  if (error) { console.error('[profile]', error.message); currentProfile = null; return; }
+  if (data)  { currentProfile = data; updateAuthUI(); return; }
+
+  // First-time Google user — create profile
+  const base = (user.user_metadata?.full_name || user.email.split('@')[0])
+    .replace(/[^a-zA-Z0-9_]/g, '_').slice(0, 16);
+  const username = base + '_' + Math.random().toString(36).slice(2, 6);
+  const { data: ins, error: ie } = await db
     .from('profiles')
-    .select('username')
-    .eq('id', user.id)
-    .maybeSingle();
-
-  if (error) { console.error('[profile fetch error]', error.message); currentProfile = null; return; }
-
-  if (data) { currentProfile = data; updateAuthUI(); return; }
-
-  // No profile yet — create one (handles Google sign-in first-time users)
-  const baseUsername = (user.user_metadata?.full_name || user.email.split('@')[0])
-    .replace(/[^a-zA-Z0-9_]/g, '_')
-    .slice(0, 16);
-  const fallbackUsername = baseUsername + '_' + Math.random().toString(36).slice(2, 6);
-
-  const { data: inserted, error: insertError } = await db
-    .from('profiles')
-    .insert({ id: user.id, username: fallbackUsername })
-    .select('username')
-    .maybeSingle();
-
-  if (insertError) {
-    console.error('[profile insert error]', insertError.message);
-    const { data: retry } = await db.from('profiles').select('username').eq('id', user.id).maybeSingle();
-    currentProfile = retry ?? null;
+    .insert({ id: user.id, username, email: user.email })
+    .select('username,email').maybeSingle();
+  if (ie) {
+    const { data: r } = await db.from('profiles').select('username,email').eq('id', user.id).maybeSingle();
+    currentProfile = r ?? null;
   } else {
-    currentProfile = inserted;
+    currentProfile = ins;
   }
   updateAuthUI();
 }
 
 function updateAuthUI() {
-  const btn = document.getElementById('authBtn');
+  const btn   = document.getElementById('authBtn');
   const badge = document.getElementById('userBadge');
-
-  if (currentUser && currentProfile) {
-    badge.textContent = currentProfile.username;
-    badge.classList.remove('hidden');
-    btn.textContent = 'Log out';
-    btn.className = 'btn btn-ghost btn-sm';
-    btn.onclick = async () => { await db.auth.signOut(); showToast('Logged out.', 'success'); };
-  } else if (currentUser && !currentProfile) {
-    badge.textContent = currentUser.email?.split('@')[0] || 'You';
+  if (currentUser) {
+    const name = currentProfile?.username || currentUser.email?.split('@')[0] || 'You';
+    badge.textContent = name;
     badge.classList.remove('hidden');
     btn.textContent = 'Log out';
     btn.className = 'btn btn-ghost btn-sm';
@@ -410,100 +406,148 @@ async function handleGoogleSignIn() {
 function openAuthModal() {
   document.getElementById('authModalOverlay').classList.add('open');
   switchAuthTab('login');
-  setTimeout(() => document.getElementById('authEmail').focus(), 100);
+  setTimeout(() => document.getElementById('authIdentifier').focus(), 100);
 }
 
 function closeAuthModal() {
   document.getElementById('authModalOverlay').classList.remove('open');
-  document.getElementById('authEmail').value = '';
-  document.getElementById('authPassword').value = '';
-  document.getElementById('authUsername').value = '';
-  document.getElementById('authError').style.display = 'none';
+  ['authIdentifier','authEmail','authPassword','authUsername'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('authError').style.display   = 'none';
   document.getElementById('authSuccess').style.display = 'none';
   const btn = document.getElementById('authSubmitBtn');
-  btn.disabled = false;
+  btn.disabled    = false;
   btn.textContent = authMode === 'login' ? 'Log in' : 'Create account';
 }
 
 function switchAuthTab(mode) {
   authMode = mode;
-  document.getElementById('loginTab').classList.toggle('active', mode === 'login');
+  document.getElementById('loginTab').classList.toggle('active',  mode === 'login');
   document.getElementById('signupTab').classList.toggle('active', mode === 'signup');
   document.getElementById('authSubmitBtn').textContent = mode === 'login' ? 'Log in' : 'Create account';
-  document.getElementById('authError').style.display = 'none';
+  document.getElementById('authError').style.display   = 'none';
   document.getElementById('authSuccess').style.display = 'none';
-  document.getElementById('usernameWrap').classList.toggle('hidden', mode === 'login');
-  // Update autocomplete hint for password field
+
+  // Toggle which fields are shown
+  document.getElementById('identifierWrap').classList.toggle('hidden',  mode === 'signup');
+  document.getElementById('signupEmailWrap').classList.toggle('hidden', mode === 'login');
+  document.getElementById('usernameWrap').classList.toggle('hidden',    mode === 'login');
+
   document.getElementById('authPassword').autocomplete = mode === 'login' ? 'current-password' : 'new-password';
 }
 
 function showAuthMsg(type, msg) {
-  const el = document.getElementById(type === 'error' ? 'authError' : 'authSuccess');
+  const el    = document.getElementById(type === 'error' ? 'authError' : 'authSuccess');
   const other = document.getElementById(type === 'error' ? 'authSuccess' : 'authError');
-  el.textContent = msg;
-  el.style.display = 'block';
+  el.textContent      = msg;
+  el.style.display    = 'block';
   other.style.display = 'none';
 }
 
+// ── USERNAME → EMAIL LOOKUP ──────────────────────────────
+// Supabase Auth requires an email to sign in. When the user types a
+// username we look it up in `profiles.email` to get the real email.
+async function resolveLoginEmail(identifier) {
+  if (identifier.includes('@')) return { email: identifier, error: null };
+  const { data, error } = await db
+    .from('profiles').select('email').eq('username', identifier).maybeSingle();
+  if (error || !data?.email) return { email: null, error: 'No account found with that username.' };
+  return { email: data.email, error: null };
+}
+
+// ── AUTH SUBMIT ──────────────────────────────────────────
 async function handleAuthSubmit() {
-  const email = document.getElementById('authEmail').value.trim();
-  const pass  = document.getElementById('authPassword').value;
-  const btn   = document.getElementById('authSubmitBtn');
+  const pass = document.getElementById('authPassword').value;
+  const btn  = document.getElementById('authSubmitBtn');
 
-  if (!email || !pass) { showAuthMsg('error', 'Please fill in both fields.'); return; }
-  if (pass.length < 6) { showAuthMsg('error', 'Password must be at least 6 characters.'); return; }
-
+  if (!pass || pass.length < 6) {
+    showAuthMsg('error', 'Password must be at least 6 characters.');
+    return;
+  }
   btn.disabled = true;
-  btn.textContent = authMode === 'login' ? 'Logging in…' : 'Creating account…';
 
+  // ── LOGIN ──
   if (authMode === 'login') {
+    const identifier = document.getElementById('authIdentifier').value.trim();
+    if (!identifier) {
+      showAuthMsg('error', 'Please enter your email or username.');
+      btn.disabled = false; return;
+    }
+    btn.textContent = 'Logging in…';
+
+    const { email, error: lookupError } = await resolveLoginEmail(identifier);
+    if (lookupError) {
+      showAuthMsg('error', lookupError);
+      btn.disabled = false; btn.textContent = 'Log in'; return;
+    }
+
     const { error } = await db.auth.signInWithPassword({ email, password: pass });
     if (error) {
       showAuthMsg('error', friendlyError(error.message));
-      btn.disabled = false; btn.textContent = 'Log in';
-      return;
+      btn.disabled = false; btn.textContent = 'Log in'; return;
     }
     closeAuthModal();
     showToast('Welcome back!', 'success');
+    return;
+  }
+
+  // ── SIGN UP ──
+  const email    = document.getElementById('authEmail').value.trim();
+  const username = document.getElementById('authUsername').value.trim();
+
+  if (!email)    { showAuthMsg('error', 'Please enter your email.'); btn.disabled = false; btn.textContent = 'Create account'; return; }
+  if (!username) { showAuthMsg('error', 'Please choose a username.'); btn.disabled = false; btn.textContent = 'Create account'; return; }
+  if (!/^[a-zA-Z0-9_]{3,20}$/.test(username)) {
+    showAuthMsg('error', 'Username: 3–20 chars, letters/numbers/underscores only.');
+    btn.disabled = false; btn.textContent = 'Create account'; return;
+  }
+  btn.textContent = 'Creating account…';
+
+  const { data: existing } = await db.from('profiles').select('id').eq('username', username).maybeSingle();
+  if (existing) {
+    showAuthMsg('error', 'Username already taken.');
+    btn.disabled = false; btn.textContent = 'Create account'; return;
+  }
+
+  const { data: signUpData, error } = await db.auth.signUp({
+    email, password: pass, options: { data: { username } }
+  });
+  if (error) {
+    showAuthMsg('error', friendlyError(error.message));
+    btn.disabled = false; btn.textContent = 'Create account'; return;
+  }
+
+  // Save email in profiles so username-login works after email confirmation
+  if (signUpData?.user) {
+    await db.from('profiles').upsert(
+      { id: signUpData.user.id, username, email },
+      { onConflict: 'id' }
+    );
+  }
+
+  if (signUpData?.session) {
+    closeAuthModal();
+    showToast('Account created! Welcome 🎉', 'success');
   } else {
-    const username = document.getElementById('authUsername').value.trim();
-    if (!username) { showAuthMsg('error', 'Please choose a username.'); btn.disabled = false; btn.textContent = 'Create account'; return; }
-    if (!/^[a-zA-Z0-9_]{3,20}$/.test(username)) { showAuthMsg('error', 'Username: 3–20 chars, letters/numbers/underscores only.'); btn.disabled = false; btn.textContent = 'Create account'; return; }
-
-    const { data: existing } = await db.from('profiles').select('id').eq('username', username).maybeSingle();
-    if (existing) { showAuthMsg('error', 'Username already taken.'); btn.disabled = false; btn.textContent = 'Create account'; return; }
-
-    const { data: signUpData, error } = await db.auth.signUp({
-      email, password: pass,
-      options: { data: { username } }
-    });
-
-    if (error) { showAuthMsg('error', friendlyError(error.message)); btn.disabled = false; btn.textContent = 'Create account'; return; }
-
-    if (signUpData?.session) {
-      closeAuthModal();
-      showToast('Account created! Welcome 🎉', 'success');
-    } else {
-      showAuthMsg('success', '✅ Check your email to confirm your account, then log in.');
-      btn.disabled = false; btn.textContent = 'Create account';
-    }
+    showAuthMsg('success', '✅ Check your email to confirm your account, then log in.');
+    btn.disabled = false; btn.textContent = 'Create account';
   }
 }
 
 function friendlyError(msg) {
   if (!msg) return 'Something went wrong. Please try again.';
   if (msg.includes('Invalid login credentials')) return 'Incorrect email or password.';
-  if (msg.includes('Email not confirmed')) return 'Please confirm your email before logging in.';
-  if (msg.includes('User already registered')) return 'An account with this email already exists.';
-  if (msg.includes('Password should be')) return 'Password must be at least 6 characters.';
+  if (msg.includes('Email not confirmed'))       return 'Please confirm your email before logging in.';
+  if (msg.includes('User already registered'))   return 'An account with this email already exists.';
+  if (msg.includes('Password should be'))        return 'Password must be at least 6 characters.';
   return msg;
 }
 
 // ── TOAST ────────────────────────────────────────────────
 let toastTimer = null;
 function showToast(msg, type = 'success') {
-  const existing = document.querySelector('.toast');
-  if (existing) existing.remove();
+  document.querySelector('.toast')?.remove();
   clearTimeout(toastTimer);
   const t = document.createElement('div');
   t.className = `toast ${type}`;
@@ -528,7 +572,7 @@ document.getElementById('themeToggle').addEventListener('change', e => {
 function timeAgo(ts) {
   const d = Date.now() - new Date(ts).getTime();
   const m = Math.floor(d/60000), h = Math.floor(d/3600000), dy = Math.floor(d/86400000), w = Math.floor(d/604800000);
-  if (m < 1) return 'just now';
+  if (m < 1)  return 'just now';
   if (m < 60) return `${m}m ago`;
   if (h < 24) return `${h}h ago`;
   if (dy < 7) return `${dy}d ago`;
@@ -554,7 +598,8 @@ function renderLatex(el) {
 // ── VOTE COUNTS ──────────────────────────────────────────
 async function fetchVoteCounts(ids, type) {
   if (!ids.length) return {};
-  const { data } = await db.from('vote_counts').select('target_id,upvotes,downvotes').eq('target_type',type).in('target_id',ids);
+  const { data } = await db.from('vote_counts')
+    .select('target_id,upvotes,downvotes').eq('target_type',type).in('target_id',ids);
   const map = {};
   (data||[]).forEach(v => { map[v.target_id]={upvotes:+v.upvotes,downvotes:+v.downvotes}; });
   return map;
@@ -583,7 +628,8 @@ async function loadRecent() {
     .limit(10);
 
   if (error) {
-    document.getElementById('recentList').innerHTML = `<div class="error-banner">Could not load questions: ${error.message}</div>`;
+    document.getElementById('recentList').innerHTML =
+      `<div class="error-banner">Could not load questions: ${error.message}</div>`;
     return;
   }
 
@@ -596,7 +642,10 @@ async function loadRecent() {
   }));
 
   const voteCounts = await fetchVoteCounts(questions.map(q=>q.id),'question');
-  questions.forEach(q=>{const v=voteCounts[q.id]||{upvotes:0,downvotes:0};q.upvotes=v.upvotes;q.downvotes=v.downvotes;});
+  questions.forEach(q=>{
+    const v = voteCounts[q.id]||{upvotes:0,downvotes:0};
+    q.upvotes=v.upvotes; q.downvotes=v.downvotes;
+  });
 
   const container = document.getElementById('recentList');
   if (!questions.length) {
@@ -609,10 +658,10 @@ async function loadRecent() {
 
 function questionCardHTML(q) {
   const score = q.upvotes - q.downvotes;
-  const sc = score>0?'positive':score<0?'negative':'';
-  const cat = q.tags[0]||'';
+  const sc    = score>0?'positive':score<0?'negative':'';
+  const cat   = q.tags[0]||'';
   const catData = Object.entries(CATEGORIES).find(([k])=>k===cat);
-  const page = catData?catData[1].page:'algebra.html';
+  const page  = catData?catData[1].page:'algebra.html';
   return `
   <a class="question-card" href="${page}?q=${q.id}">
     <div class="vote-col">
@@ -652,8 +701,7 @@ function clearSearch() {
 
 async function doSearch() {
   const query = document.getElementById('globalSearch').value.trim().toLowerCase();
-
-  const topicSection = document.getElementById('topicSection');
+  const topicSection  = document.getElementById('topicSection');
   const searchSection = document.getElementById('searchSection');
 
   if (!query) {
@@ -665,12 +713,10 @@ async function doSearch() {
   topicSection.classList.add('hidden');
   searchSection.classList.remove('hidden');
 
-  const listEl = document.getElementById('searchResultsList');
+  const listEl  = document.getElementById('searchResultsList');
   const titleEl = document.getElementById('searchResultsTitle');
-
   listEl.innerHTML = `<div class="loading-state"><div class="loading-spinner"></div>Searching...</div>`;
 
-  // ✅ cancel previous request
   if (searchController) searchController.abort();
   searchController = new AbortController();
 
@@ -686,35 +732,26 @@ async function doSearch() {
     if (error) throw error;
 
     let results = data.map(q => ({
-      id: q.id,
-      title: q.title,
-      about: q.about,
+      id: q.id, title: q.title, about: q.about,
       createdAt: timeAgo(q.created_at),
       tags: q.question_tags.map(qt => qt.tags?.name).filter(Boolean),
       intuitionCount: q.intuitions.length,
-      upvotes: 0,
-      downvotes: 0
+      upvotes: 0, downvotes: 0
     }));
 
     const voteCounts = await fetchVoteCounts(results.map(q => q.id), 'question');
-
     results.forEach(q => {
       const v = voteCounts[q.id] || { upvotes: 0, downvotes: 0 };
-      q.upvotes = v.upvotes;
-      q.downvotes = v.downvotes;
+      q.upvotes = v.upvotes; q.downvotes = v.downvotes;
     });
 
-    titleEl.innerHTML = `<strong>${results.length}</strong> result${results.length !== 1 ? 's' : ''} for "${query}"`;
+    titleEl.innerHTML = `<strong>${results.length}</strong> result${results.length!==1?'s':''} for "${query}"`;
 
     if (!results.length) {
       listEl.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🔍</div>No results</div>`;
       return;
     }
-
-    // ✅ USE ORIGINAL CARD RENDERER (CRITICAL)
     listEl.innerHTML = results.map(q => questionCardHTML(q)).join('');
-
-    // ✅ KEEP KaTeX rendering
     listEl.querySelectorAll('.katex-render').forEach(el => renderLatex(el));
 
   } catch (e) {
