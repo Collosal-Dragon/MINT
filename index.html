@@ -300,11 +300,20 @@ let katexReady = false;
 
 // ── BOOT: runs immediately on DOMContentLoaded, independent of KaTeX ─────────
 // KaTeX is loaded separately; page content must not block on it.
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   initTheme();
   renderTopicGrid();
   loadRecent();
-  updateAuthUI(); // show correct UI right away; auth state comes in via onAuthStateChange
+
+  // 🔥 FIX: hydrate session
+  const { data: { session } } = await db.auth.getSession();
+  currentUser = session?.user ?? null;
+
+  if (currentUser) {
+    await loadProfile(currentUser);
+  }
+
+  updateAuthUI();
 });
 
 // Called when KaTeX auto-render is ready — re-renders any math already in the DOM
@@ -349,10 +358,49 @@ async function loadProfile(user) {
   if (data) { currentProfile = data; updateAuthUI(); return; }
 
   // No profile yet — create one (handles Google sign-in first-time users)
-  const baseUsername = (user.user_metadata?.full_name || user.email.split('@')[0])
-    .replace(/[^a-zA-Z0-9_]/g, '_')
-    .slice(0, 16);
-  const fallbackUsername = baseUsername + '_' + Math.random().toString(36).slice(2, 6);
+  async function loadProfile(user) {
+  const { data, error } = await db
+    .from('profiles')
+    .select('username')
+    .eq('id', user.id)
+    .maybeSingle();
+
+  if (error) {
+    console.error('[profile fetch error]', error.message);
+    currentProfile = null;
+    return;
+  }
+
+  if (data) {
+    currentProfile = data;
+    updateAuthUI();
+    return;
+  }
+
+  // 🔥 USE USER-CHOSEN USERNAME FIRST
+  let username = user.user_metadata?.username;
+
+  // If OAuth or missing → fallback
+  if (!username) {
+    const base = user.email.split('@')[0].replace(/[^a-zA-Z0-9_]/g, '').slice(0, 12);
+    username = await createUniqueUsername(base);
+  }
+
+  const { data: inserted, error: insertError } = await db
+    .from('profiles')
+    .insert({ id: user.id, username })
+    .select('username')
+    .maybeSingle();
+
+  if (insertError) {
+    console.error('[profile insert error]', insertError.message);
+    currentProfile = { username: 'user' };
+  } else {
+    currentProfile = inserted;
+  }
+
+  updateAuthUI();
+}
 
   const { data: inserted, error: insertError } = await db
     .from('profiles')
@@ -399,7 +447,7 @@ async function handleGoogleSignIn() {
   const { error } = await db.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: window.location.origin + window.location.pathname,
+      redirectTo: window.location.origin,s
       queryParams: { access_type: 'offline', prompt: 'consent' },
     }
   });
