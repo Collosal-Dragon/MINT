@@ -66,6 +66,12 @@
   .btn-sm{padding:6px 12px;font-size:12.5px}
   .btn:disabled{opacity:.45;cursor:not-allowed;transform:none!important}
 
+  /* Google button */
+  .btn-google{background:var(--bg3);color:var(--text);border:1px solid var(--border2);width:100%;justify-content:center;padding:10px 16px;font-size:14px;border-radius:9px;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+  .btn-google:hover{background:var(--card-hover);border-color:var(--primary)}
+  .divider{display:flex;align-items:center;gap:10px;color:var(--text3);font-size:12px;margin:14px 0}
+  .divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+
   main{max-width:900px;margin:0 auto;padding:28px 24px}
 
   .loading-state{text-align:center;padding:48px;color:var(--text3)}
@@ -79,16 +85,17 @@
 
   .search-wrap{position:relative;margin-bottom:20px}
   .search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none}
-  .search-input{width:100%;padding:10px 12px 10px 38px;background:var(--bg2);border:1px solid var(--border);border-radius:9px;color:var(--text);font-family:var(--font-body);font-size:14px;outline:none;transition:border-color .15s}
+  .search-input{width:100%;padding:10px 36px 10px 38px;background:var(--bg2);border:1px solid var(--border);border-radius:9px;color:var(--text);font-family:var(--font-body);font-size:14px;outline:none;transition:border-color .15s}
   .search-input:focus{border-color:var(--primary)}
   .search-input::placeholder{color:var(--text3)}
+  .search-clear{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text3);cursor:pointer;padding:3px;border-radius:4px;display:flex;align-items:center}
+  .search-clear:hover{color:var(--text)}
 
   .tabs-list{display:flex;gap:4px;background:var(--bg2);border:1px solid var(--border);border-radius:9px;padding:4px;width:fit-content;margin-bottom:20px}
   .tab-btn{padding:7px 18px;border-radius:6px;border:none;font-family:var(--font-body);font-size:13.5px;font-weight:500;cursor:pointer;background:transparent;color:var(--text2);transition:all .15s}
   .tab-btn.active{background:var(--primary);color:#fff;box-shadow:0 2px 8px rgba(92,184,122,.3)}
   .tab-btn:not(.active):hover{background:var(--bg3);color:var(--text)}
 
-  /* TOPIC HEADER */
   .topic-header{padding:24px 0 16px;margin-bottom:4px;border-bottom:1px solid var(--border)}
   .topic-header-row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
   .topic-header-left{display:flex;align-items:center;gap:12px}
@@ -96,18 +103,15 @@
   .topic-name-big{font-family:var(--font-display);font-size:1.5rem;font-weight:700}
   .topic-desc-small{font-size:13.5px;color:var(--text2);margin-top:3px}
 
-  /* LAYOUT */
   .topic-layout{display:grid;grid-template-columns:200px 1fr;gap:20px;align-items:start;margin-top:20px}
   @media(max-width:680px){.topic-layout{grid-template-columns:1fr}}
 
-  /* SIDEBAR */
   .sidebar{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:14px;position:sticky;top:74px;box-shadow:var(--shadow)}
   .sidebar-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin-bottom:10px}
   .subtopic-btn{display:block;width:100%;text-align:left;padding:8px 10px;border-radius:7px;border:none;background:transparent;color:var(--text2);font-family:var(--font-body);font-size:13px;cursor:pointer;transition:all .15s;margin-bottom:2px}
   .subtopic-btn:hover{background:var(--bg3);color:var(--text)}
   .subtopic-btn.active{background:var(--primary);color:#fff}
 
-  /* QUESTION CARDS */
   .question-card{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:12px;cursor:pointer;transition:all .15s;box-shadow:var(--shadow);display:flex;overflow:hidden}
   .question-card:hover{background:var(--card-hover);border-color:var(--border2);transform:translateY(-1px);box-shadow:var(--shadow-lg)}
   .vote-col{display:flex;flex-direction:column;align-items:center;gap:4px;padding:18px 14px;min-width:58px;border-right:1px solid var(--border)}
@@ -128,7 +132,6 @@
   .tag-secondary{background:var(--badge2-bg);color:var(--badge2-text)}
   .card-meta{font-size:12px;color:var(--text3);margin-top:10px}
 
-  /* DETAIL */
   .back-btn{display:inline-flex;align-items:center;gap:6px;background:none;border:none;cursor:pointer;color:var(--text2);font-size:13.5px;font-family:var(--font-body);padding:6px 0;transition:color .15s;margin-bottom:16px}
   .back-btn:hover{color:var(--text)}
   .detail-card{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:24px;box-shadow:var(--shadow);overflow:hidden}
@@ -144,7 +147,6 @@
   .sort-btn.active{background:var(--primary);color:#fff;border-color:var(--primary)}
   .sort-btn:not(.active):hover{background:var(--bg3);color:var(--text)}
 
-  /* I-CARDS */
   .i-card{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:12px;box-shadow:var(--shadow);overflow:hidden}
   .i-card-inner{display:flex}
   .i-content{flex:1;padding:16px 18px;min-width:0}
@@ -168,7 +170,6 @@
   .comment-input:focus{border-color:var(--primary)}
   .comment-input::placeholder{color:var(--text3)}
 
-  /* FORMS */
   .form-card{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:22px 24px;box-shadow:var(--shadow);margin-top:24px}
   .form-title{font-family:var(--font-display);font-size:1.05rem;font-weight:600;margin-bottom:18px}
   .form-group{margin-bottom:16px}
@@ -191,7 +192,6 @@
   .empty-state{text-align:center;padding:48px 24px;color:var(--text3);font-size:14px}
   .empty-state-icon{font-size:32px;margin-bottom:12px}
 
-  /* MODALS */
   .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:200;align-items:center;justify-content:center;padding:24px}
   .modal-overlay.open{display:flex}
   .modal{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:28px 28px 24px;max-width:580px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg);animation:modalIn .2s ease}
@@ -210,6 +210,8 @@
   .tab-content{display:none}
   .tab-content.active{display:block}
   .q-count{font-size:12.5px;color:var(--text3);margin-bottom:12px}
+
+  @keyframes toastIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 
   @media(max-width:600px){
     .header-inner{padding:12px 16px}
@@ -230,12 +232,13 @@
     <div class="header-actions">
       <div class="theme-toggle">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-        <label class="switch"><input type="checkbox" id="themeToggle" checked /><span class="switch-track"></span><span class="switch-thumb"></span></label>
+        <!-- FIX: removed hardcoded checked; set correctly by initTheme() -->
+        <label class="switch"><input type="checkbox" id="themeToggle" /><span class="switch-track"></span><span class="switch-thumb"></span></label>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
       </div>
       <span class="user-badge hidden" id="userBadge"></span>
-      <button class="btn btn-ghost btn-sm" id="authBtn" onclick="openAuthModal()">Log in</button>
-      <button class="btn btn-primary btn-sm" onclick="openNewQModal()">
+      <button class="btn btn-ghost btn-sm" id="authBtn">Log in</button>
+      <button class="btn btn-primary btn-sm" id="postQuestionBtn">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         Post a Question
       </button>
@@ -264,23 +267,24 @@
   </div>
 
   <div class="topic-layout">
-    <!-- SIDEBAR -->
     <div class="sidebar">
       <div class="sidebar-title">Subtopics</div>
       <div id="subtopicList"></div>
     </div>
-
-    <!-- CONTENT -->
     <div>
       <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:16px">
+        <!-- FIX: type=text, autocomplete off, clear button, bound via JS -->
         <div class="search-wrap" style="flex:1;min-width:160px;margin-bottom:0">
           <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input class="search-input" id="questionSearch" placeholder="Search questions..." oninput="renderQuestions()" />
+          <input class="search-input" id="questionSearch" type="text" placeholder="Search questions..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+          <button class="search-clear hidden" id="searchClear" title="Clear">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
         </div>
         <div class="tabs-list" style="margin-bottom:0">
-          <button class="tab-btn active" data-sort="relevance" onclick="switchSort(this)">Relevance</button>
-          <button class="tab-btn" data-sort="recent" onclick="switchSort(this)">Recent</button>
-          <button class="tab-btn" data-sort="top" onclick="switchSort(this)">Top</button>
+          <button class="tab-btn active" data-sort="relevance">Relevance</button>
+          <button class="tab-btn" data-sort="recent">Recent</button>
+          <button class="tab-btn" data-sort="top">Top</button>
         </div>
       </div>
       <div class="q-count" id="qCount"></div>
@@ -291,7 +295,7 @@
 
 <!-- DETAIL VIEW -->
 <main id="detailView" style="display:none">
-  <button class="back-btn" onclick="goBack()">
+  <button class="back-btn" id="backBtn">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
     Back to Questions
   </button>
@@ -303,13 +307,13 @@
   </div>
   <div class="sort-bar">
     <div class="tabs-list">
-      <button class="tab-btn active" data-dtab="intuitions" onclick="switchDetailTab(this)">Intuitions (<span id="intCount">0</span>)</button>
-      <button class="tab-btn" data-dtab="takeaways" onclick="switchDetailTab(this)">Takeaways (<span id="takCount">0</span>)</button>
+      <button class="tab-btn active" data-dtab="intuitions">Intuitions (<span id="intCount">0</span>)</button>
+      <button class="tab-btn" data-dtab="takeaways">Takeaways (<span id="takCount">0</span>)</button>
     </div>
     <div class="sort-btns">
-      <button class="sort-btn active" data-dsort="relevance" onclick="switchDetailSort(this)">Relevance</button>
-      <button class="sort-btn" data-dsort="top" onclick="switchDetailSort(this)">Top</button>
-      <button class="sort-btn" data-dsort="recent" onclick="switchDetailSort(this)">Recent</button>
+      <button class="sort-btn active" data-dsort="relevance">Relevance</button>
+      <button class="sort-btn" data-dsort="top">Top</button>
+      <button class="sort-btn" data-dsort="recent">Recent</button>
     </div>
   </div>
   <div id="dtab-intuitions" class="tab-content active"></div>
@@ -318,11 +322,11 @@
 </main>
 
 <!-- NEW QUESTION MODAL -->
-<div class="modal-overlay" id="newQModal" onclick="if(event.target===this)closeNewQModal()">
+<div class="modal-overlay" id="newQModal">
   <div class="modal">
     <div class="modal-header">
       <div class="modal-title">Post a Question</div>
-      <div class="modal-subtitle">No account needed — questions are posted anonymously</div>
+      <div class="modal-subtitle">Share a problem whose intuition you'd like the community to unpack</div>
     </div>
     <div id="newQError"></div>
     <div class="form-group"><label class="form-label">Title</label>
@@ -332,41 +336,90 @@
     <div class="form-group"><label class="form-label">Sub-category (optional)</label>
       <select class="form-select" id="newQSub"><option value="">No sub-category</option></select></div>
     <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeNewQModal()">Cancel</button>
-      <button class="btn btn-primary" id="newQSubmitBtn" onclick="submitNewQuestion()">Post Question</button>
+      <button class="btn btn-ghost" id="newQCancelBtn">Cancel</button>
+      <button class="btn btn-primary" id="newQSubmitBtn">Post Question</button>
     </div>
   </div>
 </div>
 
 <!-- AUTH MODAL -->
-<div class="modal-overlay" id="authModalOverlay" onclick="if(event.target===this)closeAuthModal()">
+<div class="modal-overlay" id="authModalOverlay">
   <div class="modal" style="max-width:420px">
     <div class="modal-header">
       <div class="modal-title">Welcome</div>
       <div class="modal-subtitle">Log in or create an account to post intuitions and takeaways</div>
     </div>
+
+    <!-- FIX: Google sign-in -->
+    <button class="btn btn-google" id="googleSignInBtn">
+      <svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+      </svg>
+      Continue with Google
+    </button>
+    <div class="divider">or</div>
+
     <div class="auth-tabs">
-      <button class="auth-tab active" id="loginTab" onclick="switchAuthTab('login')">Log in</button>
-      <button class="auth-tab" id="signupTab" onclick="switchAuthTab('signup')">Sign up</button>
+      <button class="auth-tab active" id="loginTab">Log in</button>
+      <button class="auth-tab" id="signupTab">Sign up</button>
     </div>
-    <div id="authError"   style="color:var(--red);font-size:13px;margin-bottom:12px;display:none;padding:8px 12px;background:rgba(224,108,117,.1);border-radius:7px;border:1px solid var(--red)"></div>
-    <div id="authSuccess" style="color:var(--green);font-size:13px;margin-bottom:12px;display:none;padding:8px 12px;background:rgba(92,184,122,.1);border-radius:7px;border:1px solid var(--green)"></div>
-    <div class="form-group"><label class="form-label">Email</label>
-      <input class="form-input" id="authEmail" type="email" placeholder="you@example.com" /></div>
-    <div class="form-group"><label class="form-label">Password</label>
-      <input class="form-input" id="authPassword" type="password" placeholder="••••••••" /></div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeAuthModal()">Cancel</button>
-      <button class="btn btn-primary" id="authSubmitBtn" onclick="handleAuthSubmit()">Log in</button>
-    </div>
+
+    <!-- FIX: real <form> for autofill; single unique ids; correct autocomplete -->
+    <form id="authForm" autocomplete="on" onsubmit="return false;">
+      <div id="authError"   style="color:var(--red);font-size:13px;margin-bottom:12px;display:none;padding:8px 12px;background:rgba(224,108,117,.1);border-radius:7px;border:1px solid var(--red)"></div>
+      <div id="authSuccess" style="color:var(--green);font-size:13px;margin-bottom:12px;display:none;padding:8px 12px;background:rgba(92,184,122,.1);border-radius:7px;border:1px solid var(--green)"></div>
+      <div class="form-group">
+        <label class="form-label" for="authEmail">Email</label>
+        <input class="form-input" id="authEmail" name="email" type="email" placeholder="you@example.com" autocomplete="email" />
+      </div>
+      <div class="form-group hidden" id="usernameWrap">
+        <label class="form-label" for="authUsername">Username</label>
+        <input class="form-input" id="authUsername" name="username" type="text" placeholder="e.g. mathwiz42" autocomplete="username" />
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="authPassword">Password</label>
+        <!-- FIX: single id, no duplicate; autocomplete set via setAttribute -->
+        <input class="form-input" id="authPassword" name="password" type="password" placeholder="••••••••" autocomplete="current-password" />
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost" id="authCancelBtn">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="authSubmitBtn">Log in</button>
+      </div>
+    </form>
   </div>
 </div>
 
 <script>
+// ── SUPABASE ─────────────────────────────────────────────
+// Required Supabase Dashboard setup for Google OAuth:
+//   1. Auth → Providers → Google: enable, add Client ID + Secret
+//   2. Auth → URL Configuration → Site URL: https://math-intuitions.org
+//   3. Auth → URL Configuration → Redirect URLs, add ALL of:
+//        https://math-intuitions.org/
+//        https://math-intuitions.org/index.html
+//        https://math-intuitions.org/algebra
+//        https://math-intuitions.org/algebra.html
+//        https://math-intuitions.org/combinatorics.html
+//        https://math-intuitions.org/geometry.html
+//        https://math-intuitions.org/number-theory.html
 const SUPABASE_URL = 'https://idlrmpecdvsofaykphfe.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlkbHJtcGVjZHZzb2ZheWtwaGZlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMzk5NTAsImV4cCI6MjA4OTgxNTk1MH0.FWSllmspL4twQ1aF2q20---HmoLxBM1NqFnQ2OPOoUg';
 const { createClient } = supabase;
-const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+// FIX: persistSession + shared storageKey = login persists across all pages on the site
+//      detectSessionInUrl handles the OAuth redirect back from Google
+//      flowType:'pkce' is the modern, more reliable OAuth flow
+const db = createClient(SUPABASE_URL, SUPABASE_KEY, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true,
+    storageKey: 'math-intuitions-auth',
+    flowType: 'pkce',
+  }
+});
 
 const CATEGORIES = {
   'Algebra':      { icon:'𝑥', subs:['Exponents','Polynomials','Inequalities','AM-GM','Cauchy-Schwarz'], desc:'Expressions, equations, polynomials and algebraic structures' },
@@ -375,7 +428,6 @@ const CATEGORIES = {
   'Number Theory':{ icon:'ℕ', subs:['Divisibility','GCD/LCM','Modular Arithmetic','Primes'], desc:'Primes, divisibility, modular arithmetic and number systems' },
 };
 
-// detect topic from filename
 function detectTopic() {
   const f = window.location.pathname.split('/').pop().replace('.html','');
   const map = { algebra:'Algebra', combinatorics:'Combinatorics', geometry:'Geometry', 'number-theory':'Number Theory' };
@@ -384,37 +436,92 @@ function detectTopic() {
 const TOPIC_NAME = detectTopic();
 const TOPIC = CATEGORIES[TOPIC_NAME];
 
-// ── AUTH ─────────────────────────────────────────────────
+// ── AUTH ──────────────────────────────────────────────────
 let currentUser = null, currentProfile = null, authMode = 'login';
 
+// FIX: onAuthStateChange fires with INITIAL_SESSION on every page load when session exists,
+//      keeping the user logged in as long as storageKey matches across all pages.
 db.auth.onAuthStateChange(async (event, session) => {
   currentUser = session?.user ?? null;
   if (currentUser) {
-    const { data } = await db.from('profiles').select('username').eq('id', currentUser.id).single();
-    currentProfile = data;
-  } else { currentProfile = null; }
-  updateAuthUI();
+    await loadProfile(currentUser);
+  } else {
+    currentProfile = null;
+    updateAuthUI();
+  }
+  // FIX: handle SIGNED_IN regardless of whether modal was open (covers OAuth redirect)
+  if (event === 'SIGNED_IN') {
+    closeAuthModal();
+    showToast('Welcome back!', 'success');
+  }
   if (selectedQuestion) renderPostForm();
 });
+
+// FIX: loadProfile as a standalone function with first-time profile creation for Google users
+async function loadProfile(user) {
+  try {
+    const { data, error } = await db.from('profiles').select('username').eq('id', user.id).maybeSingle();
+    if (error) { console.error('[profile]', error.message); currentProfile = null; updateAuthUI(); return; }
+    if (data) { currentProfile = data; updateAuthUI(); return; }
+    // No profile yet — auto-create one (Google sign-in first time)
+    const base = (user.user_metadata?.full_name || user.user_metadata?.name || user.email.split('@')[0])
+      .replace(/[^a-zA-Z0-9_]/g, '_').slice(0, 16);
+    const uname = base + '_' + Math.random().toString(36).slice(2, 6);
+    const { data: ins, error: insErr } = await db.from('profiles').insert({ id: user.id, username: uname }).select('username').maybeSingle();
+    if (insErr) {
+      // Race condition: another tab may have created it already
+      const { data: retry } = await db.from('profiles').select('username').eq('id', user.id).maybeSingle();
+      currentProfile = retry ?? null;
+    } else {
+      currentProfile = ins;
+    }
+    updateAuthUI();
+  } catch(e) { console.error('[loadProfile]', e); }
+}
 
 function updateAuthUI() {
   const btn = document.getElementById('authBtn');
   const badge = document.getElementById('userBadge');
-  if (currentUser && currentProfile) {
-    btn.textContent = 'Log out'; btn.onclick = () => db.auth.signOut();
-    badge.textContent = currentProfile.username; badge.classList.remove('hidden');
+  if (!btn) return;
+  if (currentUser) {
+    const name = currentProfile?.username || currentUser.email?.split('@')[0] || 'You';
+    btn.textContent = 'Log out';
+    btn.onclick = () => db.auth.signOut().then(() => showToast('Logged out.', 'success'));
+    badge.textContent = name; badge.classList.remove('hidden');
   } else {
     btn.textContent = 'Log in'; btn.onclick = openAuthModal;
     badge.classList.add('hidden');
   }
 }
-function openAuthModal() { document.getElementById('authModalOverlay').classList.add('open'); switchAuthTab('login'); }
+
+// ── GOOGLE SIGN-IN ────────────────────────────────────────
+async function handleGoogleSignIn() {
+  // FIX: redirectTo must be whitelisted in Supabase → Auth → URL Configuration
+  const { error } = await db.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: window.location.origin + '/',
+      queryParams: { access_type: 'offline', prompt: 'consent' },
+    }
+  });
+  if (error) showToast('Google sign-in failed: ' + error.message, 'error');
+}
+
+// ── AUTH MODAL ────────────────────────────────────────────
+function openAuthModal() {
+  document.getElementById('authModalOverlay').classList.add('open');
+  switchAuthTab('login');
+  setTimeout(() => document.getElementById('authEmail').focus(), 100);
+}
 function closeAuthModal() {
   document.getElementById('authModalOverlay').classList.remove('open');
-  document.getElementById('authEmail').value = '';
-  document.getElementById('authPassword').value = '';
+  // FIX: form.reset() properly clears fields and browser autofill state
+  document.getElementById('authForm').reset();
   document.getElementById('authError').style.display = 'none';
   document.getElementById('authSuccess').style.display = 'none';
+  const btn = document.getElementById('authSubmitBtn');
+  btn.disabled = false;
+  btn.textContent = authMode === 'login' ? 'Log in' : 'Create account';
 }
 function switchAuthTab(mode) {
   authMode = mode;
@@ -423,6 +530,10 @@ function switchAuthTab(mode) {
   document.getElementById('authSubmitBtn').textContent = mode === 'login' ? 'Log in' : 'Create account';
   document.getElementById('authError').style.display = 'none';
   document.getElementById('authSuccess').style.display = 'none';
+  const uw = document.getElementById('usernameWrap');
+  if (uw) uw.classList.toggle('hidden', mode === 'login');
+  // FIX: setAttribute on the actual input (not JS property assignment)
+  document.getElementById('authPassword').setAttribute('autocomplete', mode === 'login' ? 'current-password' : 'new-password');
 }
 function showAuthMsg(type, msg) {
   const el = document.getElementById(type === 'error' ? 'authError' : 'authSuccess');
@@ -437,18 +548,46 @@ async function handleAuthSubmit() {
   if (pass.length < 6) { showAuthMsg('error','Password must be at least 6 characters.'); return; }
   btn.disabled = true; btn.textContent = authMode === 'login' ? 'Logging in...' : 'Creating account...';
   if (authMode === 'login') {
+    // FIX: friendlyError instead of raw Supabase messages
     const { error } = await db.auth.signInWithPassword({ email, password: pass });
-    if (error) { showAuthMsg('error', error.message); btn.disabled = false; btn.textContent = 'Log in'; return; }
+    if (error) { showAuthMsg('error', friendlyError(error.message)); btn.disabled = false; btn.textContent = 'Log in'; return; }
     closeAuthModal();
   } else {
-    const { error } = await db.auth.signUp({ email, password: pass });
-    if (error) { showAuthMsg('error', error.message); btn.disabled = false; btn.textContent = 'Create account'; return; }
-    showAuthMsg('success','✅ Check your email to confirm, then log in.');
-    btn.disabled = false; btn.textContent = 'Create account';
+    const username = document.getElementById('authUsername')?.value.trim();
+    if (!username) { showAuthMsg('error','Please choose a username.'); btn.disabled = false; btn.textContent = 'Create account'; return; }
+    if (!/^[a-zA-Z0-9_]{3,20}$/.test(username)) { showAuthMsg('error','Username: 3–20 chars, letters/numbers/underscores only.'); btn.disabled = false; btn.textContent = 'Create account'; return; }
+    const { data: existing } = await db.from('profiles').select('id').eq('username', username).maybeSingle();
+    if (existing) { showAuthMsg('error','Username already taken.'); btn.disabled = false; btn.textContent = 'Create account'; return; }
+    const { data: sd, error } = await db.auth.signUp({ email, password: pass, options: { data: { username } } });
+    if (error) { showAuthMsg('error', friendlyError(error.message)); btn.disabled = false; btn.textContent = 'Create account'; return; }
+    if (sd?.session) { closeAuthModal(); }
+    else { showAuthMsg('success','✅ Check your email to confirm, then log in.'); btn.disabled = false; btn.textContent = 'Create account'; }
   }
 }
+function friendlyError(msg) {
+  if (!msg) return 'Something went wrong. Please try again.';
+  if (msg.includes('Invalid login credentials')) return 'Incorrect email or password.';
+  if (msg.includes('Email not confirmed')) return 'Please confirm your email before logging in.';
+  if (msg.includes('User already registered')) return 'An account with this email already exists.';
+  if (msg.includes('Password should be')) return 'Password must be at least 6 characters.';
+  return msg;
+}
 
-// ── THEME ────────────────────────────────────────────────
+// ── TOAST ─────────────────────────────────────────────────
+let toastTimer = null;
+function showToast(msg, type = 'success') {
+  const existing = document.querySelector('.toast');
+  if (existing) existing.remove();
+  clearTimeout(toastTimer);
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.style.cssText = `position:fixed;bottom:24px;right:24px;z-index:999;background:var(--bg2);border:1px solid ${type==='success'?'var(--green)':'var(--red)'};border-radius:10px;padding:12px 18px;font-size:13.5px;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:10px;animation:toastIn .25s ease;max-width:340px;color:${type==='success'?'var(--green)':'var(--red)'}`;
+  t.innerHTML = `<span>${type === 'success' ? '✓' : '✕'}</span> ${msg}`;
+  document.body.appendChild(t);
+  toastTimer = setTimeout(() => t.remove(), 3500);
+}
+
+// ── THEME ─────────────────────────────────────────────────
 function initTheme() {
   const t = localStorage.getItem('theme') || 'dark';
   document.documentElement.className = t;
@@ -459,7 +598,7 @@ document.getElementById('themeToggle').addEventListener('change', e => {
   document.documentElement.className = t; localStorage.setItem('theme', t);
 });
 
-// ── HELPERS ──────────────────────────────────────────────
+// ── HELPERS ───────────────────────────────────────────────
 function timeAgo(ts) {
   const d=Date.now()-new Date(ts).getTime(),m=Math.floor(d/60000),h=Math.floor(d/3600000),dy=Math.floor(d/86400000),w=Math.floor(d/604800000);
   if(m<1)return'just now';if(m<60)return`${m}m ago`;if(h<24)return`${h}h ago`;if(dy<7)return`${dy}d ago`;return`${w}w ago`;
@@ -475,41 +614,115 @@ function renderLatex(el) {
 function isValidURL(s){try{new URL(s);return true;}catch{return false;}}
 function getParam(name){return new URLSearchParams(window.location.search).get(name);}
 
+// FIX: vote_counts wrapped in try/catch — page loads fine even if view is missing
 async function fetchVoteCounts(ids, type) {
   if(!ids.length) return {};
-  const { data } = await db.from('vote_counts').select('target_id,upvotes,downvotes').eq('target_type',type).in('target_id',ids);
-  const map={};(data||[]).forEach(v=>{map[v.target_id]={upvotes:+v.upvotes,downvotes:+v.downvotes};});return map;
+  try {
+    const { data, error } = await db.from('vote_counts').select('target_id,upvotes,downvotes').eq('target_type',type).in('target_id',ids);
+    if(error){ console.warn('[vote_counts]', error.message); return {}; }
+    const map={};(data||[]).forEach(v=>{map[v.target_id]={upvotes:+v.upvotes,downvotes:+v.downvotes};});return map;
+  } catch(e){ console.warn('[vote_counts]', e); return {}; }
 }
 
-// ── STATE ────────────────────────────────────────────────
+// ── STATE ─────────────────────────────────────────────────
 let questions=[],intuitions={},takeaways={};
 let questionVotes={},intuitionVotes={},takeawayVotes={};
 let selectedQuestion=null,activeSubtopic=null,currentSort='relevance',currentDetailTab='intuitions',currentDetailSort='relevance';
 let idCounter=1000;
 const formState={statement:'',explanation:'',explanationLinks:[],exampleLink:'',exampleExplanation:'',takeawayContent:'',takeawayLinks:[]};
 
-// ── BOOT ─────────────────────────────────────────────────
+// ── BOOT ──────────────────────────────────────────────────
+// FIX: all event listeners bound here, not as inline onclick attrs
+function bindEvents() {
+  // Auth modal
+  document.getElementById('authModalOverlay').addEventListener('click', e => { if(e.target===e.currentTarget) closeAuthModal(); });
+  document.getElementById('googleSignInBtn').addEventListener('click', handleGoogleSignIn);
+  document.getElementById('loginTab').addEventListener('click', () => switchAuthTab('login'));
+  document.getElementById('signupTab').addEventListener('click', () => switchAuthTab('signup'));
+  document.getElementById('authCancelBtn').addEventListener('click', closeAuthModal);
+  document.getElementById('authBtn').addEventListener('click', openAuthModal);
+  // FIX: form submit = Enter key works + browser can trigger autofill submit
+  document.getElementById('authForm').addEventListener('submit', e => {
+    e.preventDefault();
+    if (!document.getElementById('authSubmitBtn').disabled) handleAuthSubmit();
+  });
+
+  // New question modal
+  document.getElementById('newQModal').addEventListener('click', e => { if(e.target===e.currentTarget) closeNewQModal(); });
+  document.getElementById('newQCancelBtn').addEventListener('click', closeNewQModal);
+  document.getElementById('newQSubmitBtn').addEventListener('click', submitNewQuestion);
+  document.getElementById('postQuestionBtn').addEventListener('click', openNewQModal);
+
+  // Back button
+  document.getElementById('backBtn').addEventListener('click', goBack);
+
+  // Sort tabs (list view)
+  document.querySelectorAll('.tab-btn[data-sort]').forEach(btn => {
+    btn.addEventListener('click', () => switchSort(btn));
+  });
+
+  // Detail tabs
+  document.querySelectorAll('.tab-btn[data-dtab]').forEach(btn => {
+    btn.addEventListener('click', () => switchDetailTab(btn));
+  });
+
+  // Detail sort
+  document.querySelectorAll('.sort-btn[data-dsort]').forEach(btn => {
+    btn.addEventListener('click', () => switchDetailSort(btn));
+  });
+
+  // FIX: search bound via addEventListener; clear button dispatches 'input' so state is consistent
+  const searchInput = document.getElementById('questionSearch');
+  const searchClear = document.getElementById('searchClear');
+  searchInput.addEventListener('input', () => {
+    searchClear.classList.toggle('hidden', !searchInput.value);
+    renderQuestions();
+  });
+  searchClear.addEventListener('click', () => {
+    searchInput.value = '';
+    searchInput.dispatchEvent(new Event('input'));
+    searchInput.focus();
+  });
+
+  // Keyboard shortcuts
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      if (document.getElementById('authModalOverlay').classList.contains('open')) closeAuthModal();
+      else if (document.getElementById('newQModal').classList.contains('open')) closeNewQModal();
+      else if (searchInput.value) { searchInput.value = ''; searchInput.dispatchEvent(new Event('input')); }
+    }
+  });
+
+  window.addEventListener('popstate', () => { if(!getParam('q')) goBack(); });
+}
+
 async function boot() {
   initTheme();
-  // Set topic info
+  bindEvents();
   document.title = `${TOPIC_NAME} — Math Olympiad Forum`;
   document.getElementById('topicIcon').textContent = TOPIC.icon;
   document.getElementById('topicName').textContent = TOPIC_NAME;
   document.getElementById('topicDesc').textContent = TOPIC.desc;
   document.getElementById('breadcrumbCurrent').textContent = TOPIC_NAME;
-  // Setup subtopics
+
   const subList = document.getElementById('subtopicList');
   const subSel  = document.getElementById('newQSub');
-  subList.innerHTML = `<button class="subtopic-btn active" onclick="setSubtopic(null,this)">All Questions</button>` +
-    TOPIC.subs.map(s=>`<button class="subtopic-btn" onclick="setSubtopic('${s}',this)">${s}</button>`).join('');
+  subList.innerHTML = `<button class="subtopic-btn active" data-sub="">All Questions</button>` +
+    TOPIC.subs.map(s=>`<button class="subtopic-btn" data-sub="${s}">${s}</button>`).join('');
+  // FIX: bind subtopic buttons via JS
+  subList.querySelectorAll('.subtopic-btn').forEach(btn => {
+    btn.addEventListener('click', () => setSubtopic(btn.dataset.sub || null, btn));
+  });
   TOPIC.subs.forEach(s => { const o=document.createElement('option');o.value=s;o.textContent=s;subSel.appendChild(o); });
+
   await loadQuestions();
   const qParam = getParam('q');
   if (qParam) { const q=questions.find(x=>x.id===qParam); if(q) openQuestion(q.id); }
 }
 
+// FIX: onKatex() is the entry point called by KaTeX's onload
 function onKatex() { boot(); }
-if (document.readyState !== 'loading') { if (window.renderMathInElement) boot(); }
+if (document.readyState !== 'loading' && window.renderMathInElement) boot();
 
 function setSubtopic(name, btn) {
   activeSubtopic = name;
@@ -518,36 +731,42 @@ function setSubtopic(name, btn) {
   renderQuestions();
 }
 
-// ── LOAD QUESTIONS ────────────────────────────────────────
+// ── LOAD QUESTIONS ─────────────────────────────────────────
 async function loadQuestions() {
   document.getElementById('questionsList').innerHTML = `<div class="loading-state"><div class="loading-spinner"></div>Loading questions...</div>`;
-  const { data: tagData, error: tagError } = await db.from('tags').select('id,name').eq('category', TOPIC_NAME);
-  if (tagError) { document.getElementById('questionsList').innerHTML=`<div class="error-banner">Error: ${tagError.message}</div>`; return; }
-  if (!tagData||!tagData.length) { questions=[]; renderQuestions(); return; }
-  const { data: qtData, error: qtError } = await db.from('question_tags').select('question_id').in('tag_id', tagData.map(t=>t.id));
-  if (qtError) { document.getElementById('questionsList').innerHTML=`<div class="error-banner">Error: ${qtError.message}</div>`; return; }
-  if (!qtData||!qtData.length) { questions=[]; renderQuestions(); return; }
-  const qIds = [...new Set(qtData.map(qt=>qt.question_id))];
-  const { data, error } = await db.from('questions')
-    .select('id,title,about,created_at,question_tags(tags(name,category)),intuitions(id),takeaways(id)')
-    .in('id',qIds).order('created_at',{ascending:false});
-  if (error) { document.getElementById('questionsList').innerHTML=`<div class="error-banner">Error: ${error.message}</div>`; return; }
-  questions = data.map(q=>({
-    id:q.id,title:q.title,about:q.about,
-    createdAt:timeAgo(q.created_at),createdAtRaw:q.created_at,
-    tags:q.question_tags.map(qt=>qt.tags?.name).filter(Boolean),
-    intuitionCount:q.intuitions.length,takeawayCount:q.takeaways.length,upvotes:0,downvotes:0,
-  }));
-  const voteCounts = await fetchVoteCounts(qIds,'question');
-  questions.forEach(q=>{const v=voteCounts[q.id]||{upvotes:0,downvotes:0};q.upvotes=+v.upvotes;q.downvotes=+v.downvotes;});
-  if (currentUser) {
-    const { data: vd } = await db.from('votes').select('target_id,direction').eq('user_id',currentUser.id).eq('target_type','question').in('target_id',qIds);
-    (vd||[]).forEach(v=>{questionVotes[v.target_id]=v.direction;});
+  try {
+    const { data: tagData, error: tagError } = await db.from('tags').select('id,name').eq('category', TOPIC_NAME);
+    if (tagError) { document.getElementById('questionsList').innerHTML=`<div class="error-banner">Error: ${tagError.message}</div>`; return; }
+    if (!tagData||!tagData.length) { questions=[]; renderQuestions(); return; }
+    const { data: qtData, error: qtError } = await db.from('question_tags').select('question_id').in('tag_id', tagData.map(t=>t.id));
+    if (qtError) { document.getElementById('questionsList').innerHTML=`<div class="error-banner">Error: ${qtError.message}</div>`; return; }
+    if (!qtData||!qtData.length) { questions=[]; renderQuestions(); return; }
+    const qIds = [...new Set(qtData.map(qt=>qt.question_id))];
+    const { data, error } = await db.from('questions')
+      .select('id,title,about,created_at,question_tags(tags(name,category)),intuitions(id),takeaways(id)')
+      .in('id',qIds).order('created_at',{ascending:false});
+    if (error) { document.getElementById('questionsList').innerHTML=`<div class="error-banner">Error: ${error.message}</div>`; return; }
+    // FIX: safe null-coalescing on all array accesses
+    questions = (data||[]).map(q=>({
+      id:q.id,title:q.title,about:q.about,
+      createdAt:timeAgo(q.created_at),createdAtRaw:q.created_at,
+      tags:(q.question_tags||[]).map(qt=>qt.tags?.name).filter(Boolean),
+      intuitionCount:(q.intuitions||[]).length,takeawayCount:(q.takeaways||[]).length,upvotes:0,downvotes:0,
+    }));
+    const voteCounts = await fetchVoteCounts(qIds,'question');
+    questions.forEach(q=>{const v=voteCounts[q.id]||{upvotes:0,downvotes:0};q.upvotes=+v.upvotes;q.downvotes=+v.downvotes;});
+    if (currentUser) {
+      const { data: vd } = await db.from('votes').select('target_id,direction').eq('user_id',currentUser.id).eq('target_type','question').in('target_id',qIds);
+      (vd||[]).forEach(v=>{questionVotes[v.target_id]=v.direction;});
+    }
+    renderQuestions();
+  } catch(e) {
+    console.error('[loadQuestions]', e);
+    document.getElementById('questionsList').innerHTML=`<div class="error-banner">Failed to load questions. Please refresh.</div>`;
   }
-  renderQuestions();
 }
 
-// ── SORT & RENDER ─────────────────────────────────────────
+// ── SORT & RENDER ──────────────────────────────────────────
 function switchSort(btn) {
   document.querySelectorAll('.tab-btn[data-sort]').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active'); currentSort=btn.dataset.sort; renderQuestions();
@@ -563,7 +782,7 @@ function renderQuestions() {
   const q=document.getElementById('questionSearch').value.trim().toLowerCase();
   const filtered=questions.filter(x=>{
     const matchSub=!activeSubtopic||x.tags.includes(activeSubtopic);
-    const matchQ=!q||x.title.toLowerCase().includes(q)||x.about.toLowerCase().includes(q)||x.tags.some(t=>t.toLowerCase().includes(q));
+    const matchQ=!q||x.title.toLowerCase().includes(q)||(x.about||'').toLowerCase().includes(q)||x.tags.some(t=>t.toLowerCase().includes(q));
     return matchSub&&matchQ;
   });
   const sorted=sortItems(filtered,currentSort);
@@ -572,17 +791,24 @@ function renderQuestions() {
   if(!sorted.length){container.innerHTML=`<div class="empty-state"><div class="empty-state-icon">💭</div>No questions yet${activeSubtopic?` in ${activeSubtopic}`:''}. Be the first!</div>`;return;}
   container.innerHTML=sorted.map(q=>questionCardHTML(q)).join('');
   container.querySelectorAll('.katex-render').forEach(el=>renderLatex(el));
+  // FIX: bind card clicks and vote buttons via JS (not inline onclick)
+  container.querySelectorAll('.question-card').forEach(card => {
+    card.addEventListener('click', () => openQuestion(card.dataset.qid));
+  });
+  container.querySelectorAll('.vote-btn[data-vid]').forEach(btn => {
+    btn.addEventListener('click', e => { e.stopPropagation(); handleVote(btn.dataset.vid, btn.dataset.vdir, 'q'); });
+  });
 }
 function questionCardHTML(q) {
   const score=q.upvotes-q.downvotes,vu=questionVotes[q.id];
   const sc=score>0?'positive':score<0?'negative':'';
-  return `<div class="question-card" onclick="openQuestion('${q.id}')">
+  return `<div class="question-card" data-qid="${q.id}">
     <div class="vote-col">
-      <button class="vote-btn ${vu==='up'?'voted-up':''}" onclick="event.stopPropagation();handleVote('${q.id}','up','q')">
+      <button class="vote-btn ${vu==='up'?'voted-up':''}" data-vid="${q.id}" data-vdir="up">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="${vu==='up'?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M7 11l5-5 5 5M7 17l5-5 5 5"/></svg>
       </button>
       <span class="vote-score ${sc}">${score}</span>
-      <button class="vote-btn ${vu==='down'?'voted-down':''}" onclick="event.stopPropagation();handleVote('${q.id}','down','q')">
+      <button class="vote-btn ${vu==='down'?'voted-down':''}" data-vid="${q.id}" data-vdir="down">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="${vu==='down'?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M7 7l5 5 5-5M7 13l5 5 5-5"/></svg>
       </button>
       <div class="intuition-count">
@@ -599,7 +825,7 @@ function questionCardHTML(q) {
   </div>`;
 }
 
-// ── DETAIL VIEW ───────────────────────────────────────────
+// ── DETAIL VIEW ────────────────────────────────────────────
 async function openQuestion(id) {
   selectedQuestion=questions.find(q=>q.id===id);
   document.getElementById('listView').style.display='none';
@@ -620,7 +846,6 @@ function goBack() {
   history.pushState({},'',window.location.pathname);
   loadQuestions();
 }
-window.addEventListener('popstate',()=>{if(!getParam('q'))goBack();});
 
 async function loadDetailItems(qid) {
   const [{data:intData},{data:takData}] = await Promise.all([
@@ -643,20 +868,32 @@ function renderDetailHeader() {
   const q=selectedQuestion,score=q.upvotes-q.downvotes,vu=questionVotes[q.id];
   const sc=score>0?'positive':score<0?'negative':'';
   document.getElementById('detailVoteCol').innerHTML=`
-    <button class="vote-btn ${vu==='up'?'voted-up':''}" onclick="handleVote('${q.id}','up','q')"><svg width="22" height="22" viewBox="0 0 24 24" fill="${vu==='up'?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M7 11l5-5 5 5M7 17l5-5 5 5"/></svg></button>
+    <button class="vote-btn ${vu==='up'?'voted-up':''}" id="dvUp"><svg width="22" height="22" viewBox="0 0 24 24" fill="${vu==='up'?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M7 11l5-5 5 5M7 17l5-5 5 5"/></svg></button>
     <span class="vote-score ${sc}" style="font-size:18px">${score}</span>
-    <button class="vote-btn ${vu==='down'?'voted-down':''}" onclick="handleVote('${q.id}','down','q')"><svg width="22" height="22" viewBox="0 0 24 24" fill="${vu==='down'?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M7 7l5 5 5-5M7 13l5 5 5-5"/></svg></button>
+    <button class="vote-btn ${vu==='down'?'voted-down':''}" id="dvDown"><svg width="22" height="22" viewBox="0 0 24 24" fill="${vu==='down'?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M7 7l5 5 5-5M7 13l5 5 5-5"/></svg></button>
     <div class="intuition-count" style="flex-direction:column;gap:2px;margin-top:8px;text-align:center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 1 7 7c0 2.5-1.3 4.7-3.3 6l-.7.6V18H9v-2.4l-.7-.6A7 7 0 0 1 12 2z"/></svg><span>${(intuitions[q.id]||[]).length}</span></div>`;
+  // FIX: bind via JS not inline onclick
+  document.getElementById('dvUp').addEventListener('click', () => handleVote(q.id,'up','q'));
+  document.getElementById('dvDown').addEventListener('click', () => handleVote(q.id,'down','q'));
   document.getElementById('detailContent').innerHTML=`
     <div class="detail-title katex-render">${processText(q.title)}</div>
     <div class="detail-about"><strong>About:</strong> <span class="katex-render">${processText(q.about)}</span></div>
     <div class="tags" style="margin:12px 0">${q.tags.map((t,i)=>`<span class="tag ${i===0?'tag-primary':'tag-secondary'}">${t}</span>`).join('')}</div>
     <div class="detail-meta">${q.createdAt} · ${q.upvotes} up · ${q.downvotes} down</div>`;
-  document.querySelectorAll('.katex-render').forEach(el=>renderLatex(el));
+  document.querySelectorAll('#detailContent .katex-render').forEach(el=>renderLatex(el));
 }
 
-function switchDetailTab(btn){document.querySelectorAll('.tab-btn[data-dtab]').forEach(b=>b.classList.remove('active'));btn.classList.add('active');currentDetailTab=btn.dataset.dtab;document.querySelectorAll('[id^="dtab-"]').forEach(c=>c.classList.remove('active'));document.getElementById('dtab-'+currentDetailTab).classList.add('active');renderPostForm();}
-function switchDetailSort(btn){document.querySelectorAll('.sort-btn[data-dsort]').forEach(b=>b.classList.remove('active'));btn.classList.add('active');currentDetailSort=btn.dataset.dsort;renderDetailItems();}
+function switchDetailTab(btn){
+  document.querySelectorAll('.tab-btn[data-dtab]').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');currentDetailTab=btn.dataset.dtab;
+  document.querySelectorAll('[id^="dtab-"]').forEach(c=>c.classList.remove('active'));
+  document.getElementById('dtab-'+currentDetailTab).classList.add('active');
+  renderPostForm();
+}
+function switchDetailSort(btn){
+  document.querySelectorAll('.sort-btn[data-dsort]').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');currentDetailSort=btn.dataset.dsort;renderDetailItems();
+}
 
 function renderDetailItems() {
   if(!selectedQuestion)return;
@@ -667,9 +904,16 @@ function renderDetailItems() {
   const ic=document.getElementById('dtab-intuitions'),si=sortItems(intList,currentDetailSort);
   ic.innerHTML=si.length?si.map(i=>intuitionCardHTML(i)).join(''):`<div class="empty-state"><div class="empty-state-icon">💡</div>No intuitions yet. Be the first!</div>`;
   ic.querySelectorAll('.katex-render').forEach(el=>renderLatex(el));
+  // FIX: bind i-card vote buttons via JS
+  ic.querySelectorAll('.vote-btn[data-vid]').forEach(btn => {
+    btn.addEventListener('click', () => handleVote(btn.dataset.vid, btn.dataset.vdir, 'i'));
+  });
   const tc=document.getElementById('dtab-takeaways'),st=sortItems(takList,currentDetailSort);
   tc.innerHTML=st.length?st.map(t=>takeawayCardHTML(t)).join(''):`<div class="empty-state"><div class="empty-state-icon">📝</div>No takeaways yet. Share what you learned!</div>`;
   tc.querySelectorAll('.katex-render').forEach(el=>renderLatex(el));
+  tc.querySelectorAll('.vote-btn[data-vid]').forEach(btn => {
+    btn.addEventListener('click', () => handleVote(btn.dataset.vid, btn.dataset.vdir, 't'));
+  });
   renderDetailHeader();
 }
 
@@ -682,25 +926,25 @@ function intuitionCardHTML(item) {
   const cHTML=(item.comments||[]).map(c=>`<div class="comment-item"><div class="comment-text">${processText(c.text)}</div><div class="comment-meta">${c.author} · ${c.createdAt}</div></div>`).join('');
   return `<div class="i-card" id="icard-${item.id}"><div class="i-card-inner">
     <div class="vote-col">
-      <button class="vote-btn ${vu==='up'?'voted-up':''}" onclick="handleVote('${item.id}','up','i')"><svg width="18" height="18" viewBox="0 0 24 24" fill="${vu==='up'?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M7 11l5-5 5 5M7 17l5-5 5 5"/></svg></button>
+      <button class="vote-btn ${vu==='up'?'voted-up':''}" data-vid="${item.id}" data-vdir="up"><svg width="18" height="18" viewBox="0 0 24 24" fill="${vu==='up'?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M7 11l5-5 5 5M7 17l5-5 5 5"/></svg></button>
       <span class="vote-score ${sc}">${score}</span>
-      <button class="vote-btn ${vu==='down'?'voted-down':''}" onclick="handleVote('${item.id}','down','i')"><svg width="18" height="18" viewBox="0 0 24 24" fill="${vu==='down'?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M7 7l5 5 5-5M7 13l5 5 5-5"/></svg></button>
+      <button class="vote-btn ${vu==='down'?'voted-down':''}" data-vid="${item.id}" data-vdir="down"><svg width="18" height="18" viewBox="0 0 24 24" fill="${vu==='down'?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M7 7l5 5 5-5M7 13l5 5 5-5"/></svg></button>
     </div>
     <div class="i-content">
       <div class="i-label">Intuition</div>
       <div class="i-statement katex-render">${processText(item.statement)}</div>
       <div class="i-label">Explanation</div>
       <div class="i-explanation katex-render" id="iexp-${item.id}">${processText(disp)}</div>
-      ${trunc?`<button class="btn-link" onclick="toggleExpand('${item.id}','i')" id="iexpbtn-${item.id}">Show more</button>`:''}
+      ${trunc?`<button class="btn-link" id="iexpbtn-${item.id}">Show more</button>`:''}
       ${linksHTML}${exHTML}
       <div class="i-footer">
         <span>By ${item.author} · ${item.createdAt} · ${item.upvotes} up · ${item.downvotes} down</span>
-        <button class="comment-btn" onclick="toggleComments('${item.id}','i')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>${cc} comment${cc!==1?'s':''}</button>
+        <button class="comment-btn" data-cid="${item.id}" data-ctype="i"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>${cc} comment${cc!==1?'s':''}</button>
       </div>
     </div>
   </div>
   <div class="comments-section" id="comments-i-${item.id}">${cHTML}
-    <div class="comment-form"><textarea class="comment-input" id="ctext-i-${item.id}" placeholder="Add a comment..."></textarea><button class="btn btn-primary btn-sm" onclick="addComment('${item.id}','i')">Post</button></div>
+    <div class="comment-form"><textarea class="comment-input" id="ctext-i-${item.id}" placeholder="Add a comment..."></textarea><button class="btn btn-primary btn-sm" data-postid="${item.id}" data-posttype="i">Post</button></div>
   </div></div>`;
 }
 
@@ -712,27 +956,40 @@ function takeawayCardHTML(item) {
   const cHTML=(item.comments||[]).map(c=>`<div class="comment-item"><div class="comment-text">${processText(c.text)}</div><div class="comment-meta">${c.author} · ${c.createdAt}</div></div>`).join('');
   return `<div class="i-card" id="tcard-${item.id}"><div class="i-card-inner">
     <div class="vote-col">
-      <button class="vote-btn ${vu==='up'?'voted-up':''}" onclick="handleVote('${item.id}','up','t')"><svg width="18" height="18" viewBox="0 0 24 24" fill="${vu==='up'?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M7 11l5-5 5 5M7 17l5-5 5 5"/></svg></button>
+      <button class="vote-btn ${vu==='up'?'voted-up':''}" data-vid="${item.id}" data-vdir="up"><svg width="18" height="18" viewBox="0 0 24 24" fill="${vu==='up'?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M7 11l5-5 5 5M7 17l5-5 5 5"/></svg></button>
       <span class="vote-score ${sc}">${score}</span>
-      <button class="vote-btn ${vu==='down'?'voted-down':''}" onclick="handleVote('${item.id}','down','t')"><svg width="18" height="18" viewBox="0 0 24 24" fill="${vu==='down'?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M7 7l5 5 5-5M7 13l5 5 5-5"/></svg></button>
+      <button class="vote-btn ${vu==='down'?'voted-down':''}" data-vid="${item.id}" data-vdir="down"><svg width="18" height="18" viewBox="0 0 24 24" fill="${vu==='down'?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M7 7l5 5 5-5M7 13l5 5 5-5"/></svg></button>
     </div>
     <div class="i-content">
       <div class="i-label">Takeaway by ${item.author}</div>
       <div class="i-explanation katex-render" id="texp-${item.id}">${processText(disp)}</div>
-      ${trunc?`<button class="btn-link" onclick="toggleExpand('${item.id}','t')" id="texpbtn-${item.id}">Show more</button>`:''}
+      ${trunc?`<button class="btn-link" id="texpbtn-${item.id}">Show more</button>`:''}
       ${linksHTML}
       <div class="i-footer">
         <span>${item.createdAt} · ${item.upvotes} up · ${item.downvotes} down</span>
-        <button class="comment-btn" onclick="toggleComments('${item.id}','t')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>${cc} comment${cc!==1?'s':''}</button>
+        <button class="comment-btn" data-cid="${item.id}" data-ctype="t"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>${cc} comment${cc!==1?'s':''}</button>
       </div>
     </div>
   </div>
   <div class="comments-section" id="comments-t-${item.id}">${cHTML}
-    <div class="comment-form"><textarea class="comment-input" id="ctext-t-${item.id}" placeholder="Add a comment..."></textarea><button class="btn btn-primary btn-sm" onclick="addComment('${item.id}','t')">Post</button></div>
+    <div class="comment-form"><textarea class="comment-input" id="ctext-t-${item.id}" placeholder="Add a comment..."></textarea><button class="btn btn-primary btn-sm" data-postid="${item.id}" data-posttype="t">Post</button></div>
   </div></div>`;
 }
 
-// ── EXPAND / COMMENTS ─────────────────────────────────────
+// FIX: event delegation handles expand, comment toggle, comment post, link removal
+document.addEventListener('click', e => {
+  const expBtn = e.target.closest('[id^="iexpbtn-"],[id^="texpbtn-"]');
+  if (expBtn) { const m=expBtn.id.match(/^([it])expbtn-(.+)$/); if(m) toggleExpand(m[2],m[1]); return; }
+  const cBtn = e.target.closest('.comment-btn[data-cid]');
+  if (cBtn) { toggleComments(cBtn.dataset.cid, cBtn.dataset.ctype); return; }
+  const postBtn = e.target.closest('button[data-postid]');
+  if (postBtn) { addComment(postBtn.dataset.postid, postBtn.dataset.posttype); return; }
+  const rlBtn = e.target.closest('.remove-link-btn[data-ridx]');
+  if (rlBtn) { const t=rlBtn.dataset.rtype,i=+rlBtn.dataset.ridx; if(t==='int')removeIntLink(i); else removeTakLink(i); return; }
+  if (e.target.id==='loginPromptInt'||e.target.id==='loginPromptTak') openAuthModal();
+});
+
+// ── EXPAND / COMMENTS ──────────────────────────────────────
 const expandState={};
 function toggleExpand(id,type){
   const key=type+id;expandState[key]=!expandState[key];
@@ -756,7 +1013,7 @@ function addComment(id,type){
   setTimeout(()=>document.getElementById(`comments-${type}-${id}`)?.classList.add('open'),10);
 }
 
-// ── VOTING ────────────────────────────────────────────────
+// ── VOTING ─────────────────────────────────────────────────
 async function handleVote(id,dir,type){
   if(!currentUser){openAuthModal();return;}
   const vm=type==='q'?questionVotes:type==='i'?intuitionVotes:takeawayVotes;
@@ -773,7 +1030,7 @@ async function handleVote(id,dir,type){
   else await db.from('votes').update({direction:next}).eq('user_id',currentUser.id).eq('target_id',id).eq('target_type',ttype);
 }
 
-// ── POST FORM ─────────────────────────────────────────────
+// ── POST FORM ──────────────────────────────────────────────
 function renderPostForm(){
   const c=document.getElementById('postForm');
   c.innerHTML=currentDetailTab==='intuitions'?intuitionFormHTML():takeawayFormHTML();
@@ -782,42 +1039,74 @@ function renderPostForm(){
     document.getElementById('pf-explanation').value=formState.explanation;
     document.getElementById('pf-exampleLink').value=formState.exampleLink;
     document.getElementById('pf-exampleExp').value=formState.exampleExplanation;
+    document.getElementById('pf-statement').addEventListener('input', e=>{formState.statement=e.target.value;updateWordCount();});
+    document.getElementById('pf-explanation').addEventListener('input', e=>{formState.explanation=e.target.value;updateWordCount();});
+    document.getElementById('pf-exampleLink').addEventListener('input', e=>{formState.exampleLink=e.target.value;});
+    document.getElementById('pf-exampleExp').addEventListener('input', e=>{formState.exampleExplanation=e.target.value;});
+    document.getElementById('pf-link')?.addEventListener('keydown', e=>{if(e.key==='Enter'){e.preventDefault();addIntLink();}});
+    document.getElementById('pf-addlink')?.addEventListener('click', addIntLink);
+    document.getElementById('pf-submitInt')?.addEventListener('click', submitIntuition);
     renderLinkList('int');updateWordCount();
   } else {
-    document.getElementById('pf-takeaway').value=formState.takeawayContent;renderLinkList('tak');
+    document.getElementById('pf-takeaway').value=formState.takeawayContent;
+    document.getElementById('pf-takeaway').addEventListener('input', e=>{formState.takeawayContent=e.target.value;});
+    document.getElementById('pf-taklink')?.addEventListener('keydown', e=>{if(e.key==='Enter'){e.preventDefault();addTakLink();}});
+    document.getElementById('pf-addtaklink')?.addEventListener('click', addTakLink);
+    document.getElementById('pf-submitTak')?.addEventListener('click', submitTakeaway);
+    renderLinkList('tak');
   }
 }
 function intuitionFormHTML(){
   const li=!!currentUser;
   return `<div class="form-card"><div class="form-title">Share Your Intuition</div>
-    ${!li?`<div class="error-banner">You need to <button class="btn-link" onclick="openAuthModal()" style="font-size:inherit">log in</button> to post an intuition.</div>`:''}
-    <div class="form-group"><label class="form-label">Intuition Statement</label><input class="form-input" id="pf-statement" placeholder="e.g. It is composed of many primes" ${!li?'disabled':''} oninput="formState.statement=this.value" /></div>
+    ${!li?`<div class="error-banner">You need to <button class="btn-link" id="loginPromptInt">log in</button> to post an intuition.</div>`:''}
+    <div class="form-group"><label class="form-label">Intuition Statement</label><input class="form-input" id="pf-statement" placeholder="e.g. It is composed of many primes" ${!li?'disabled':''} /></div>
     <div class="form-group"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><label class="form-label" style="margin:0">Explanation</label><span class="word-count" id="wordCount">0 / 400 words</span></div>
-      <textarea class="form-textarea" id="pf-explanation" style="min-height:110px" ${!li?'disabled':''} placeholder="Explain your intuition... ($LaTeX$ and ||spoiler|| supported)" oninput="formState.explanation=this.value;updateWordCount()"></textarea></div>
+      <textarea class="form-textarea" id="pf-explanation" style="min-height:110px" ${!li?'disabled':''} placeholder="Explain your intuition... ($LaTeX$ and ||spoiler|| supported)"></textarea></div>
     <div class="form-group"><label class="form-label">Links (optional, max 3)</label>
-      <div class="link-input-row"><input class="form-input" id="pf-link" placeholder="https://example.com" style="flex:1" ${!li?'disabled':''} onkeydown="if(event.key==='Enter')addIntLink()" /><button class="btn btn-ghost btn-sm" onclick="addIntLink()" ${!li?'disabled':''}>Add</button></div>
+      <div class="link-input-row"><input class="form-input" id="pf-link" placeholder="https://example.com" style="flex:1" ${!li?'disabled':''} /><button class="btn btn-ghost btn-sm" id="pf-addlink" ${!li?'disabled':''}>Add</button></div>
       <div class="link-list" id="int-links"></div></div>
     <hr class="form-divider"/>
-    <div class="form-group"><label class="form-label">Problem Link (optional)</label><input class="form-input" id="pf-exampleLink" placeholder="https://artofproblemsolving.com/..." ${!li?'disabled':''} oninput="formState.exampleLink=this.value" /></div>
-    <div class="form-group"><label class="form-label">Additional Context (optional)</label><textarea class="form-textarea" id="pf-exampleExp" style="min-height:70px" ${!li?'disabled':''} oninput="formState.exampleExplanation=this.value"></textarea></div>
-    <button class="btn btn-primary" id="pf-submitInt" onclick="submitIntuition()" ${!li?'disabled':''}>Post Intuition</button></div>`;
+    <div class="form-group"><label class="form-label">Problem Link (optional)</label><input class="form-input" id="pf-exampleLink" placeholder="https://artofproblemsolving.com/..." ${!li?'disabled':''} /></div>
+    <div class="form-group"><label class="form-label">Additional Context (optional)</label><textarea class="form-textarea" id="pf-exampleExp" style="min-height:70px" ${!li?'disabled':''} placeholder="Extra notes..."></textarea></div>
+    <button class="btn btn-primary" id="pf-submitInt" ${!li?'disabled':''}>Post Intuition</button></div>`;
 }
 function takeawayFormHTML(){
   const li=!!currentUser;
   return `<div class="form-card"><div class="form-title">Share Your Takeaway</div>
-    ${!li?`<div class="error-banner">You need to <button class="btn-link" onclick="openAuthModal()" style="font-size:inherit">log in</button> to post a takeaway.</div>`:''}
-    <div class="form-group"><label class="form-label">Your Takeaway</label><textarea class="form-textarea" id="pf-takeaway" style="min-height:130px" ${!li?'disabled':''} placeholder="Share your insights... ($LaTeX$ and ||spoiler|| supported)" oninput="formState.takeawayContent=this.value"></textarea></div>
+    ${!li?`<div class="error-banner">You need to <button class="btn-link" id="loginPromptTak">log in</button> to post a takeaway.</div>`:''}
+    <div class="form-group"><label class="form-label">Your Takeaway</label><textarea class="form-textarea" id="pf-takeaway" style="min-height:130px" ${!li?'disabled':''} placeholder="Share your insights... ($LaTeX$ and ||spoiler|| supported)"></textarea></div>
     <div class="form-group"><label class="form-label">Links (optional)</label>
-      <div class="link-input-row"><input class="form-input" id="pf-taklink" placeholder="https://example.com" style="flex:1" ${!li?'disabled':''} onkeydown="if(event.key==='Enter')addTakLink()" /><button class="btn btn-ghost btn-sm" onclick="addTakLink()" ${!li?'disabled':''}>Add</button></div>
+      <div class="link-input-row"><input class="form-input" id="pf-taklink" placeholder="https://example.com" style="flex:1" ${!li?'disabled':''} /><button class="btn btn-ghost btn-sm" id="pf-addtaklink" ${!li?'disabled':''}>Add</button></div>
       <div class="link-list" id="tak-links"></div></div>
-    <button class="btn btn-primary" onclick="submitTakeaway()" ${!li?'disabled':''}>Post Takeaway</button></div>`;
+    <button class="btn btn-primary" id="pf-submitTak" ${!li?'disabled':''}>Post Takeaway</button></div>`;
 }
-function updateWordCount(){const el=document.getElementById('pf-explanation'),wc=document.getElementById('wordCount');if(!el||!wc)return;const c=el.value.trim().split(/\s+/).filter(Boolean).length;wc.textContent=`${c} / 400 words`;wc.className='word-count'+(c>400?' over':'');const btn=document.getElementById('pf-submitInt');if(btn)btn.disabled=c>400||!formState.statement.trim()||!formState.explanation.trim();}
-function addIntLink(){const i=document.getElementById('pf-link'),v=i?.value.trim();if(!v)return;if(!isValidURL(v)){alert('Valid URL required');return;}if(formState.explanationLinks.length>=3){alert('Max 3 links');return;}formState.explanationLinks.push(v);i.value='';renderLinkList('int');}
-function removeIntLink(i){formState.explanationLinks.splice(i,1);renderLinkList('int');}
-function addTakLink(){const i=document.getElementById('pf-taklink'),v=i?.value.trim();if(!v)return;if(!isValidURL(v)){alert('Valid URL required');return;}formState.takeawayLinks.push(v);i.value='';renderLinkList('tak');}
-function removeTakLink(i){formState.takeawayLinks.splice(i,1);renderLinkList('tak');}
-function renderLinkList(type){const c=document.getElementById(type+'-links');if(!c)return;const links=type==='int'?formState.explanationLinks:formState.takeawayLinks;const fn=type==='int'?'removeIntLink':'removeTakLink';c.innerHTML=links.map((l,i)=>`<div class="link-item"><a href="${l}" target="_blank" rel="noopener">${l}</a><button class="remove-link-btn" onclick="${fn}(${i})"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>`).join('');}
+function updateWordCount(){
+  const el=document.getElementById('pf-explanation'),wc=document.getElementById('wordCount');
+  if(!el||!wc)return;
+  const c=el.value.trim().split(/\s+/).filter(Boolean).length;
+  wc.textContent=`${c} / 400 words`;wc.className='word-count'+(c>400?' over':'');
+  const btn=document.getElementById('pf-submitInt');
+  if(btn)btn.disabled=c>400||!formState.statement.trim()||!formState.explanation.trim();
+}
+function addIntLink(){
+  const i=document.getElementById('pf-link'),v=i?.value.trim();if(!v)return;
+  if(!isValidURL(v)){alert('Valid URL required');return;}
+  if(formState.explanationLinks.length>=3){alert('Max 3 links');return;}
+  formState.explanationLinks.push(v);i.value='';renderLinkList('int');
+}
+function removeIntLink(idx){formState.explanationLinks.splice(idx,1);renderLinkList('int');}
+function addTakLink(){
+  const i=document.getElementById('pf-taklink'),v=i?.value.trim();if(!v)return;
+  if(!isValidURL(v)){alert('Valid URL required');return;}
+  formState.takeawayLinks.push(v);i.value='';renderLinkList('tak');
+}
+function removeTakLink(idx){formState.takeawayLinks.splice(idx,1);renderLinkList('tak');}
+function renderLinkList(type){
+  const c=document.getElementById(type+'-links');if(!c)return;
+  const links=type==='int'?formState.explanationLinks:formState.takeawayLinks;
+  c.innerHTML=links.map((l,i)=>`<div class="link-item"><a href="${l}" target="_blank" rel="noopener">${l}</a><button class="remove-link-btn" data-rtype="${type}" data-ridx="${i}" title="Remove"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>`).join('');
+}
 async function submitIntuition(){
   if(!currentUser){openAuthModal();return;}
   const stmt=document.getElementById('pf-statement')?.value.trim(),exp=document.getElementById('pf-explanation')?.value.trim();
@@ -842,9 +1131,17 @@ async function submitTakeaway(){
   window.scrollTo({top:document.getElementById('dtab-takeaways').offsetTop-80,behavior:'smooth'});
 }
 
-// ── NEW QUESTION MODAL ────────────────────────────────────
+// ── NEW QUESTION MODAL ─────────────────────────────────────
 function openNewQModal(){document.getElementById('newQModal').classList.add('open');}
-function closeNewQModal(){document.getElementById('newQModal').classList.remove('open');document.getElementById('newQTitle').value='';document.getElementById('newQAbout').value='';document.getElementById('newQSub').value='';document.getElementById('newQError').innerHTML='';}
+function closeNewQModal(){
+  document.getElementById('newQModal').classList.remove('open');
+  document.getElementById('newQTitle').value='';
+  document.getElementById('newQAbout').value='';
+  document.getElementById('newQSub').value='';
+  document.getElementById('newQError').innerHTML='';
+  document.getElementById('newQSubmitBtn').disabled=false;
+  document.getElementById('newQSubmitBtn').textContent='Post Question';
+}
 async function submitNewQuestion(){
   const title=document.getElementById('newQTitle').value.trim(),about=document.getElementById('newQAbout').value.trim(),sub=document.getElementById('newQSub').value;
   if(!title||!about){document.getElementById('newQError').innerHTML='<div class="error-banner">Please fill in title and description.</div>';return;}
@@ -852,7 +1149,7 @@ async function submitNewQuestion(){
   const{data:qd,error:qe}=await db.from('questions').insert({title,about}).select('id').single();
   if(qe){document.getElementById('newQError').innerHTML=`<div class="error-banner">${qe.message}</div>`;btn.disabled=false;btn.textContent='Post Question';return;}
   for(const name of(sub?[TOPIC_NAME,sub]:[TOPIC_NAME])){
-    let{data:tag}=await db.from('tags').select('id').eq('name',name).single();
+    let{data:tag}=await db.from('tags').select('id').eq('name',name).maybeSingle();
     if(!tag){const{data:nt}=await db.from('tags').insert({name,category:TOPIC_NAME}).select('id').single();tag=nt;}
     if(tag)await db.from('question_tags').insert({question_id:qd.id,tag_id:tag.id});
   }
