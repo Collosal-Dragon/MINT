@@ -284,20 +284,6 @@ const db = createClient(SUPABASE_URL, SUPABASE_KEY, {
     storageKey: 'math-intuitions-auth', // stable key so all pages share the same session
   }
 });
-async function enforceValidSession() {
-  try {
-    const { data, error } = await db.auth.getUser();
-
-    if (error || !data.user) {
-      console.warn("Invalid session → signing out");
-      await db.auth.signOut();
-    }
-
-  } catch (e) {
-    console.warn("Session check failed → resetting", e);
-    await db.auth.signOut();
-  }
-}
 
 const CATEGORIES = {
   'Algebra':      { icon:'𝑥', color:'#7c9ff5', desc:'Expressions, equations, polynomials and algebraic structures', subs:['Exponents','Polynomials','Inequalities','AM-GM','Cauchy-Schwarz'], page:'algebra.html' },
@@ -321,7 +307,6 @@ document.addEventListener('DOMContentLoaded', () => {
   updateAuthUI(); // show correct UI right away; auth state comes in via onAuthStateChange
 });
 
-
 // Called when KaTeX auto-render is ready — re-renders any math already in the DOM
 function onKatexReady() {
   katexReady = true;
@@ -334,35 +319,14 @@ function onKatexReady() {
 // so the user stays logged in across all pages on math-intuitions.org as long as
 // the same storageKey is used in every page's Supabase client.
 db.auth.onAuthStateChange(async (event, session) => {
-  try {
-    // 🔥 NEVER trust session directly
-    const { data, error } = await db.auth.getUser();
+  console.log('[auth]', event, session?.user?.email ?? 'no user');
+  currentUser = session?.user ?? null;
 
-    if (error || !data.user) {
-      console.warn("Invalid session detected, resetting...");
-      await db.auth.signOut();
-
-      currentUser = null;
-      currentProfile = null;
-      updateAuthUI();
-      return;
-    }
-
-    currentUser = data.user;
-
+  if (currentUser) {
     await loadProfile(currentUser);
-
-  } catch (e) {
-    console.error("Auth crash:", e);
-
-    await db.auth.signOut();
-
-    currentUser = null;
+  } else {
     currentProfile = null;
   }
-
-  updateAuthUI();
-});
 
   updateAuthUI();
 
