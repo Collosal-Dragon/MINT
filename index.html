@@ -2,7 +2,7 @@
 <html lang="en" class="dark">
 <head>
 <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>MINT — Math Olympiad Intuition Forum</title>
+<title>MINT</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400;1,700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=JetBrains+Mono:wght@400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
@@ -171,7 +171,7 @@ html.light .auth-msg.ok{background:rgba(30,122,72,.06);border-color:rgba(30,122,
   <div class="hero">
     <div class="hero-eyebrow"><span class="eyebrow-dot"></span>Community Forum</div>
     <h1 class="hero-title">
-      Build Mathematical <em>Intuition</em>
+      Build <em>M</em>athematical <em>Int</em>uition
       <span class="sub">Together, one insight at a time.</span>
     </h1>
     <p class="hero-body">Share the intuitions and insights behind Olympiad mathematics. Ask questions, post your thinking, and sharpen your understanding alongside others.</p>
@@ -244,216 +244,297 @@ html.light .auth-msg.ok{background:rgba(30,122,72,.06);border-color:rgba(30,122,
 <script>
 const SUPABASE_URL='https://idlrmpecdvsofaykphfe.supabase.co';
 const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlkbHJtcGVjZHZzb2ZheWtwaGZlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMzk5NTAsImV4cCI6MjA4OTgxNTk1MH0.FWSllmspL4twQ1aF2q20---HmoLxBM1NqFnQ2OPOoUg';
-const db=supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storageKey:'mint-auth-v1'}});
 
-const CATS={
-  'Algebra':{glyph:'𝑥²',color:'#7ab0f5',desc:'Expressions, equations, polynomials and algebraic structures.',subs:['Exponents','Polynomials','Inequalities','AM-GM','Cauchy-Schwarz'],page:'algebra.html'},
-  'Combinatorics':{glyph:'⊕',color:'#b090f5',desc:'Counting, graphs, permutations and discrete mathematics.',subs:["Euler's Identity",'Graph Theory','Pigeonhole','Enumeration'],page:'combinatorics.html'},
-  'Geometry':{glyph:'△',color:'#6ee7a0',desc:'Shapes, angles, circles and spatial reasoning.',subs:['Angle Chasing','Cyclic Quads','Inversion','Circles'],page:'geometry.html'},
-  'Number Theory':{glyph:'ℕ',color:'#f0c060',desc:'Primes, divisibility, modular arithmetic and number systems.',subs:['Divisibility','GCD/LCM','Modular Arithmetic','Primes'],page:'number-theory.html'},
-  'Problem Solving':{glyph:'✦',color:'#f09060',desc:'General strategies, heuristics and meta-techniques for attacking hard problems.',subs:['Proof Techniques','Pattern Finding','Heuristics','Meta-strategies'],page:'problem-solving.html'},
+// ---------------------------------------------------------------------------
+// Persistent storage: writes to localStorage so sessions survive reloads and
+// days of inactivity. Falls back gracefully if localStorage is blocked.
+// ---------------------------------------------------------------------------
+const SESSION_KEY = 'mint-auth-v1';
+const _mem = {};
+const persistentStorage = {
+  getItem(k)    { try { return localStorage.getItem(k); } catch { return _mem[k] ?? null; } },
+  setItem(k, v) { _mem[k] = v; try { localStorage.setItem(k, v); } catch {} },
+  removeItem(k) { delete _mem[k]; try { localStorage.removeItem(k); } catch {} },
 };
 
-let me=null,profile=null,authMode='login',searchCtrl=null,searchTimer=null;
-let dataLoaded=false;
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+  auth: {
+    persistSession:    true,           // always save session to storage
+    autoRefreshToken:  true,           // let Supabase rotate tokens in background
+    detectSessionInUrl:true,           // pick up OAuth redirects
+    storageKey:        SESSION_KEY,    // explicit key so nothing clashes
+    storage:           persistentStorage, // our robust localStorage wrapper
+  }
+});
 
-document.addEventListener('DOMContentLoaded',()=>{
-  applyTheme(localStorage.getItem('theme')||'dark');
+// ---------------------------------------------------------------------------
+const CATS = {
+  'Algebra':        {glyph:'𝑥²',color:'#7ab0f5',desc:'Expressions, equations, polynomials and algebraic structures.',       subs:['Exponents','Polynomials','Inequalities','AM-GM','Cauchy-Schwarz'],                page:'algebra.html'},
+  'Combinatorics':  {glyph:'⊕', color:'#b090f5',desc:'Counting, graphs, permutations and discrete mathematics.',             subs:["Euler's Identity",'Graph Theory','Pigeonhole','Enumeration'],            page:'combinatorics.html'},
+  'Geometry':       {glyph:'△', color:'#6ee7a0',desc:'Shapes, angles, circles and spatial reasoning.',                       subs:['Angle Chasing','Cyclic Quads','Inversion','Circles'],                    page:'geometry.html'},
+  'Number Theory':  {glyph:'ℕ', color:'#f0c060',desc:'Primes, divisibility, modular arithmetic and number systems.',         subs:['Divisibility','GCD/LCM','Modular Arithmetic','Primes'],                  page:'number-theory.html'},
+  'Problem Solving':{glyph:'✦', color:'#f09060',desc:'General strategies, heuristics and meta-techniques for hard problems.',subs:['Proof Techniques','Pattern Finding','Heuristics','Meta-strategies'],      page:'problem-solving.html'},
+};
+
+let me = null, profile = null, authMode = 'login', searchCtrl = null, searchTimer = null;
+let dataLoaded = false;
+
+// ---------------------------------------------------------------------------
+// Boot
+// ---------------------------------------------------------------------------
+document.addEventListener('DOMContentLoaded', () => {
+  applyTheme(localStorage.getItem('theme') || 'dark');
   buildGrid();
   initAuth();
   setupVisibilityRefresh();
 });
 
-async function initAuth(){
-  // Try to refresh first — this exchanges a stored refresh token for a fresh
-  // access token, solving the "works in incognito but breaks after idle" problem.
-  // Falls back to getSession() if there's nothing to refresh (logged-out users).
-  let session=null;
-  try{
-    const{data,error}=await db.auth.refreshSession();
-    if(!error&&data.session){session=data.session;}
-  }catch(_){}
-  if(!session){
-    const{data}=await db.auth.getSession();
-    session=data.session;
+async function initAuth() {
+  // 1. Try to get the stored session (reads from localStorage instantly).
+  const { data: { session: stored } } = await db.auth.getSession();
+
+  if (stored) {
+    // 2. We have a session — check whether the access token is still fresh.
+    //    If it expired (after 1 h idle) the Supabase client will auto-refresh
+    //    using the refresh token, which is valid for much longer (Supabase
+    //    default: 7 days; you can raise this to 30–90 days in the dashboard).
+    //    We call refreshSession() explicitly so any failure is caught here
+    //    rather than silently failing on the first DB query.
+    let session = stored;
+    const nowSec = Math.floor(Date.now() / 1000);
+    const expiresSec = stored.expires_at ?? 0;
+    if (expiresSec - nowSec < 60) {
+      // Access token has expired or will expire in < 60 s — refresh it now.
+      try {
+        const { data, error } = await db.auth.refreshSession();
+        if (!error && data.session) session = data.session;
+        else { session = null; } // refresh token also dead — treat as logged out
+      } catch { session = null; }
+    }
+    me = session?.user ?? null;
+  } else {
+    me = null;
   }
-  me=session?.user??null;
-  if(me){await fetchProfile(me);}
+
+  if (me) await fetchProfile(me);
   refreshHeader();
-  if(!dataLoaded){dataLoaded=true;loadRecent();}
+  if (!dataLoaded) { dataLoaded = true; loadRecent(); }
 }
 
-// When user returns to a backgrounded tab the access token may have expired.
-// Re-refresh immediately so queries go out with a valid token.
-function setupVisibilityRefresh(){
-  document.addEventListener('visibilitychange',async()=>{
-    if(document.visibilityState!=='visible')return;
-    try{
-      const{data,error}=await db.auth.refreshSession();
-      if(error||!data.session){
-        // Refresh token itself expired — force logout state
-        if(me){
-          me=null;profile=null;
-          refreshHeader();
-          loadRecent();
-          toast('Your session expired. Please log in again.','error');
-        }
+// ---------------------------------------------------------------------------
+// When the user comes back to a tab that has been sitting in the background,
+// the access token may have expired. Refresh immediately so queries work.
+// ---------------------------------------------------------------------------
+function setupVisibilityRefresh() {
+  document.addEventListener('visibilitychange', async () => {
+    if (document.visibilityState !== 'visible') return;
+    if (!me) return; // nothing to refresh for logged-out users
+
+    try {
+      const { data, error } = await db.auth.refreshSession();
+      if (error || !data.session) {
+        // Refresh token itself expired (e.g. > 7 days since last activity).
+        me = null; profile = null;
+        refreshHeader();
+        loadRecent();
+        toast('Your session expired. Please log in again.', 'error');
         return;
       }
-      // Token rotated successfully — Supabase client now has the new token.
-      // If the user identity changed somehow, re-sync.
-      if(data.session.user.id!==me?.id){
-        me=data.session.user;
+      // Token was rotated successfully — client is now using the new token.
+      // No need to reload data unless the user identity somehow changed.
+      if (data.session.user.id !== me?.id) {
+        me = data.session.user;
         await fetchProfile(me);
         refreshHeader();
         loadRecent();
       }
-    }catch(_){}
+    } catch (_) {}
   });
 }
 
-function onKatexReady(){document.querySelectorAll('.kr').forEach(renderMath);}
+// ---------------------------------------------------------------------------
+// Auth state listener — fires on sign-in, sign-out, and token refresh events.
+// ---------------------------------------------------------------------------
+function onKatexReady() { document.querySelectorAll('.kr').forEach(renderMath); }
 
-db.auth.onAuthStateChange(async(ev,session)=>{
-  me=session?.user??null;
-  if(me){await fetchProfile(me);}else{profile=null;}
+db.auth.onAuthStateChange(async (ev, session) => {
+  me = session?.user ?? null;
+  if (me) await fetchProfile(me); else profile = null;
   refreshHeader();
 
-  if(ev==='SIGNED_IN'){
-    if(document.getElementById('authOverlay').classList.contains('open')){
+  if (ev === 'SIGNED_IN') {
+    if (document.getElementById('authOverlay').classList.contains('open')) {
       closeAuth();
-      toast('Welcome back! 👋','success');
+      toast('Welcome back! 👋', 'success');
     }
-    dataLoaded=false;
-    if(!dataLoaded){dataLoaded=true;loadRecent();}
+    // Reload so RLS policies see the authenticated user's token.
+    dataLoaded = false;
+    if (!dataLoaded) { dataLoaded = true; loadRecent(); }
   }
-  if(ev==='SIGNED_OUT'){
-    dataLoaded=false;
-    if(!dataLoaded){dataLoaded=true;loadRecent();}
+
+  if (ev === 'SIGNED_OUT') {
+    dataLoaded = false;
+    if (!dataLoaded) { dataLoaded = true; loadRecent(); }
   }
-  // TOKEN_REFRESHED: Supabase rotated the token automatically in the background.
-  // The client already has the new token — no action needed.
+
+  // TOKEN_REFRESHED: Supabase silently rotated the token.
+  // The new token is already in the client — nothing to do.
 });
 
-async function fetchProfile(user){
-  const{data}=await db.from('profiles').select('username,email').eq('id',user.id).maybeSingle();
-  if(data){profile=data;refreshHeader();return;}
-  const base=(user.user_metadata?.full_name||user.email.split('@')[0]).replace(/[^a-zA-Z0-9_]/g,'_').slice(0,16);
-  const username=base+'_'+Math.random().toString(36).slice(2,5);
-  const{data:ins}=await db.from('profiles').insert({id:user.id,username,email:user.email}).select('username,email').maybeSingle();
-  profile=ins??null;
+// ---------------------------------------------------------------------------
+// Profile helpers
+// ---------------------------------------------------------------------------
+async function fetchProfile(user) {
+  const { data } = await db.from('profiles').select('username,email').eq('id', user.id).maybeSingle();
+  if (data) { profile = data; refreshHeader(); return; }
+  const base = (user.user_metadata?.full_name || user.email.split('@')[0]).replace(/[^a-zA-Z0-9_]/g, '_').slice(0, 16);
+  const username = base + '_' + Math.random().toString(36).slice(2, 5);
+  const { data: ins } = await db.from('profiles').insert({ id: user.id, username, email: user.email }).select('username,email').maybeSingle();
+  profile = ins ?? null;
   refreshHeader();
 }
 
-function refreshHeader(){
-  const pill=document.getElementById('userPill'),btn=document.getElementById('authBtn');
-  if(me){
-    document.getElementById('pillName').textContent=profile?.username||me.email.split('@')[0];
+function refreshHeader() {
+  const pill = document.getElementById('userPill'), btn = document.getElementById('authBtn');
+  if (me) {
+    document.getElementById('pillName').textContent = profile?.username || me.email.split('@')[0];
     pill.classList.remove('hidden');
-    btn.textContent='Log out';
-    btn.onclick=()=>db.auth.signOut().then(()=>toast('Logged out','success'));
-  }else{
+    btn.textContent = 'Log out';
+    btn.onclick = () => db.auth.signOut().then(() => toast('Logged out', 'success'));
+  } else {
     pill.classList.add('hidden');
-    btn.textContent='Log in';
-    btn.onclick=openAuth;
+    btn.textContent = 'Log in';
+    btn.onclick = openAuth;
   }
 }
 
-async function googleSignIn(){
-  const{error}=await db.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+location.pathname,queryParams:{access_type:'offline',prompt:'consent'}}});
-  if(error)toast('Google sign-in failed: '+error.message,'error');
+// ---------------------------------------------------------------------------
+// OAuth
+// ---------------------------------------------------------------------------
+async function googleSignIn() {
+  const { error } = await db.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: location.origin + location.pathname, queryParams: { access_type: 'offline', prompt: 'consent' } }
+  });
+  if (error) toast('Google sign-in failed: ' + error.message, 'error');
 }
 
-function openAuth(){document.getElementById('authOverlay').classList.add('open');switchTab('login');setTimeout(()=>document.getElementById('authIdent').focus(),80);}
-function closeAuth(){
+// ---------------------------------------------------------------------------
+// Auth modal
+// ---------------------------------------------------------------------------
+function openAuth() {
+  document.getElementById('authOverlay').classList.add('open');
+  switchTab('login');
+  setTimeout(() => document.getElementById('authIdent').focus(), 80);
+}
+function closeAuth() {
   document.getElementById('authOverlay').classList.remove('open');
-  ['authIdent','authEmail','authUser','authPass'].forEach(id=>{document.getElementById(id).value='';});
-  setMsg('err','');setMsg('ok','');
-  const btn=document.getElementById('authSubmit');btn.disabled=false;btn.textContent=authMode==='login'?'Log in':'Create account';
+  ['authIdent','authEmail','authUser','authPass'].forEach(id => { document.getElementById(id).value = ''; });
+  setMsg('err', ''); setMsg('ok', '');
+  const btn = document.getElementById('authSubmit');
+  btn.disabled = false;
+  btn.textContent = authMode === 'login' ? 'Log in' : 'Create account';
 }
-function switchTab(mode){
-  authMode=mode;
-  document.getElementById('tabLogin').classList.toggle('active',mode==='login');
-  document.getElementById('tabSignup').classList.toggle('active',mode==='signup');
-  document.getElementById('authSubmit').textContent=mode==='login'?'Log in':'Create account';
-  document.getElementById('identWrap').classList.toggle('hidden',mode==='signup');
-  document.getElementById('emailWrap').classList.toggle('hidden',mode==='login');
-  document.getElementById('userWrap').classList.toggle('hidden',mode==='login');
-  document.getElementById('authPass').autocomplete=mode==='login'?'current-password':'new-password';
-  setMsg('err','');setMsg('ok','');
+function switchTab(mode) {
+  authMode = mode;
+  document.getElementById('tabLogin').classList.toggle('active', mode === 'login');
+  document.getElementById('tabSignup').classList.toggle('active', mode === 'signup');
+  document.getElementById('authSubmit').textContent = mode === 'login' ? 'Log in' : 'Create account';
+  document.getElementById('identWrap').classList.toggle('hidden', mode === 'signup');
+  document.getElementById('emailWrap').classList.toggle('hidden', mode === 'login');
+  document.getElementById('userWrap').classList.toggle('hidden', mode === 'login');
+  document.getElementById('authPass').autocomplete = mode === 'login' ? 'current-password' : 'new-password';
+  setMsg('err', ''); setMsg('ok', '');
 }
-function setMsg(t,txt){
-  const el=document.getElementById(t==='err'?'authErr':'authOk');
-  el.textContent=txt;el.style.display=txt?'block':'none';
-  document.getElementById(t==='err'?'authOk':'authErr').style.display='none';
-}
-
-async function resolveEmail(ident){
-  if(ident.includes('@'))return{email:ident};
-  const{data}=await db.from('profiles').select('email').eq('username',ident).maybeSingle();
-  if(!data?.email)return{err:'No account found with that username.'};
-  return{email:data.email};
+function setMsg(t, txt) {
+  const el = document.getElementById(t === 'err' ? 'authErr' : 'authOk');
+  el.textContent = txt; el.style.display = txt ? 'block' : 'none';
+  document.getElementById(t === 'err' ? 'authOk' : 'authErr').style.display = 'none';
 }
 
-async function submitAuth(){
-  const pass=document.getElementById('authPass').value,btn=document.getElementById('authSubmit');
-  if(!pass||pass.length<6){setMsg('err','Password must be at least 6 characters.');return;}
-  btn.disabled=true;
-  if(authMode==='login'){
-    const ident=document.getElementById('authIdent').value.trim();
-    if(!ident){setMsg('err','Please enter your email or username.');btn.disabled=false;return;}
-    btn.textContent='Logging in…';
-    const{email,err}=await resolveEmail(ident);
-    if(err){setMsg('err',err);btn.disabled=false;btn.textContent='Log in';return;}
-    const{error}=await db.auth.signInWithPassword({email,password:pass});
-    if(error){setMsg('err',niceErr(error.message));btn.disabled=false;btn.textContent='Log in';return;}
-    closeAuth();toast('Welcome back!','success');
-  }else{
-    const email=document.getElementById('authEmail').value.trim(),username=document.getElementById('authUser').value.trim();
-    if(!email){setMsg('err','Please enter your email.');btn.disabled=false;btn.textContent='Create account';return;}
-    if(!username){setMsg('err','Please choose a username.');btn.disabled=false;btn.textContent='Create account';return;}
-    if(!/^[a-zA-Z0-9_]{3,20}$/.test(username)){setMsg('err','Username: 3–20 chars, letters/numbers/underscores.');btn.disabled=false;btn.textContent='Create account';return;}
-    btn.textContent='Creating account…';
-    const{data:ex}=await db.from('profiles').select('id').eq('username',username).maybeSingle();
-    if(ex){setMsg('err','Username already taken.');btn.disabled=false;btn.textContent='Create account';return;}
-    const{data:sd,error}=await db.auth.signUp({email,password:pass,options:{data:{username}}});
-    if(error){setMsg('err',niceErr(error.message));btn.disabled=false;btn.textContent='Create account';return;}
-    if(sd?.user)await db.from('profiles').upsert({id:sd.user.id,username,email},{onConflict:'id'});
-    if(sd?.session){closeAuth();toast('Welcome to MINT! 🎉','success');}
-    else{setMsg('ok','✅ Check your email to confirm, then log in.');btn.disabled=false;btn.textContent='Create account';}
+async function resolveEmail(ident) {
+  if (ident.includes('@')) return { email: ident };
+  const { data } = await db.from('profiles').select('email').eq('username', ident).maybeSingle();
+  if (!data?.email) return { err: 'No account found with that username.' };
+  return { email: data.email };
+}
+
+async function submitAuth() {
+  const pass = document.getElementById('authPass').value, btn = document.getElementById('authSubmit');
+  if (!pass || pass.length < 6) { setMsg('err', 'Password must be at least 6 characters.'); return; }
+  btn.disabled = true;
+  if (authMode === 'login') {
+    const ident = document.getElementById('authIdent').value.trim();
+    if (!ident) { setMsg('err', 'Please enter your email or username.'); btn.disabled = false; return; }
+    btn.textContent = 'Logging in…';
+    const { email, err } = await resolveEmail(ident);
+    if (err) { setMsg('err', err); btn.disabled = false; btn.textContent = 'Log in'; return; }
+    const { error } = await db.auth.signInWithPassword({ email, password: pass });
+    if (error) { setMsg('err', niceErr(error.message)); btn.disabled = false; btn.textContent = 'Log in'; return; }
+    closeAuth(); toast('Welcome back!', 'success');
+  } else {
+    const email = document.getElementById('authEmail').value.trim(), username = document.getElementById('authUser').value.trim();
+    if (!email) { setMsg('err', 'Please enter your email.'); btn.disabled = false; btn.textContent = 'Create account'; return; }
+    if (!username) { setMsg('err', 'Please choose a username.'); btn.disabled = false; btn.textContent = 'Create account'; return; }
+    if (!/^[a-zA-Z0-9_]{3,20}$/.test(username)) { setMsg('err', 'Username: 3–20 chars, letters/numbers/underscores.'); btn.disabled = false; btn.textContent = 'Create account'; return; }
+    btn.textContent = 'Creating account…';
+    const { data: ex } = await db.from('profiles').select('id').eq('username', username).maybeSingle();
+    if (ex) { setMsg('err', 'Username already taken.'); btn.disabled = false; btn.textContent = 'Create account'; return; }
+    const { data: sd, error } = await db.auth.signUp({ email, password: pass, options: { data: { username } } });
+    if (error) { setMsg('err', niceErr(error.message)); btn.disabled = false; btn.textContent = 'Create account'; return; }
+    if (sd?.user) await db.from('profiles').upsert({ id: sd.user.id, username, email }, { onConflict: 'id' });
+    if (sd?.session) { closeAuth(); toast('Welcome to MINT! 🎉', 'success'); }
+    else { setMsg('ok', '✅ Check your email to confirm, then log in.'); btn.disabled = false; btn.textContent = 'Create account'; }
   }
 }
-function niceErr(m){
-  if(!m)return'Something went wrong.';
-  if(m.includes('Invalid login credentials'))return'Incorrect email or password.';
-  if(m.includes('Email not confirmed'))return'Please confirm your email first.';
-  if(m.includes('User already registered'))return'An account with that email already exists.';
-  if(m.includes('Password should be'))return'Password must be at least 6 characters.';
+function niceErr(m) {
+  if (!m) return 'Something went wrong.';
+  if (m.includes('Invalid login credentials')) return 'Incorrect email or password.';
+  if (m.includes('Email not confirmed'))       return 'Please confirm your email first.';
+  if (m.includes('User already registered'))   return 'An account with that email already exists.';
+  if (m.includes('Password should be'))        return 'Password must be at least 6 characters.';
   return m;
 }
 
-function applyTheme(t){
-  document.documentElement.className=t;
-  document.getElementById('iconDark').classList.toggle('hidden',t==='dark');
-  document.getElementById('iconLight').classList.toggle('hidden',t==='light');
+// ---------------------------------------------------------------------------
+// Theme
+// ---------------------------------------------------------------------------
+function applyTheme(t) {
+  document.documentElement.className = t;
+  document.getElementById('iconDark').classList.toggle('hidden', t === 'dark');
+  document.getElementById('iconLight').classList.toggle('hidden', t === 'light');
 }
-document.getElementById('themeBtn').addEventListener('click',()=>{
-  const t=document.documentElement.className==='dark'?'light':'dark';
-  localStorage.setItem('theme',t);applyTheme(t);
+document.getElementById('themeBtn').addEventListener('click', () => {
+  const t = document.documentElement.className === 'dark' ? 'light' : 'dark';
+  localStorage.setItem('theme', t); applyTheme(t);
 });
 
-function ago(ts){const d=Date.now()-new Date(ts),m=~~(d/6e4),h=~~(d/36e5),dy=~~(d/864e5);return m<1?'just now':m<60?`${m}m ago`:h<24?`${h}h ago`:dy<7?`${dy}d ago`:`${~~(dy/7)}w ago`;}
-function esc(s){return s?s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'):''}
-function renderMath(el){if(window.renderMathInElement)renderMathInElement(el,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false});}
-
-async function getVotes(ids,type){
-  if(!ids.length)return{};
-  const{data}=await db.from('vote_counts').select('target_id,upvotes,downvotes').eq('target_type',type).in('target_id',ids);
-  const m={};(data||[]).forEach(v=>{m[v.target_id]={up:+v.upvotes,dn:+v.downvotes};});return m;
+// ---------------------------------------------------------------------------
+// Utilities
+// ---------------------------------------------------------------------------
+function ago(ts) {
+  const d = Date.now() - new Date(ts), m = ~~(d/6e4), h = ~~(d/36e5), dy = ~~(d/864e5);
+  return m < 1 ? 'just now' : m < 60 ? `${m}m ago` : h < 24 ? `${h}h ago` : dy < 7 ? `${dy}d ago` : `${~~(dy/7)}w ago`;
+}
+function esc(s) { return s ? s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') : ''; }
+function renderMath(el) {
+  if (window.renderMathInElement) renderMathInElement(el, {
+    delimiters: [{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],
+    throwOnError: false
+  });
 }
 
-function buildGrid(){
-  document.getElementById('topicGrid').innerHTML=Object.entries(CATS).map(([name,c])=>`
+async function getVotes(ids, type) {
+  if (!ids.length) return {};
+  const { data } = await db.from('vote_counts').select('target_id,upvotes,downvotes').eq('target_type', type).in('target_id', ids);
+  const m = {}; (data || []).forEach(v => { m[v.target_id] = { up: +v.upvotes, dn: +v.downvotes }; }); return m;
+}
+
+// ---------------------------------------------------------------------------
+// UI builders
+// ---------------------------------------------------------------------------
+function buildGrid() {
+  document.getElementById('topicGrid').innerHTML = Object.entries(CATS).map(([name, c]) => `
     <a class="topic-card" href="${c.page}" style="--tc:${c.color}">
       <span class="t-glyph" style="color:${c.color}">${c.glyph}</span>
       <div class="t-name" style="color:${c.color}">${name}</div>
@@ -462,23 +543,29 @@ function buildGrid(){
     </a>`).join('');
 }
 
-async function loadRecent(){
-  document.getElementById('recentList').innerHTML='<div class="loading-state"><div class="spinner"></div>Loading questions…</div>';
-  const{data,error}=await db.from('questions').select('id,title,about,created_at,question_tags(tags(name)),intuitions(id)').order('created_at',{ascending:false}).limit(10);
-  if(error){document.getElementById('recentList').innerHTML=`<div class="err-box">Could not load: ${error.message}</div>`;return;}
-  let qs=data.map(q=>({id:q.id,title:q.title,about:q.about,at:ago(q.created_at),tags:q.question_tags.map(t=>t.tags?.name).filter(Boolean),n:q.intuitions.length,up:0,dn:0}));
-  const vm=await getVotes(qs.map(q=>q.id),'question');
-  qs.forEach(q=>{const v=vm[q.id]||{};q.up=v.up||0;q.dn=v.dn||0;});
-  const el=document.getElementById('recentList');
-  if(!qs.length){el.innerHTML='<div class="empty-state"><span class="empty-icon">📭</span>No questions yet — be the first to post!</div>';return;}
-  el.innerHTML=qs.map((q,i)=>cardHTML(q,i)).join('');
+async function loadRecent() {
+  document.getElementById('recentList').innerHTML = '<div class="loading-state"><div class="spinner"></div>Loading questions…</div>';
+  const { data, error } = await db.from('questions')
+    .select('id,title,about,created_at,question_tags(tags(name)),intuitions(id)')
+    .order('created_at', { ascending: false }).limit(10);
+  if (error) { document.getElementById('recentList').innerHTML = `<div class="err-box">Could not load: ${error.message}</div>`; return; }
+  let qs = data.map(q => ({
+    id: q.id, title: q.title, about: q.about, at: ago(q.created_at),
+    tags: q.question_tags.map(t => t.tags?.name).filter(Boolean),
+    n: q.intuitions.length, up: 0, dn: 0
+  }));
+  const vm = await getVotes(qs.map(q => q.id), 'question');
+  qs.forEach(q => { const v = vm[q.id] || {}; q.up = v.up || 0; q.dn = v.dn || 0; });
+  const el = document.getElementById('recentList');
+  if (!qs.length) { el.innerHTML = '<div class="empty-state"><span class="empty-icon">📭</span>No questions yet — be the first to post!</div>'; return; }
+  el.innerHTML = qs.map((q, i) => cardHTML(q, i)).join('');
   el.querySelectorAll('.kr').forEach(renderMath);
 }
 
-function cardHTML(q,i=0){
-  const score=q.up-q.dn,sc=score>0?'pos':score<0?'neg':'';
-  const cat=q.tags[0]||'',cd=Object.entries(CATS).find(([k])=>k===cat),page=cd?cd[1].page:'algebra.html';
-  return`<a class="q-card" href="${page}?q=${q.id}" style="animation-delay:${i*55}ms">
+function cardHTML(q, i = 0) {
+  const score = q.up - q.dn, sc = score > 0 ? 'pos' : score < 0 ? 'neg' : '';
+  const cat = q.tags[0] || '', cd = Object.entries(CATS).find(([k]) => k === cat), page = cd ? cd[1].page : 'algebra.html';
+  return `<a class="q-card" href="${page}?q=${q.id}" style="animation-delay:${i*55}ms">
     <div class="v-col">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text3)"><polyline points="18 15 12 9 6 15"/></svg>
       <span class="v-score ${sc}">${score}</span>
@@ -488,57 +575,77 @@ function cardHTML(q,i=0){
     <div class="q-body">
       <div class="q-title kr">${esc(q.title)}</div>
       <div class="q-about"><span class="q-lbl">About&nbsp;</span><span class="kr">${esc(q.about)}</span></div>
-      <div class="q-tags">${q.tags.map((t,i)=>`<span class="qtag qtag-${Math.min(i,1)}">${t}</span>`).join('')}</div>
+      <div class="q-tags">${q.tags.map((t, i) => `<span class="qtag qtag-${Math.min(i,1)}">${t}</span>`).join('')}</div>
       <div class="q-meta">${q.at}</div>
     </div>
   </a>`;
 }
 
-function handleSearch(){
-  const v=document.getElementById('globalSearch').value;
-  document.getElementById('searchClear').classList.toggle('hidden',!v);
-  clearTimeout(searchTimer);searchTimer=setTimeout(doSearch,280);
+// ---------------------------------------------------------------------------
+// Search
+// ---------------------------------------------------------------------------
+function handleSearch() {
+  const v = document.getElementById('globalSearch').value;
+  document.getElementById('searchClear').classList.toggle('hidden', !v);
+  clearTimeout(searchTimer); searchTimer = setTimeout(doSearch, 280);
 }
-function clearSearch(){
-  document.getElementById('globalSearch').value='';
+function clearSearch() {
+  document.getElementById('globalSearch').value = '';
   document.getElementById('searchClear').classList.add('hidden');
   document.getElementById('browseSec').classList.remove('hidden');
   document.getElementById('searchSec').classList.add('hidden');
 }
-async function doSearch(){
-  const q=document.getElementById('globalSearch').value.trim();
-  if(!q){clearSearch();return;}
+async function doSearch() {
+  const q = document.getElementById('globalSearch').value.trim();
+  if (!q) { clearSearch(); return; }
   document.getElementById('browseSec').classList.add('hidden');
   document.getElementById('searchSec').classList.remove('hidden');
-  document.getElementById('searchList').innerHTML='<div class="loading-state"><div class="spinner"></div>Searching…</div>';
-  if(searchCtrl)searchCtrl.abort();searchCtrl=new AbortController();
-  try{
-    const{data,error}=await db.from('questions').select('id,title,about,created_at,question_tags(tags(name)),intuitions(id)').or(`title.ilike.%${q}%,about.ilike.%${q}%`).order('created_at',{ascending:false}).limit(20).abortSignal(searchCtrl.signal);
-    if(error)throw error;
-    let rs=data.map(r=>({id:r.id,title:r.title,about:r.about,at:ago(r.created_at),tags:r.question_tags.map(t=>t.tags?.name).filter(Boolean),n:r.intuitions.length,up:0,dn:0}));
-    const vm=await getVotes(rs.map(r=>r.id),'question');
-    rs.forEach(r=>{const v=vm[r.id]||{};r.up=v.up||0;r.dn=v.dn||0;});
-    document.getElementById('searchCount').innerHTML=`<strong>${rs.length}</strong> result${rs.length!==1?'s':''} for "<em>${esc(q)}</em>"`;
-    const el=document.getElementById('searchList');
-    el.innerHTML=rs.length?rs.map((r,i)=>cardHTML(r,i)).join(''):'<div class="empty-state"><span class="empty-icon">🔍</span>No results found.</div>';
+  document.getElementById('searchList').innerHTML = '<div class="loading-state"><div class="spinner"></div>Searching…</div>';
+  if (searchCtrl) searchCtrl.abort(); searchCtrl = new AbortController();
+  try {
+    const { data, error } = await db.from('questions')
+      .select('id,title,about,created_at,question_tags(tags(name)),intuitions(id)')
+      .or(`title.ilike.%${q}%,about.ilike.%${q}%`)
+      .order('created_at', { ascending: false }).limit(20).abortSignal(searchCtrl.signal);
+    if (error) throw error;
+    let rs = data.map(r => ({
+      id: r.id, title: r.title, about: r.about, at: ago(r.created_at),
+      tags: r.question_tags.map(t => t.tags?.name).filter(Boolean),
+      n: r.intuitions.length, up: 0, dn: 0
+    }));
+    const vm = await getVotes(rs.map(r => r.id), 'question');
+    rs.forEach(r => { const v = vm[r.id] || {}; r.up = v.up || 0; r.dn = v.dn || 0; });
+    document.getElementById('searchCount').innerHTML = `<strong>${rs.length}</strong> result${rs.length !== 1 ? 's' : ''} for "<em>${esc(q)}</em>"`;
+    const el = document.getElementById('searchList');
+    el.innerHTML = rs.length ? rs.map((r, i) => cardHTML(r, i)).join('') : '<div class="empty-state"><span class="empty-icon">🔍</span>No results found.</div>';
     el.querySelectorAll('.kr').forEach(renderMath);
-  }catch(e){if(e.name!=='AbortError')document.getElementById('searchList').innerHTML=`<div class="err-box">Search error: ${e.message}</div>`;}
+  } catch(e) {
+    if (e.name !== 'AbortError') document.getElementById('searchList').innerHTML = `<div class="err-box">Search error: ${e.message}</div>`;
+  }
 }
 
+// ---------------------------------------------------------------------------
+// Toast
+// ---------------------------------------------------------------------------
 let toastTimer;
-function toast(msg,type='success'){
-  document.querySelector('.toast')?.remove();clearTimeout(toastTimer);
-  const t=document.createElement('div');t.className=`toast ${type}`;
-  t.innerHTML=`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">${type==='success'?'<polyline points="20 6 9 17 4 12"/>':'<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>'}</svg> ${msg}`;
-  document.body.appendChild(t);toastTimer=setTimeout(()=>t.remove(),3200);
+function toast(msg, type = 'success') {
+  document.querySelector('.toast')?.remove(); clearTimeout(toastTimer);
+  const t = document.createElement('div'); t.className = `toast ${type}`;
+  t.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">${type==='success'?'<polyline points="20 6 9 17 4 12"/>':'<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>'}</svg> ${msg}`;
+  document.body.appendChild(t); toastTimer = setTimeout(() => t.remove(), 3200);
 }
 
-document.addEventListener('keydown',e=>{
-  if(e.key==='Escape'){
-    if(document.getElementById('authOverlay').classList.contains('open'))closeAuth();
+// ---------------------------------------------------------------------------
+// Keyboard shortcuts
+// ---------------------------------------------------------------------------
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    if (document.getElementById('authOverlay').classList.contains('open')) closeAuth();
     else clearSearch();
   }
-  if(e.key==='Enter'&&document.getElementById('authOverlay').classList.contains('open')){const b=document.getElementById('authSubmit');if(!b.disabled)submitAuth();}
+  if (e.key === 'Enter' && document.getElementById('authOverlay').classList.contains('open')) {
+    const b = document.getElementById('authSubmit'); if (!b.disabled) submitAuth();
+  }
 });
 </script>
 </body>
