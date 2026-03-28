@@ -63,7 +63,7 @@ html.light .search-input:focus{box-shadow:0 0 0 3px rgba(30,122,72,.1),var(--sha
 .sec-hd{display:flex;align-items:baseline;gap:12px;margin-bottom:22px}
 .sec-title{font-family:var(--font-disp);font-size:1.2rem;font-weight:700;color:var(--text);letter-spacing:-.01em;white-space:nowrap}
 .sec-line{flex:1;height:1px;background:var(--border)}
-.topic-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(188px,1fr));gap:14px;margin-bottom:52px}
+.topic-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:52px}
 .topic-card{position:relative;background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:22px 20px 18px;cursor:pointer;transition:transform .2s,box-shadow .2s,border-color .2s,background .2s;text-decoration:none;display:block;overflow:hidden}
 .topic-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--tc,var(--primary));opacity:0;transition:opacity .2s}
 .topic-card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,.5);border-color:var(--border3);background:var(--card-hover)}
@@ -134,7 +134,7 @@ html.light .auth-msg.ok{background:rgba(30,122,72,.06);border-color:rgba(30,122,
   main{padding:0 18px 48px}
   .logo-tagline{display:none}
   .hero{padding:52px 16px 40px}
-  .topic-grid{grid-template-columns:1fr 1fr;gap:12px}
+  .topic-grid{grid-template-columns:repeat(5,1fr);gap:10px}
   .topic-card{padding:18px 16px 14px}
   .t-glyph{font-size:1.6rem}
 }
@@ -255,20 +255,55 @@ const CATS={
 };
 
 let me=null,profile=null,authMode='login',searchCtrl=null,searchTimer=null;
+// Guard so we only call loadRecent() once after the session is known
+let dataLoaded=false;
 
 document.addEventListener('DOMContentLoaded',()=>{
   applyTheme(localStorage.getItem('theme')||'dark');
   buildGrid();
-  loadRecent();
+  // Immediately check for an existing session so we don't flash "logged out"
+  // and so loadRecent() runs with the correct auth token attached.
+  initAuth();
 });
+
+async function initAuth(){
+  // getSession() restores the persisted token from localStorage synchronously
+  // (Supabase v2 exposes it as an async wrapper but the token is already in memory).
+  const{data:{session}}=await db.auth.getSession();
+  me=session?.user??null;
+  if(me){await fetchProfile(me);}
+  refreshHeader();
+  // Now that we know who the user is (or isn't), load data once.
+  if(!dataLoaded){dataLoaded=true;loadRecent();}
+}
 
 function onKatexReady(){document.querySelectorAll('.kr').forEach(renderMath);}
 
 db.auth.onAuthStateChange(async(ev,session)=>{
+  const prevMe=me;
   me=session?.user??null;
   if(me){await fetchProfile(me);}else{profile=null;}
   refreshHeader();
-  if(ev==='SIGNED_IN'&&document.getElementById('authOverlay').classList.contains('open')){closeAuth();toast('Welcome back! 👋','success');}
+
+  // On sign-in: close modal, toast, and reload questions so RLS picks up the token
+  if(ev==='SIGNED_IN'){
+    if(document.getElementById('authOverlay').classList.contains('open')){
+      closeAuth();
+      toast('Welcome back! 👋','success');
+    }
+    // Always reload questions on sign-in so any RLS-gated content appears
+    dataLoaded=false;
+    if(!dataLoaded){dataLoaded=true;loadRecent();}
+  }
+
+  // On sign-out: reload questions (removes any auth-only content)
+  if(ev==='SIGNED_OUT'){
+    dataLoaded=false;
+    if(!dataLoaded){dataLoaded=true;loadRecent();}
+  }
+
+  // First INITIAL_SESSION event fires after getSession() already ran in initAuth,
+  // so we skip reloading to avoid a duplicate fetch.
 });
 
 async function fetchProfile(user){
@@ -399,6 +434,7 @@ function buildGrid(){
 }
 
 async function loadRecent(){
+  document.getElementById('recentList').innerHTML='<div class="loading-state"><div class="spinner"></div>Loading questions…</div>';
   const{data,error}=await db.from('questions').select('id,title,about,created_at,question_tags(tags(name)),intuitions(id)').order('created_at',{ascending:false}).limit(10);
   if(error){document.getElementById('recentList').innerHTML=`<div class="err-box">Could not load: ${error.message}</div>`;return;}
   let qs=data.map(q=>({id:q.id,title:q.title,about:q.about,at:ago(q.created_at),tags:q.question_tags.map(t=>t.tags?.name).filter(Boolean),n:q.intuitions.length,up:0,dn:0}));
