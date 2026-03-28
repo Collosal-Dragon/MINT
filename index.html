@@ -255,55 +255,84 @@ const CATS={
 };
 
 let me=null,profile=null,authMode='login',searchCtrl=null,searchTimer=null;
-// Guard so we only call loadRecent() once after the session is known
 let dataLoaded=false;
 
 document.addEventListener('DOMContentLoaded',()=>{
   applyTheme(localStorage.getItem('theme')||'dark');
   buildGrid();
-  // Immediately check for an existing session so we don't flash "logged out"
-  // and so loadRecent() runs with the correct auth token attached.
   initAuth();
+  setupVisibilityRefresh();
 });
 
 async function initAuth(){
-  // getSession() restores the persisted token from localStorage synchronously
-  // (Supabase v2 exposes it as an async wrapper but the token is already in memory).
-  const{data:{session}}=await db.auth.getSession();
+  // Try to refresh first — this exchanges a stored refresh token for a fresh
+  // access token, solving the "works in incognito but breaks after idle" problem.
+  // Falls back to getSession() if there's nothing to refresh (logged-out users).
+  let session=null;
+  try{
+    const{data,error}=await db.auth.refreshSession();
+    if(!error&&data.session){session=data.session;}
+  }catch(_){}
+  if(!session){
+    const{data}=await db.auth.getSession();
+    session=data.session;
+  }
   me=session?.user??null;
   if(me){await fetchProfile(me);}
   refreshHeader();
-  // Now that we know who the user is (or isn't), load data once.
   if(!dataLoaded){dataLoaded=true;loadRecent();}
+}
+
+// When user returns to a backgrounded tab the access token may have expired.
+// Re-refresh immediately so queries go out with a valid token.
+function setupVisibilityRefresh(){
+  document.addEventListener('visibilitychange',async()=>{
+    if(document.visibilityState!=='visible')return;
+    try{
+      const{data,error}=await db.auth.refreshSession();
+      if(error||!data.session){
+        // Refresh token itself expired — force logout state
+        if(me){
+          me=null;profile=null;
+          refreshHeader();
+          loadRecent();
+          toast('Your session expired. Please log in again.','error');
+        }
+        return;
+      }
+      // Token rotated successfully — Supabase client now has the new token.
+      // If the user identity changed somehow, re-sync.
+      if(data.session.user.id!==me?.id){
+        me=data.session.user;
+        await fetchProfile(me);
+        refreshHeader();
+        loadRecent();
+      }
+    }catch(_){}
+  });
 }
 
 function onKatexReady(){document.querySelectorAll('.kr').forEach(renderMath);}
 
 db.auth.onAuthStateChange(async(ev,session)=>{
-  const prevMe=me;
   me=session?.user??null;
   if(me){await fetchProfile(me);}else{profile=null;}
   refreshHeader();
 
-  // On sign-in: close modal, toast, and reload questions so RLS picks up the token
   if(ev==='SIGNED_IN'){
     if(document.getElementById('authOverlay').classList.contains('open')){
       closeAuth();
       toast('Welcome back! 👋','success');
     }
-    // Always reload questions on sign-in so any RLS-gated content appears
     dataLoaded=false;
     if(!dataLoaded){dataLoaded=true;loadRecent();}
   }
-
-  // On sign-out: reload questions (removes any auth-only content)
   if(ev==='SIGNED_OUT'){
     dataLoaded=false;
     if(!dataLoaded){dataLoaded=true;loadRecent();}
   }
-
-  // First INITIAL_SESSION event fires after getSession() already ran in initAuth,
-  // so we skip reloading to avoid a duplicate fetch.
+  // TOKEN_REFRESHED: Supabase rotated the token automatically in the background.
+  // The client already has the new token — no action needed.
 });
 
 async function fetchProfile(user){
