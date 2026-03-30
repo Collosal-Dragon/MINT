@@ -252,6 +252,7 @@ const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
     detectSessionInUrl: true,
     storageKey:         'mint-session',
     storage:            window.localStorage,
+    lock:               (_name, _timeout, fn) => fn(),
   }
 });
 
