@@ -128,6 +128,9 @@ html.light .auth-msg.ok{background:rgba(30,122,72,.06);border-color:rgba(30,122,
 .toast.success{border-color:var(--green);color:var(--green)}
 .toast.error{border-color:var(--red);color:var(--red)}
 @keyframes toastIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+/* Prevent header flash while session is being restored */
+.auth-loading #userPill,
+.auth-loading #authBtn { opacity: 0; pointer-events: none; }
 .hidden{display:none!important}
 @media(max-width:680px){
   .header-inner{padding:0 18px}
@@ -265,17 +268,53 @@ const CATS = {
 
 let me = null, profile = null, authMode = 'login', searchCtrl = null, searchTimer = null;
 
+// ── BOOT SEQUENCE ────────────────────────────────────────────────────────────
+// Hide the auth controls while we check localStorage — prevents the "Log in"
+// flash before the persisted session is confirmed.
+document.body.classList.add('auth-loading');
+
 document.addEventListener('DOMContentLoaded', () => {
   applyTheme(localStorage.getItem('theme') || 'dark');
   buildGrid();
+
+  // Eagerly restore from localStorage so the header shows the right state
+  // before the async Supabase session check completes.
+  restoreSessionFromStorage();
 });
 
-// onAuthStateChange is the single driver for both auth state and data loading.
-// Supabase fires INITIAL_SESSION on every page load (logged in or out),
-// then SIGNED_IN / SIGNED_OUT / TOKEN_REFRESHED as things change.
+// Try to read the cached session from localStorage synchronously so the header
+// shows the correct state with zero delay on every page load/navigation.
+function restoreSessionFromStorage() {
+  try {
+    const raw = localStorage.getItem('mint-session');
+    if (!raw) return; // no stored session → stay logged-out
+    const stored = JSON.parse(raw);
+    const user = stored?.user ?? stored?.currentSession?.user ?? null;
+    if (!user) return;
+    // Optimistically show the user as logged in from cache.
+    // onAuthStateChange will validate/refresh the token in the background.
+    me = user;
+    // Fetch profile or derive a display name from the stored data.
+    const cached = stored?.user?.user_metadata;
+    const displayName = cached?.username || cached?.full_name || user.email?.split('@')[0] || 'You';
+    profile = { username: displayName, email: user.email };
+    refreshHeader();
+  } catch (_) {
+    // Malformed storage — ignore; onAuthStateChange will handle it.
+  }
+}
+
+// onAuthStateChange is the authoritative driver for auth state.
+// INITIAL_SESSION fires on every page load and gives us the real validated session.
 db.auth.onAuthStateChange(async (ev, session) => {
   me = session?.user ?? null;
-  if (me) await fetchProfile(me); else profile = null;
+  if (me) {
+    await fetchProfile(me);
+  } else {
+    profile = null;
+  }
+  // Session is confirmed (or confirmed absent) — show the header now.
+  document.body.classList.remove('auth-loading');
   refreshHeader();
 
   if (ev === 'SIGNED_IN' && document.getElementById('authOverlay').classList.contains('open')) {
@@ -283,13 +322,12 @@ db.auth.onAuthStateChange(async (ev, session) => {
     toast('Welcome back!', 'success');
   }
 
-  // Reload questions on first load and on auth changes (not on silent token refresh).
   if (ev === 'INITIAL_SESSION' || ev === 'SIGNED_IN' || ev === 'SIGNED_OUT') {
     loadRecent();
   }
 });
 
-// Re-refresh when returning to a suspended/backgrounded tab.
+// Re-validate when the user returns to a backgrounded/suspended tab.
 document.addEventListener('visibilitychange', async () => {
   if (document.visibilityState !== 'visible' || !me) return;
   const { error } = await db.auth.refreshSession();
@@ -303,7 +341,7 @@ document.addEventListener('visibilitychange', async () => {
 
 function onKatexReady() { document.querySelectorAll('.kr').forEach(renderMath); }
 
-// Profile
+// ── PROFILE ──────────────────────────────────────────────────────────────────
 async function fetchProfile(user) {
   const { data } = await db.from('profiles').select('username,email').eq('id', user.id).maybeSingle();
   if (data) { profile = data; refreshHeader(); return; }
@@ -332,7 +370,7 @@ function refreshHeader() {
   }
 }
 
-// Google OAuth
+// ── GOOGLE OAUTH ─────────────────────────────────────────────────────────────
 async function googleSignIn() {
   const { error } = await db.auth.signInWithOAuth({
     provider: 'google',
@@ -341,7 +379,7 @@ async function googleSignIn() {
   if (error) toast('Google sign-in failed: ' + error.message, 'error');
 }
 
-// Auth modal
+// ── AUTH MODAL ────────────────────────────────────────────────────────────────
 function openAuth() {
   document.getElementById('authOverlay').classList.add('open');
   switchTab('login');
@@ -419,7 +457,7 @@ function niceErr(m) {
   return m;
 }
 
-// Theme
+// ── THEME ─────────────────────────────────────────────────────────────────────
 function applyTheme(t) {
   document.documentElement.className = t;
   document.getElementById('iconDark').classList.toggle('hidden',  t === 'dark');
@@ -430,7 +468,7 @@ document.getElementById('themeBtn').addEventListener('click', () => {
   localStorage.setItem('theme', t); applyTheme(t);
 });
 
-// Utilities
+// ── UTILITIES ─────────────────────────────────────────────────────────────────
 function ago(ts) {
   const d = Date.now() - new Date(ts), m = ~~(d/6e4), h = ~~(d/36e5), dy = ~~(d/864e5);
   return m < 1 ? 'just now' : m < 60 ? `${m}m ago` : h < 24 ? `${h}h ago` : dy < 7 ? `${dy}d ago` : `${~~(dy/7)}w ago`;
@@ -450,7 +488,7 @@ async function getVotes(ids, type) {
   return m;
 }
 
-// Grid
+// ── GRID ──────────────────────────────────────────────────────────────────────
 function buildGrid() {
   document.getElementById('topicGrid').innerHTML = Object.entries(CATS).map(([name, c]) => `
     <a class="topic-card" href="${c.page}" style="--tc:${c.color}">
@@ -464,7 +502,7 @@ function buildGrid() {
     </a>`).join('');
 }
 
-// Questions
+// ── QUESTIONS ─────────────────────────────────────────────────────────────────
 async function loadRecent() {
   document.getElementById('recentList').innerHTML =
     '<div class="loading-state"><div class="spinner"></div>Loading questions...</div>';
@@ -514,7 +552,7 @@ function cardHTML(q, i = 0) {
   </a>`;
 }
 
-// Search
+// ── SEARCH ────────────────────────────────────────────────────────────────────
 function handleSearch() {
   const v = document.getElementById('globalSearch').value;
   document.getElementById('searchClear').classList.toggle('hidden', !v);
@@ -559,7 +597,7 @@ async function doSearch() {
   }
 }
 
-// Toast
+// ── TOAST ─────────────────────────────────────────────────────────────────────
 let toastTimer;
 function toast(msg, type = 'success') {
   document.querySelector('.toast')?.remove(); clearTimeout(toastTimer);
@@ -570,7 +608,7 @@ function toast(msg, type = 'success') {
   document.body.appendChild(t); toastTimer = setTimeout(() => t.remove(), 3200);
 }
 
-// Keyboard
+// ── KEYBOARD ──────────────────────────────────────────────────────────────────
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
     if (document.getElementById('authOverlay').classList.contains('open')) closeAuth();
