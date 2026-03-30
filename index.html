@@ -277,27 +277,25 @@ document.addEventListener('DOMContentLoaded', async () => {
   applyTheme(localStorage.getItem('theme') || 'dark');
   buildGrid();
 
-  // getSession() reads the cached token from localStorage without a network
-  // call, so it resolves almost instantly and gives us the right state before
-  // onAuthStateChange fires its async INITIAL_SESSION event.
-  const { data: { session } } = await db.auth.getSession();
-  if (session?.user) {
-    me = session.user;
-    // Show a display name immediately from the token's metadata while we
-    // fetch the real profile row in the background.
-    const meta = session.user.user_metadata;
-    profile = {
-      username: meta?.username || meta?.full_name || session.user.email.split('@')[0],
-      email: session.user.email,
-    };
-    refreshHeader();
-    // Fetch the real profile row in background (updates username pill).
-    fetchProfile(session.user);
+  try {
+    const { data: { session } } = await db.auth.getSession();
+    if (session?.user) {
+      me = session.user;
+      const meta = session.user.user_metadata;
+      profile = {
+        username: meta?.username || meta?.full_name || session.user.email.split('@')[0],
+        email: session.user.email,
+      };
+      refreshHeader();
+      fetchProfile(session.user);
+    }
+  } catch (_) {
+    // If getSession() fails, fall through to logged-out state.
+  } finally {
+    // ALWAYS remove auth-loading so the header is never permanently unclickable.
+    document.body.classList.remove('auth-loading');
   }
-  // Reveal the header now that we know the correct state.
-  document.body.classList.remove('auth-loading');
 
-  // Load questions right away — don't wait for onAuthStateChange.
   loadRecent();
 });
 
