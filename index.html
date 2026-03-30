@@ -268,44 +268,37 @@ let me = null, profile = null, authMode = 'login', searchCtrl = null, searchTime
 // ── BOOT SEQUENCE ────────────────────────────────────────────────────────────
 // Hide auth controls until we know the session state — prevents the "Log in"
 // flash on every reload for logged-in users.
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('DOMContentLoaded', () => {
   applyTheme(localStorage.getItem('theme') || 'dark');
   buildGrid();
-
-  const { data: { session } } = await db.auth.getSession().catch(() => ({ data: { session: null } }));
-  if (session?.user) {
-    me = session.user;
-    const meta = session.user.user_metadata;
-    profile = {
-      username: meta?.username || meta?.full_name || session.user.email.split('@')[0],
-      email: session.user.email,
-    };
-    refreshHeader();
-    fetchProfile(session.user);
-  }
-
-  loadRecent();
+  // Set up the login button default before session loads
+  refreshHeader();
 });
 
-// onAuthStateChange handles live events: new sign-ins, sign-outs, and token
-// refreshes. We no longer rely on it for the initial page-load state.
+// onAuthStateChange fires INITIAL_SESSION on every page load (logged in or out),
+// then SIGNED_IN / SIGNED_OUT for live changes. This is the single source of truth.
 db.auth.onAuthStateChange(async (ev, session) => {
-  if (ev === 'INITIAL_SESSION') return; // already handled in DOMContentLoaded
-
   me = session?.user ?? null;
+
   if (me) {
+    // Show logged-in state immediately (email as fallback name), then
+    // update again once the real profile row is fetched from the DB.
+    if (!profile) {
+      profile = { username: me.user_metadata?.username || me.user_metadata?.full_name || me.email.split('@')[0], email: me.email };
+    }
+    refreshHeader();
     await fetchProfile(me);
   } else {
     profile = null;
+    refreshHeader();
   }
-  refreshHeader();
 
   if (ev === 'SIGNED_IN' && document.getElementById('authOverlay').classList.contains('open')) {
     closeAuth();
     toast('Welcome back!', 'success');
   }
 
-  if (ev === 'SIGNED_IN' || ev === 'SIGNED_OUT') {
+  if (ev === 'INITIAL_SESSION' || ev === 'SIGNED_IN' || ev === 'SIGNED_OUT') {
     loadRecent();
   }
 });
