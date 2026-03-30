@@ -128,9 +128,6 @@ html.light .auth-msg.ok{background:rgba(30,122,72,.06);border-color:rgba(30,122,
 .toast.success{border-color:var(--green);color:var(--green)}
 .toast.error{border-color:var(--red);color:var(--red)}
 @keyframes toastIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-/* Prevent header flash while session is being restored */
-.auth-loading #userPill,
-.auth-loading #authBtn { opacity: 0; pointer-events: none; }
 .hidden{display:none!important}
 @media(max-width:680px){
   .header-inner{padding:0 18px}
@@ -174,7 +171,7 @@ html.light .auth-msg.ok{background:rgba(30,122,72,.06);border-color:rgba(30,122,
   <div class="hero">
     <div class="hero-eyebrow"><span class="eyebrow-dot"></span>Community Forum</div>
     <h1 class="hero-title">
-      Build Mathematical <em>Intuition</em>
+      Build <em>M</em>athematical <em>Int</em>uition
       <span class="sub">Together, one insight at a time.</span>
     </h1>
     <p class="hero-body">Share the intuitions and insights behind Olympiad mathematics. Ask questions, post your thinking, and sharpen your understanding alongside others.</p>
@@ -271,29 +268,20 @@ let me = null, profile = null, authMode = 'login', searchCtrl = null, searchTime
 // ── BOOT SEQUENCE ────────────────────────────────────────────────────────────
 // Hide auth controls until we know the session state — prevents the "Log in"
 // flash on every reload for logged-in users.
-document.body.classList.add('auth-loading');
-
 document.addEventListener('DOMContentLoaded', async () => {
   applyTheme(localStorage.getItem('theme') || 'dark');
   buildGrid();
 
-  try {
-    const { data: { session } } = await db.auth.getSession();
-    if (session?.user) {
-      me = session.user;
-      const meta = session.user.user_metadata;
-      profile = {
-        username: meta?.username || meta?.full_name || session.user.email.split('@')[0],
-        email: session.user.email,
-      };
-      refreshHeader();
-      fetchProfile(session.user);
-    }
-  } catch (_) {
-    // If getSession() fails, fall through to logged-out state.
-  } finally {
-    // ALWAYS remove auth-loading so the header is never permanently unclickable.
-    document.body.classList.remove('auth-loading');
+  const { data: { session } } = await db.auth.getSession().catch(() => ({ data: { session: null } }));
+  if (session?.user) {
+    me = session.user;
+    const meta = session.user.user_metadata;
+    profile = {
+      username: meta?.username || meta?.full_name || session.user.email.split('@')[0],
+      email: session.user.email,
+    };
+    refreshHeader();
+    fetchProfile(session.user);
   }
 
   loadRecent();
