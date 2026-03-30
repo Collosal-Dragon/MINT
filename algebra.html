@@ -69,12 +69,28 @@ main{max-width:1040px;margin:0 auto;padding:28px 28px 60px;position:relative;z-i
 @media(max-width:680px){.topic-layout{grid-template-columns:1fr}}
 
 /* ── SIDEBAR ── */
-.sidebar{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:14px;position:sticky;top:74px}
+.sidebar{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:14px;position:sticky;top:74px;overflow:hidden}
 .sidebar-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin-bottom:10px}
-.subtopic-btn{display:block;width:100%;text-align:left;padding:8px 10px;border-radius:8px;border:none;background:transparent;color:var(--text2);font-family:var(--font-body);font-size:13px;cursor:pointer;transition:all .15s;margin-bottom:2px}
+.subtopic-btn{display:flex;align-items:center;justify-content:space-between;width:100%;text-align:left;padding:8px 10px;border-radius:8px;border:none;background:transparent;color:var(--text2);font-family:var(--font-body);font-size:13px;cursor:pointer;transition:all .15s;margin-bottom:2px}
 .subtopic-btn:hover{background:var(--bg3);color:var(--text)}
 .subtopic-btn.active{background:var(--primary);color:#0b0c10;font-weight:600}
 html.light .subtopic-btn.active{color:#fff}
+.subtopic-chevron{transition:transform .2s;opacity:.5;flex-shrink:0}
+.subtopic-btn.open .subtopic-chevron{transform:rotate(90deg)}
+.subtopic-btn.active .subtopic-chevron{opacity:.7}
+/* SSC panel */
+.ssc-panel{overflow:hidden;max-height:0;transition:max-height .28s cubic-bezier(.4,0,.2,1);margin-bottom:2px}
+.ssc-panel.open{max-height:600px}
+.ssc-group-label{display:flex;align-items:center;gap:6px;padding:6px 10px 3px;font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--text3);margin-top:4px}
+.ssc-type-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.ssc-type-dot.structure{background:var(--blue)}
+.ssc-type-dot.technique{background:var(--gold)}
+.ssc-btn{display:block;width:100%;text-align:left;padding:5px 10px 5px 22px;border-radius:6px;border:none;background:transparent;color:var(--text3);font-family:var(--font-body);font-size:12px;cursor:pointer;transition:all .15s;margin-bottom:1px;line-height:1.35}
+.ssc-btn:hover{background:var(--bg3);color:var(--text)}
+.ssc-btn.active{background:rgba(110,231,160,.12);color:var(--primary);font-weight:600}
+html.light .ssc-btn.active{background:rgba(30,122,72,.08);color:var(--primary)}
+.ssc-btn.active-technique{background:rgba(240,192,96,.1);color:var(--gold)}
+html.light .ssc-btn.active-technique{background:rgba(176,120,32,.08);color:var(--gold)}
 
 /* ── TOOLBAR ── */
 .toolbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
@@ -338,10 +354,33 @@ html.light .auth-msg.ok{background:rgba(30,122,72,.06);border-color:rgba(30,122,
     </div>
     <div class="form-group">
       <label class="form-label">Sub-category (optional)</label>
-      <select class="form-select" id="newQSub">
+      <select class="form-select" id="newQSub" onchange="onNewQSubChange()">
         <option value="">No sub-category</option>
         <option>Exponents</option><option>Polynomials</option><option>Inequalities</option><option>AM-GM</option><option>Cauchy-Schwarz</option>
       </select>
+    </div>
+    <div id="newQSscWrap" style="display:none">
+      <div class="form-group">
+        <label class="form-label">Sub-sub-category (optional)</label>
+        <select class="form-select" id="newQSsc" onchange="onNewQSscChange()">
+          <option value="">No sub-sub-category</option>
+        </select>
+      </div>
+      <div id="newQSscTypeWrap" style="display:none" class="form-group">
+        <label class="form-label">Type</label>
+        <div style="display:flex;gap:8px">
+          <label style="display:flex;align-items:center;gap:7px;cursor:pointer;padding:8px 14px;border-radius:8px;border:1px solid var(--border2);flex:1;transition:all .15s" id="typeStructureLabel">
+            <input type="radio" name="newQSscType" value="structure" id="typeStructure" style="accent-color:var(--blue)" onchange="syncTypeLabels()" />
+            <span class="ssc-type-dot structure"></span>
+            <span style="font-size:13px;font-weight:500">Structure</span>
+          </label>
+          <label style="display:flex;align-items:center;gap:7px;cursor:pointer;padding:8px 14px;border-radius:8px;border:1px solid var(--border2);flex:1;transition:all .15s" id="typeTechniqueLabel">
+            <input type="radio" name="newQSscType" value="technique" id="typeTechnique" style="accent-color:var(--gold)" onchange="syncTypeLabels()" />
+            <span class="ssc-type-dot technique"></span>
+            <span style="font-size:13px;font-weight:500">Technique</span>
+          </label>
+        </div>
+      </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" id="newQCancelBtn">Cancel</button>
@@ -395,13 +434,44 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const TOPIC_NAME = 'Algebra';
-const SUBS = ['Exponents','Polynomials','Inequalities','AM-GM','Cauchy-Schwarz'];
+const SUBS = ['Functional Equations', 'Inequality', 'Sequences', 'Polynomials', 'Others'];
+
+// Sub-sub-categories: each subtopic has Structure and Technique SSCs
+const SSC = {
+  'Functional Equations': {
+    structure: ['Reals', 'Positive Reals', 'Rationals/Integers', 'Natural Numbers', 'Injectivity/Surjectivity'],
+    technique: ['Wrapped', 'Inequalities', 'Transformation'],
+  },
+  'Inequality': {
+    structure: ['2 Variable', '3 Variable', 'Geometric Inequalities', 'Convex/Concavity'],
+    technique: ['Tangent Line Trick', 'Smoothing', 'Homogenous', 'AM-GM', 'Cauchy Schwarz Inequality', 'Substitution'],
+  },
+  'Sequences': {
+    structure: ['Periodic', 'Bounded', 'Monotonic'],
+    technique: ['Recurrence Relations', 'Summation Methods'], // Added common techniques for completeness
+  },
+  'Polynomials': {
+    structure: ['Coefficients', 'Degree', 'Integer Polynomials', 'Rational Polynomials', 'Real Polynomials', 'Roots'],
+    technique: ['Factorisation', 'Inequalities', 'Symmetry'],
+  },
+  'Others': {
+    structure: ['Size'],
+    technique: ['Calculus'],
+  }
+};
+// Helper: encode/decode SSC tag names stored as "Sub::SSCName::type"
+function sscTagName(sub, sscName, type) { return `${sub}::${sscName}::${type}`; }
+function parseSscTag(tag) {
+  const p = tag.split('::');
+  if (p.length === 3) return { sub: p[0], name: p[1], type: p[2] };
+  return null;
+}
 
 // ── STATE ─────────────────────────────────────────────────
 let me = null, profile = null, authMode = 'login';
 let questions = [], intuitions = {}, takeaways = {};
 let questionVotes = {}, intuitionVotes = {}, takeawayVotes = {};
-let selectedQuestion = null, activeSubtopic = null;
+let selectedQuestion = null, activeSubtopic = null, activeSsc = null, activeSscType = null;
 let currentSort = 'relevance', currentDetailTab = 'intuitions', currentDetailSort = 'relevance';
 let idCounter = 9000;
 const formState = { statement:'', explanation:'', explanationLinks:[], exampleLink:'', exampleExplanation:'', takeawayContent:'', takeawayLinks:[] };
@@ -591,16 +661,85 @@ async function boot() {
 
 function buildSidebar() {
   const list = document.getElementById('subtopicList');
-  list.innerHTML = `<button class="subtopic-btn active" data-sub="">All Questions</button>` +
-    SUBS.map(s => `<button class="subtopic-btn" data-sub="${s}">${s}</button>`).join('');
-  list.querySelectorAll('.subtopic-btn').forEach(btn =>
+  // "All Questions" button
+  list.innerHTML = `<button class="subtopic-btn active" data-sub="" data-ssc="" data-ssctype="">
+    All Questions
+    <svg class="subtopic-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:none"><polyline points="9 18 15 12 9 6"/></svg>
+  </button>`;
+
+  SUBS.forEach(sub => {
+    const sscData = SSC[sub] || { structure:[], technique:[] };
+    // Subtopic row
+    const row = document.createElement('div');
+    row.innerHTML = `<button class="subtopic-btn" data-sub="${sub}" data-ssc="" data-ssctype="">
+      <span>${sub}</span>
+      <svg class="subtopic-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+    <div class="ssc-panel" id="ssc-panel-${sub.replace(/[^a-z0-9]/gi,'-')}">
+      <div class="ssc-group-label"><span class="ssc-type-dot structure"></span>Structure</div>
+      ${sscData.structure.map(n => `<button class="ssc-btn" data-sub="${sub}" data-ssc="${n}" data-ssctype="structure">${n}</button>`).join('')}
+      <div class="ssc-group-label" style="margin-top:6px"><span class="ssc-type-dot technique"></span>Technique</div>
+      ${sscData.technique.map(n => `<button class="ssc-btn" data-sub="${sub}" data-ssc="${n}" data-ssctype="technique">${n}</button>`).join('')}
+    </div>`;
+    list.appendChild(row);
+  });
+
+  // Wire up clicks
+  list.querySelectorAll('.subtopic-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      list.querySelectorAll('.subtopic-btn').forEach(b => b.classList.remove('active'));
+      const sub = btn.dataset.sub;
+      const isAll = !sub;
+      const panelId = sub ? `ssc-panel-${sub.replace(/[^a-z0-9]/gi,'-')}` : null;
+      const panel = panelId ? document.getElementById(panelId) : null;
+      const wasOpen = btn.classList.contains('open');
+
+      // If clicking an already-active subtopic, toggle its panel
+      if (btn.classList.contains('active') && !isAll) {
+        btn.classList.toggle('open', !wasOpen);
+        if (panel) panel.classList.toggle('open', !wasOpen);
+        return;
+      }
+
+      // Deactivate all
+      list.querySelectorAll('.subtopic-btn').forEach(b => b.classList.remove('active','open'));
+      list.querySelectorAll('.ssc-panel').forEach(p => p.classList.remove('open'));
+      list.querySelectorAll('.ssc-btn').forEach(b => b.classList.remove('active','active-technique'));
+
       btn.classList.add('active');
-      activeSubtopic = btn.dataset.sub || null;
+      activeSubtopic = sub || null;
+      activeSsc = null; activeSscType = null;
+
+      // Open panel for non-All
+      if (!isAll && panel) {
+        btn.classList.add('open');
+        panel.classList.add('open');
+      }
       renderQuestions();
-    })
-  );
+    });
+  });
+
+  list.querySelectorAll('.ssc-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const sub = btn.dataset.sub, ssc = btn.dataset.ssc, type = btn.dataset.ssctype;
+      const isSame = activeSsc === ssc && activeSscType === type;
+
+      list.querySelectorAll('.ssc-btn').forEach(b => b.classList.remove('active','active-technique'));
+      // Set parent subtopic active without toggling panel
+      list.querySelectorAll('.subtopic-btn').forEach(b => b.classList.remove('active'));
+      const parentBtn = list.querySelector(`.subtopic-btn[data-sub="${sub}"]`);
+      if (parentBtn) parentBtn.classList.add('active','open');
+
+      if (isSame) {
+        // Clicking same SSC deselects it, fall back to subtopic
+        activeSsc = null; activeSscType = null;
+      } else {
+        btn.classList.add(type === 'technique' ? 'active-technique' : 'active');
+        activeSubtopic = sub; activeSsc = ssc; activeSscType = type;
+      }
+      renderQuestions();
+    });
+  });
 }
 
 function bindEvents() {
@@ -681,11 +820,14 @@ function renderQuestions() {
   const q = document.getElementById('questionSearch').value.trim().toLowerCase();
   const filtered = questions.filter(x => {
     const ms = !activeSubtopic || x.tags.includes(activeSubtopic);
+    // SSC filter: tag stored as "Sub::SSCName::type"
+    const mssc = !activeSsc || x.tags.includes(sscTagName(activeSubtopic, activeSsc, activeSscType));
     const mq = !q || x.title.toLowerCase().includes(q) || (x.about||'').toLowerCase().includes(q) || x.tags.some(t => t.toLowerCase().includes(q));
-    return ms && mq;
+    return ms && mssc && mq;
   });
   const sorted = sortItems(filtered, currentSort);
-  document.getElementById('qCount').textContent = `${sorted.length} question${sorted.length!==1?'s':''}${activeSubtopic?` in ${activeSubtopic}`:''}`;
+  const scopeLabel = activeSsc ? `${activeSsc} (${activeSscType})` : activeSubtopic || '';
+  document.getElementById('qCount').textContent = `${sorted.length} question${sorted.length!==1?'s':''}${scopeLabel?` in ${scopeLabel}`:''}`;
   const container = document.getElementById('questionsList');
   if (!sorted.length) {
     container.innerHTML = `<div class="empty-state"><span class="empty-icon">💬</span>No questions yet${activeSubtopic?` in ${activeSubtopic}`:''}. Be the first!</div>`;
@@ -716,7 +858,16 @@ function questionCardHTML(q, i=0) {
     <div class="card-content">
       <div class="card-title kr">${esc(q.title)}</div>
       <div class="card-about"><span class="lbl">About </span><span class="kr">${esc(q.about)}</span></div>
-      <div class="tags">${q.tags.map((t,i) => `<span class="${i===0?'tag-primary':'tag-secondary'}">${t}</span>`).join('')}</div>
+      <div class="tags">${q.tags.map((t,i) => {
+        const ssc = parseSscTag(t);
+        if (ssc) {
+          const col = ssc.type === 'technique' ? 'rgba(240,192,96,.15)' : 'rgba(122,176,245,.15)';
+          const border = ssc.type === 'technique' ? 'rgba(240,192,96,.3)' : 'rgba(122,176,245,.3)';
+          const tc = ssc.type === 'technique' ? 'var(--gold)' : 'var(--blue)';
+          return `<span style="padding:2px 9px;border-radius:10px;font-size:10.5px;font-weight:600;background:${col};color:${tc};border:1px solid ${border}">${ssc.name}</span>`;
+        }
+        return `<span class="${i===0?'tag-primary':'tag-secondary'}">${t}</span>`;
+      }).join('')}</div>
       <div class="card-meta">${q.createdAt}</div>
     </div>
   </div>`;
@@ -1208,6 +1359,33 @@ async function submitTakeaway() {
   window.scrollTo({ top: document.getElementById('dtab-takeaways').offsetTop - 80, behavior: 'smooth' });
 }
 
+// ── NEW QUESTION MODAL CASCADES ───────────────────────────
+function onNewQSubChange() {
+  const sub = document.getElementById('newQSub').value;
+  const sscWrap = document.getElementById('newQSscWrap');
+  const sscSel  = document.getElementById('newQSsc');
+  if (!sub || !SSC[sub]) { sscWrap.style.display='none'; return; }
+  sscWrap.style.display = 'block';
+  sscSel.innerHTML = '<option value="">No sub-sub-category</option>' +
+    `<optgroup label="Structure">${(SSC[sub].structure||[]).map(n=>`<option value="${n}::structure">${n}</option>`).join('')}</optgroup>` +
+    `<optgroup label="Technique">${(SSC[sub].technique||[]).map(n=>`<option value="${n}::technique">${n}</option>`).join('')}</optgroup>`;
+  onNewQSscChange();
+}
+function onNewQSscChange() {
+  const val = document.getElementById('newQSsc').value;
+  const typeWrap = document.getElementById('newQSscTypeWrap');
+  if (!val) { typeWrap.style.display='none'; return; }
+  const [, type] = val.split('::');
+  typeWrap.style.display = 'block';
+  document.getElementById(type==='technique'?'typeTechnique':'typeStructure').checked = true;
+  syncTypeLabels();
+}
+function syncTypeLabels() {
+  const isTech = document.getElementById('typeTechnique').checked;
+  document.getElementById('typeStructureLabel').style.borderColor = !isTech ? 'var(--blue)' : 'var(--border2)';
+  document.getElementById('typeTechniqueLabel').style.borderColor =  isTech ? 'var(--gold)' : 'var(--border2)';
+}
+
 // ── NEW QUESTION MODAL ────────────────────────────────────
 function openNewQModal() {
   if (!me) { openAuthModal(); return; }
@@ -1219,6 +1397,13 @@ function closeNewQModal() {
   document.getElementById('newQTitle').value = '';
   document.getElementById('newQAbout').value = '';
   document.getElementById('newQSub').value = '';
+  document.getElementById('newQSscWrap').style.display = 'none';
+  document.getElementById('newQSsc').value = '';
+  document.getElementById('newQSscTypeWrap').style.display = 'none';
+  document.getElementById('typeStructure').checked = false;
+  document.getElementById('typeTechnique').checked = false;
+  document.getElementById('typeStructureLabel').style.borderColor = '';
+  document.getElementById('typeTechniqueLabel').style.borderColor = '';
   document.getElementById('newQError').innerHTML = '';
   document.getElementById('newQSubmitBtn').disabled = false;
   document.getElementById('newQSubmitBtn').textContent = 'Post Question';
@@ -1233,7 +1418,15 @@ async function submitNewQuestion() {
   const { data: qd, error: qe } = await db.from('questions').insert({ title, about }).select('id').single();
   if (qe) { document.getElementById('newQError').innerHTML = `<div class="err-box">${esc(qe.message)}</div>`; btn.disabled = false; btn.textContent = 'Post Question'; return; }
 
-  for (const name of (sub ? [TOPIC_NAME, sub] : [TOPIC_NAME])) {
+  // Build list of tag names to apply: topic, sub, and optionally SSC
+  const sscVal  = document.getElementById('newQSsc').value; // "SSCName::type" or ""
+  const sscType = document.querySelector('input[name="newQSscType"]:checked')?.value || null;
+  const sscName = sscVal ? sscVal.split('::')[0] : null;
+  const tagNames = [TOPIC_NAME];
+  if (sub) tagNames.push(sub);
+  if (sub && sscName && sscType) tagNames.push(sscTagName(sub, sscName, sscType));
+
+  for (const name of tagNames) {
     let { data: tag } = await db.from('tags').select('id').eq('name',name).maybeSingle();
     if (!tag) { const { data: nt } = await db.from('tags').insert({ name, category:TOPIC_NAME }).select('id').single(); tag = nt; }
     if (tag) await db.from('question_tags').insert({ question_id:qd.id, tag_id:tag.id });
