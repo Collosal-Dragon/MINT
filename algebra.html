@@ -2,223 +2,162 @@
 <html lang="en" class="dark">
 <head>
 <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Math Olympiad Forum</title>
+<title>MINT — Math Olympiad Intuition Forum</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400;1,700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=JetBrains+Mono:wght@400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="onKatex()"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-  :root {
-    --bg:#0d0f14;--bg2:#13161e;--bg3:#1a1e29;
-    --border:#242836;--border2:#2e3347;
-    --text:#e8eaf0;--text2:#9aa0b8;--text3:#5c6278;
-    --primary:#5cb87a;--green:#5cb87a;--red:#e06c75;--accent:#3fa85f;
-    --card-bg:#13161e;--card-hover:#181c28;
-    --badge-bg:#1e2a20;--badge-text:#5cb87a;
-    --badge2-bg:#1e2a20;--badge2-text:#5cb87a;
-    --shadow:0 1px 3px rgba(0,0,0,.4),0 4px 16px rgba(0,0,0,.3);
-    --shadow-lg:0 8px 32px rgba(0,0,0,.5);
-    --radius:10px;
-    --font-body:'DM Sans',sans-serif;
-    --font-display:'Lora',serif;
-    --font-mono:'JetBrains Mono',monospace;
-  }
-  html.light {
-    --bg:#f4f5f8;--bg2:#fff;--bg3:#eef0f5;
-    --border:#dde0ea;--border2:#cdd1de;
-    --text:#1a1d2e;--text2:#505672;--text3:#909ab8;
-    --primary:#28a152;--green:#28a152;--red:#c0392b;--accent:#1e8040;
-    --card-bg:#fff;--card-hover:#f8f9fc;
-    --badge-bg:#e5f5ec;--badge-text:#28a152;
-    --badge2-bg:#e5f5ec;--badge2-text:#28a152;
-    --shadow:0 1px 3px rgba(0,0,0,.06),0 4px 12px rgba(0,0,0,.06);
-    --shadow-lg:0 8px 32px rgba(0,0,0,.12);
-  }
-  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;line-height:1.6;transition:background .2s,color .2s}
-
-  header{position:sticky;top:0;z-index:100;background:var(--bg2);border-bottom:1px solid var(--border);box-shadow:var(--shadow)}
-  .header-inner{max-width:900px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px}
-  .logo{display:flex;align-items:center;gap:10px;text-decoration:none}
-  .logo-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--primary),var(--accent));border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
-  .logo h1{font-family:var(--font-display);font-size:1.15rem;font-weight:600;color:var(--text);letter-spacing:-.01em}
-  .header-actions{display:flex;align-items:center;gap:12px}
-  .user-badge{font-size:12.5px;color:var(--text2);background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:4px 12px}
-
-  .theme-toggle{display:flex;align-items:center;gap:8px;color:var(--text2);font-size:13px}
-  .switch{position:relative;width:40px;height:22px;cursor:pointer}
-  .switch input{opacity:0;width:0;height:0}
-  .switch-track{position:absolute;inset:0;background:var(--border2);border-radius:11px;transition:background .2s}
-  .switch input:checked~.switch-track{background:var(--primary)}
-  .switch-thumb{position:absolute;top:3px;left:3px;width:16px;height:16px;background:#fff;border-radius:50%;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.3)}
-  .switch input:checked~.switch-thumb{transform:translateX(18px)}
-
-  .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;border:none;font-family:var(--font-body);font-size:13.5px;font-weight:500;cursor:pointer;transition:all .15s;white-space:nowrap;text-decoration:none}
-  .btn-primary{background:var(--primary);color:#fff}
-  .btn-primary:hover{filter:brightness(1.1);transform:translateY(-1px)}
-  .btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border)}
-  .btn-ghost:hover{background:var(--bg3);color:var(--text)}
-  .btn-link{background:none;border:none;color:var(--primary);font-size:13px;padding:2px 0;cursor:pointer;font-family:var(--font-body)}
-  .btn-link:hover{text-decoration:underline}
-  .btn-sm{padding:6px 12px;font-size:12.5px}
-  .btn:disabled{opacity:.45;cursor:not-allowed;transform:none!important}
-
-  /* Google button */
-  .btn-google{background:var(--bg3);color:var(--text);border:1px solid var(--border2);width:100%;justify-content:center;padding:10px 16px;font-size:14px;border-radius:9px;margin-bottom:4px;display:flex;align-items:center;gap:8px}
-  .btn-google:hover{background:var(--card-hover);border-color:var(--primary)}
-  .divider{display:flex;align-items:center;gap:10px;color:var(--text3);font-size:12px;margin:14px 0}
-  .divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
-
-  main{max-width:900px;margin:0 auto;padding:28px 24px}
-
-  .loading-state{text-align:center;padding:48px;color:var(--text3)}
-  .loading-spinner{width:28px;height:28px;border:3px solid var(--border2);border-top-color:var(--primary);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 12px}
-  @keyframes spin{to{transform:rotate(360deg)}}
-  .error-banner{background:rgba(224,108,117,.1);border:1px solid var(--red);border-radius:8px;padding:12px 16px;color:var(--red);font-size:13.5px;margin-bottom:16px}
-
-  .breadcrumb{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text3);margin-bottom:20px}
-  .breadcrumb a{color:var(--text2);text-decoration:none}
-  .breadcrumb a:hover{color:var(--primary)}
-
-  .search-wrap{position:relative;margin-bottom:20px}
-  .search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none}
-  .search-input{width:100%;padding:10px 36px 10px 38px;background:var(--bg2);border:1px solid var(--border);border-radius:9px;color:var(--text);font-family:var(--font-body);font-size:14px;outline:none;transition:border-color .15s}
-  .search-input:focus{border-color:var(--primary)}
-  .search-input::placeholder{color:var(--text3)}
-  .search-clear{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text3);cursor:pointer;padding:3px;border-radius:4px;display:flex;align-items:center}
-  .search-clear:hover{color:var(--text)}
-
-  .tabs-list{display:flex;gap:4px;background:var(--bg2);border:1px solid var(--border);border-radius:9px;padding:4px;width:fit-content;margin-bottom:20px}
-  .tab-btn{padding:7px 18px;border-radius:6px;border:none;font-family:var(--font-body);font-size:13.5px;font-weight:500;cursor:pointer;background:transparent;color:var(--text2);transition:all .15s}
-  .tab-btn.active{background:var(--primary);color:#fff;box-shadow:0 2px 8px rgba(92,184,122,.3)}
-  .tab-btn:not(.active):hover{background:var(--bg3);color:var(--text)}
-
-  .topic-header{padding:24px 0 16px;margin-bottom:4px;border-bottom:1px solid var(--border)}
-  .topic-header-row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-  .topic-header-left{display:flex;align-items:center;gap:12px}
-  .topic-icon-big{font-size:2rem;line-height:1}
-  .topic-name-big{font-family:var(--font-display);font-size:1.5rem;font-weight:700}
-  .topic-desc-small{font-size:13.5px;color:var(--text2);margin-top:3px}
-
-  .topic-layout{display:grid;grid-template-columns:200px 1fr;gap:20px;align-items:start;margin-top:20px}
-  @media(max-width:680px){.topic-layout{grid-template-columns:1fr}}
-
-  .sidebar{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:14px;position:sticky;top:74px;box-shadow:var(--shadow)}
-  .sidebar-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin-bottom:10px}
-  .subtopic-btn{display:block;width:100%;text-align:left;padding:8px 10px;border-radius:7px;border:none;background:transparent;color:var(--text2);font-family:var(--font-body);font-size:13px;cursor:pointer;transition:all .15s;margin-bottom:2px}
-  .subtopic-btn:hover{background:var(--bg3);color:var(--text)}
-  .subtopic-btn.active{background:var(--primary);color:#fff}
-
-  .question-card{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:12px;cursor:pointer;transition:all .15s;box-shadow:var(--shadow);display:flex;overflow:hidden}
-  .question-card:hover{background:var(--card-hover);border-color:var(--border2);transform:translateY(-1px);box-shadow:var(--shadow-lg)}
-  .vote-col{display:flex;flex-direction:column;align-items:center;gap:4px;padding:18px 14px;min-width:58px;border-right:1px solid var(--border)}
-  .vote-btn{background:none;border:none;cursor:pointer;color:var(--text3);padding:4px;border-radius:6px;transition:all .15s;display:flex;align-items:center}
-  .vote-btn.voted-up{color:var(--green)}
-  .vote-btn.voted-down{color:var(--red)}
-  .vote-score{font-weight:700;font-size:15px;color:var(--text);line-height:1;font-family:var(--font-mono)}
-  .vote-score.positive{color:var(--green)}
-  .vote-score.negative{color:var(--red)}
-  .intuition-count{display:flex;align-items:center;gap:3px;font-size:11px;color:var(--text3);margin-top:6px}
-  .card-content{flex:1;padding:16px 18px;min-width:0}
-  .card-title{font-family:var(--font-display);font-size:1.05rem;font-weight:600;color:var(--text);margin-bottom:6px;line-height:1.4}
-  .card-about{font-size:13.5px;color:var(--text2);margin-bottom:10px}
-  .card-about .label{font-weight:600;color:var(--text3)}
-  .tags{display:flex;flex-wrap:wrap;gap:6px}
-  .tag{padding:3px 10px;border-radius:20px;font-size:12px;font-weight:500}
-  .tag-primary{background:var(--badge-bg);color:var(--badge-text)}
-  .tag-secondary{background:var(--badge2-bg);color:var(--badge2-text)}
-  .card-meta{font-size:12px;color:var(--text3);margin-top:10px}
-
-  .back-btn{display:inline-flex;align-items:center;gap:6px;background:none;border:none;cursor:pointer;color:var(--text2);font-size:13.5px;font-family:var(--font-body);padding:6px 0;transition:color .15s;margin-bottom:16px}
-  .back-btn:hover{color:var(--text)}
-  .detail-card{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:24px;box-shadow:var(--shadow);overflow:hidden}
-  .detail-card-inner{display:flex}
-  .detail-content{flex:1;padding:22px 24px;min-width:0}
-  .detail-title{font-family:var(--font-display);font-size:1.5rem;font-weight:700;margin-bottom:10px;line-height:1.3}
-  .detail-about{color:var(--text2);margin-bottom:14px}
-  .detail-meta{font-size:12.5px;color:var(--text3)}
-
-  .sort-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px}
-  .sort-btns{display:flex;gap:6px}
-  .sort-btn{padding:5px 14px;border-radius:7px;border:1px solid var(--border);font-size:12.5px;font-family:var(--font-body);cursor:pointer;background:transparent;color:var(--text2);transition:all .15s}
-  .sort-btn.active{background:var(--primary);color:#fff;border-color:var(--primary)}
-  .sort-btn:not(.active):hover{background:var(--bg3);color:var(--text)}
-
-  .i-card{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:12px;box-shadow:var(--shadow);overflow:hidden}
-  .i-card-inner{display:flex}
-  .i-content{flex:1;padding:16px 18px;min-width:0}
-  .i-label{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin-bottom:3px}
-  .i-statement{font-family:var(--font-display);font-size:1rem;font-weight:600;color:var(--text);margin-bottom:12px;line-height:1.4}
-  .i-explanation{color:var(--text2);font-size:14px;line-height:1.65;white-space:pre-wrap}
-  .i-example{background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:12px;margin-top:12px}
-  .i-links{margin-top:10px;display:flex;flex-direction:column;gap:4px}
-  .i-link{font-size:13px;color:var(--primary);text-decoration:none}
-  .i-link:hover{text-decoration:underline}
-  .i-footer{display:flex;align-items:center;justify-content:space-between;margin-top:14px;padding-top:12px;border-top:1px solid var(--border);font-size:12px;color:var(--text3);flex-wrap:wrap;gap:8px}
-  .comment-btn{display:inline-flex;align-items:center;gap:5px;background:none;border:none;cursor:pointer;color:var(--text2);font-size:12.5px;font-family:var(--font-body);padding:4px 8px;border-radius:6px;transition:all .15s}
-  .comment-btn:hover{background:var(--bg3);color:var(--text)}
-  .comments-section{border-top:1px solid var(--border);padding:14px 18px;background:var(--bg3);display:none}
-  .comments-section.open{display:block}
-  .comment-item{background:var(--bg2);border:1px solid var(--border);border-radius:7px;padding:10px 12px;margin-bottom:8px}
-  .comment-text{font-size:13.5px;color:var(--text)}
-  .comment-meta{font-size:11.5px;color:var(--text3);margin-top:4px}
-  .comment-form{display:flex;gap:8px;margin-top:10px;align-items:flex-start}
-  .comment-input{flex:1;padding:8px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:7px;color:var(--text);font-family:var(--font-body);font-size:13.5px;resize:none;min-height:60px;outline:none;transition:border-color .15s}
-  .comment-input:focus{border-color:var(--primary)}
-  .comment-input::placeholder{color:var(--text3)}
-
-  .form-card{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:22px 24px;box-shadow:var(--shadow);margin-top:24px}
-  .form-title{font-family:var(--font-display);font-size:1.05rem;font-weight:600;margin-bottom:18px}
-  .form-group{margin-bottom:16px}
-  .form-label{display:block;font-size:13px;font-weight:600;color:var(--text2);margin-bottom:6px}
-  .form-input,.form-textarea,.form-select{width:100%;padding:9px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:var(--font-body);font-size:14px;outline:none;transition:border-color .15s}
-  .form-input:focus,.form-textarea:focus,.form-select:focus{border-color:var(--primary)}
-  .form-input::placeholder,.form-textarea::placeholder{color:var(--text3)}
-  .form-textarea{resize:vertical;min-height:90px}
-  .form-select{appearance:none;cursor:pointer}
-  .word-count{font-size:11.5px;color:var(--text3);text-align:right;margin-top:4px}
-  .word-count.over{color:var(--red)}
-  .link-input-row{display:flex;gap:8px}
-  .link-list{display:flex;flex-direction:column;gap:6px;margin-top:8px}
-  .link-item{display:flex;align-items:center;gap:8px;background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:7px 10px;font-size:13px}
-  .link-item a{flex:1;color:var(--primary);text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .remove-link-btn{background:none;border:none;cursor:pointer;color:var(--text3);padding:2px;transition:color .15s}
-  .remove-link-btn:hover{color:var(--red)}
-  .form-divider{border:none;border-top:1px solid var(--border);margin:20px 0}
-
-  .empty-state{text-align:center;padding:48px 24px;color:var(--text3);font-size:14px}
-  .empty-state-icon{font-size:32px;margin-bottom:12px}
-
-  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:200;align-items:center;justify-content:center;padding:24px}
-  .modal-overlay.open{display:flex}
-  .modal{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:28px 28px 24px;max-width:580px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg);animation:modalIn .2s ease}
-  @keyframes modalIn{from{opacity:0;transform:scale(.95) translateY(12px)}to{opacity:1;transform:scale(1) translateY(0)}}
-  .modal-header{margin-bottom:20px}
-  .modal-title{font-family:var(--font-display);font-size:1.15rem;font-weight:700}
-  .modal-subtitle{font-size:13px;color:var(--text2);margin-top:4px}
-  .modal-footer{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}
-  .auth-tabs{display:flex;gap:4px;margin-bottom:18px;background:var(--bg3);border-radius:8px;padding:3px}
-  .auth-tab{flex:1;padding:7px;border-radius:6px;border:none;font-family:var(--font-body);font-size:13px;font-weight:500;cursor:pointer;background:transparent;color:var(--text2);transition:all .15s}
-  .auth-tab.active{background:var(--bg2);color:var(--text);box-shadow:var(--shadow)}
-
-  .spoiler{display:inline;cursor:pointer;background:var(--text);color:transparent;border-radius:3px;padding:1px 3px;transition:all .2s;user-select:none}
-  .spoiler.revealed{background:transparent;color:inherit}
-  .hidden{display:none!important}
-  .tab-content{display:none}
-  .tab-content.active{display:block}
-  .q-count{font-size:12.5px;color:var(--text3);margin-bottom:12px}
-
-  @keyframes toastIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-
-  @media(max-width:600px){
-    .header-inner{padding:12px 16px}
-    main{padding:20px 16px}
-    .logo h1{font-size:.95rem}
-    .detail-title{font-size:1.2rem}
-  }
+:root{--bg:#0b0c10;--bg2:#0f1116;--bg3:#161820;--bg4:#1c1f2b;--border:#1e2130;--border2:#262a3a;--border3:#303550;--text:#eceef5;--text2:#8e95b0;--text3:#4a5070;--primary:#6ee7a0;--primary2:#3db870;--green:#6ee7a0;--red:#f07070;--gold:#f0c060;--blue:#7ab0f5;--purple:#b090f5;--card-bg:#0f1116;--card-hover:#141720;--shadow:0 1px 3px rgba(0,0,0,.5),0 4px 16px rgba(0,0,0,.4);--shadow-lg:0 8px 40px rgba(0,0,0,.6);--radius:10px;--font-body:'DM Sans',sans-serif;--font-disp:'Playfair Display',Georgia,serif;--font-serif:'Crimson Pro',Georgia,serif;--font-mono:'JetBrains Mono',monospace}
+html.light{--bg:#f7f6f1;--bg2:#ffffff;--bg3:#f0ede6;--bg4:#e8e4db;--border:#ddd9d0;--border2:#ccc8be;--border3:#b8b3a8;--text:#1a1814;--text2:#4a4640;--text3:#8a8680;--primary:#1e7a48;--primary2:#155c36;--green:#1e7a48;--red:#c0392b;--card-bg:#ffffff;--card-hover:#faf9f6;--shadow:0 1px 3px rgba(0,0,0,.06),0 4px 12px rgba(0,0,0,.08);--shadow-lg:0 8px 32px rgba(0,0,0,.12)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;line-height:1.6;transition:background .2s,color .2s}
+header{position:sticky;top:0;z-index:100;background:rgba(11,12,16,.9);border-bottom:1px solid var(--border);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+html.light header{background:rgba(247,246,241,.92)}
+.header-inner{max-width:960px;margin:0 auto;padding:0 28px;height:62px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.logo-mark{width:36px;height:36px;background:linear-gradient(135deg,var(--primary),var(--primary2));border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:var(--font-disp);font-size:18px;font-weight:900;color:#0b0c10}
+html.light .logo-mark{color:#fff}
+.logo-name{font-family:var(--font-disp);font-size:1.1rem;font-weight:700;color:var(--text)}
+.header-actions{display:flex;align-items:center;gap:12px}
+.theme-btn{width:34px;height:34px;border-radius:8px;border:1px solid var(--border2);background:var(--bg3);color:var(--text2);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s}
+.theme-btn:hover{border-color:var(--border3);color:var(--text)}
+.user-badge{font-size:12.5px;color:var(--text2);background:var(--bg3);border:1px solid var(--border2);border-radius:20px;padding:4px 12px;display:flex;align-items:center;gap:6px}
+.user-badge-dot{width:7px;height:7px;background:var(--green);border-radius:50%;box-shadow:0 0 6px rgba(110,231,160,.6)}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;border:none;font-family:var(--font-body);font-size:13.5px;font-weight:500;cursor:pointer;transition:all .15s;white-space:nowrap}
+.btn-primary{background:var(--primary);color:#0b0c10;font-weight:600}
+html.light .btn-primary{color:#fff}
+.btn-primary:hover{filter:brightness(1.08);transform:translateY(-1px)}
+.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border2)}
+.btn-ghost:hover{background:var(--bg3);color:var(--text)}
+.btn-link{background:none;border:none;color:var(--primary);font-size:13px;padding:2px 0;cursor:pointer;font-family:var(--font-body)}
+.btn-link:hover{text-decoration:underline}
+.btn-sm{padding:6px 12px;font-size:12.5px}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none!important}
+main{max-width:960px;margin:0 auto;padding:28px 28px 60px}
+.loading-state{text-align:center;padding:48px;color:var(--text3);font-family:var(--font-serif);font-style:italic}
+.loading-spinner{width:28px;height:28px;border:2px solid var(--border2);border-top-color:var(--primary);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.error-banner{background:rgba(240,112,112,.08);border:1px solid rgba(240,112,112,.25);border-radius:8px;padding:12px 16px;color:var(--red);font-size:13.5px;margin-bottom:16px}
+.breadcrumb{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text3);margin-bottom:20px}
+.breadcrumb a{color:var(--text2);text-decoration:none}.breadcrumb a:hover{color:var(--primary)}
+.search-wrap{position:relative;margin-bottom:0}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none}
+.search-input{width:100%;padding:10px 36px 10px 38px;background:var(--bg2);border:1px solid var(--border2);border-radius:9px;color:var(--text);font-family:var(--font-body);font-size:14px;outline:none;transition:border-color .15s}
+.search-input:focus{border-color:var(--primary)}.search-input::placeholder{color:var(--text3)}
+.search-clear{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text3);cursor:pointer;padding:3px;border-radius:4px;display:flex;align-items:center}
+.search-clear:hover{color:var(--text)}
+.tabs-list{display:flex;gap:4px;background:var(--bg2);border:1px solid var(--border2);border-radius:9px;padding:4px;width:fit-content}
+.tab-btn{padding:6px 16px;border-radius:6px;border:none;font-family:var(--font-body);font-size:13px;font-weight:500;cursor:pointer;background:transparent;color:var(--text2);transition:all .15s}
+.tab-btn.active{background:var(--primary);color:#0b0c10}
+html.light .tab-btn.active{color:#fff}
+.tab-btn:not(.active):hover{background:var(--bg3);color:var(--text)}
+.topic-header{padding:24px 0 16px;margin-bottom:4px;border-bottom:1px solid var(--border)}
+.topic-icon-big{font-size:2rem;line-height:1}
+.topic-name-big{font-family:var(--font-disp);font-size:1.5rem;font-weight:700}
+.topic-desc-small{font-size:13.5px;color:var(--text2);margin-top:3px}
+.topic-layout{display:grid;grid-template-columns:190px 1fr;gap:20px;align-items:start;margin-top:20px}
+@media(max-width:680px){.topic-layout{grid-template-columns:1fr}}
+.sidebar{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:14px;position:sticky;top:74px}
+.sidebar-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin-bottom:10px}
+.subtopic-btn{display:block;width:100%;text-align:left;padding:8px 10px;border-radius:7px;border:none;background:transparent;color:var(--text2);font-family:var(--font-body);font-size:13px;cursor:pointer;transition:all .15s;margin-bottom:2px}
+.subtopic-btn:hover{background:var(--bg3);color:var(--text)}.subtopic-btn.active{background:var(--primary);color:#0b0c10}
+html.light .subtopic-btn.active{color:#fff}
+.question-card{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:10px;cursor:pointer;transition:all .15s;box-shadow:var(--shadow);display:flex;overflow:hidden}
+.question-card:hover{background:var(--card-hover);border-color:var(--border3);transform:translateY(-1px);box-shadow:var(--shadow-lg)}
+.vote-col{display:flex;flex-direction:column;align-items:center;gap:4px;padding:16px 12px;min-width:54px;border-right:1px solid var(--border)}
+.vote-btn{background:none;border:none;cursor:pointer;color:var(--text3);padding:4px;border-radius:6px;transition:all .15s;display:flex;align-items:center}
+.vote-btn:hover{color:var(--primary);background:var(--bg3)}
+.vote-btn.voted-up{color:var(--green)}.vote-btn.voted-down{color:var(--red)}
+.vote-score{font-weight:700;font-size:15px;color:var(--text2);line-height:1;font-family:var(--font-mono)}
+.vote-score.positive{color:var(--green)}.vote-score.negative{color:var(--red)}
+.intuition-count{display:flex;align-items:center;gap:3px;font-size:11px;color:var(--text3);margin-top:6px;font-family:var(--font-mono)}
+.card-content{flex:1;padding:14px 18px;min-width:0}
+.card-title{font-family:var(--font-disp);font-size:1rem;font-weight:600;color:var(--text);margin-bottom:5px;line-height:1.4}
+.card-about{font-size:13px;color:var(--text2);margin-bottom:8px}.card-about .label{font-weight:600;color:var(--text3);font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+.tags{display:flex;flex-wrap:wrap;gap:5px}.tag{padding:2px 9px;border-radius:10px;font-size:11.5px;font-weight:500}
+.tag-primary{background:rgba(110,231,160,.1);color:var(--green);border:1px solid rgba(110,231,160,.2)}
+html.light .tag-primary{background:rgba(30,122,72,.08);border-color:rgba(30,122,72,.2);color:var(--primary)}
+.tag-secondary{background:var(--bg3);color:var(--text3);border:1px solid var(--border)}
+.card-meta{font-size:11.5px;color:var(--text3);margin-top:8px;font-family:var(--font-mono)}
+.back-btn{display:inline-flex;align-items:center;gap:6px;background:none;border:none;cursor:pointer;color:var(--text2);font-size:13.5px;font-family:var(--font-body);padding:6px 0;transition:color .15s;margin-bottom:16px}
+.back-btn:hover{color:var(--text)}
+.detail-card{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:24px;box-shadow:var(--shadow);overflow:hidden}
+.detail-card-inner{display:flex}
+.detail-content{flex:1;padding:22px 24px;min-width:0}
+.detail-title{font-family:var(--font-disp);font-size:1.5rem;font-weight:700;margin-bottom:10px;line-height:1.3}
+.detail-about{color:var(--text2);margin-bottom:12px}.detail-meta{font-size:12.5px;color:var(--text3)}
+.sort-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px}
+.sort-btns{display:flex;gap:6px}
+.sort-btn{padding:5px 13px;border-radius:7px;border:1px solid var(--border2);font-size:12.5px;font-family:var(--font-body);cursor:pointer;background:transparent;color:var(--text2);transition:all .15s}
+.sort-btn.active{background:var(--primary);color:#0b0c10;border-color:var(--primary)}
+html.light .sort-btn.active{color:#fff}
+.sort-btn:not(.active):hover{background:var(--bg3);color:var(--text)}
+.i-card{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:10px;box-shadow:var(--shadow);overflow:hidden}
+.i-card-inner{display:flex}
+.i-content{flex:1;padding:16px 18px;min-width:0}
+.i-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin-bottom:4px}
+.i-statement{font-family:var(--font-disp);font-size:1rem;font-weight:600;color:var(--text);margin-bottom:10px;line-height:1.4}
+.i-explanation{color:var(--text2);font-size:14px;line-height:1.65;white-space:pre-wrap}
+.i-example{background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:12px;margin-top:10px}
+.i-links{margin-top:8px;display:flex;flex-direction:column;gap:4px}
+.i-link{font-size:13px;color:var(--primary);text-decoration:none}.i-link:hover{text-decoration:underline}
+.i-footer{display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding-top:10px;border-top:1px solid var(--border);font-size:12px;color:var(--text3);flex-wrap:wrap;gap:8px}
+.comment-btn{display:inline-flex;align-items:center;gap:5px;background:none;border:none;cursor:pointer;color:var(--text2);font-size:12.5px;font-family:var(--font-body);padding:4px 8px;border-radius:6px;transition:all .15s}
+.comment-btn:hover{background:var(--bg3);color:var(--text)}
+.comments-section{border-top:1px solid var(--border);padding:14px 18px;background:var(--bg3);display:none}
+.comments-section.open{display:block}
+.comment-item{background:var(--bg2);border:1px solid var(--border);border-radius:7px;padding:10px 12px;margin-bottom:8px}
+.comment-text{font-size:13.5px;color:var(--text)}.comment-meta{font-size:11.5px;color:var(--text3);margin-top:4px}
+.comment-form{display:flex;gap:8px;margin-top:10px;align-items:flex-start}
+.comment-input{flex:1;padding:8px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:7px;color:var(--text);font-family:var(--font-body);font-size:13.5px;resize:none;min-height:60px;outline:none;transition:border-color .15s}
+.comment-input:focus{border-color:var(--primary)}.comment-input::placeholder{color:var(--text3)}
+.form-card{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:22px 24px;box-shadow:var(--shadow);margin-top:24px}
+.form-title{font-family:var(--font-disp);font-size:1.05rem;font-weight:600;margin-bottom:18px}
+.form-group{margin-bottom:16px}
+.form-label{display:block;font-size:12px;font-weight:600;color:var(--text3);margin-bottom:6px;letter-spacing:.04em;text-transform:uppercase}
+.form-input,.form-textarea,.form-select{width:100%;padding:9px 12px;background:var(--bg2);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:var(--font-body);font-size:14px;outline:none;transition:border-color .15s}
+.form-input:focus,.form-textarea:focus,.form-select:focus{border-color:var(--primary)}
+.form-input::placeholder,.form-textarea::placeholder{color:var(--text3)}
+.form-textarea{resize:vertical;min-height:90px}.form-select{appearance:none;cursor:pointer}
+.word-count{font-size:11.5px;color:var(--text3);text-align:right;margin-top:4px}.word-count.over{color:var(--red)}
+.link-input-row{display:flex;gap:8px}
+.link-list{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.link-item{display:flex;align-items:center;gap:8px;background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:7px 10px;font-size:13px}
+.link-item a{flex:1;color:var(--primary);text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.remove-link-btn{background:none;border:none;cursor:pointer;color:var(--text3);padding:2px;transition:color .15s}.remove-link-btn:hover{color:var(--red)}
+.form-divider{border:none;border-top:1px solid var(--border);margin:20px 0}
+.empty-state{text-align:center;padding:48px 24px;color:var(--text3);font-size:14px;font-family:var(--font-serif);font-style:italic}
+.empty-state-icon{font-size:32px;margin-bottom:12px}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);z-index:200;align-items:center;justify-content:center;padding:24px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:14px;padding:28px;max-width:520px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg);animation:modalIn .2s ease}
+@keyframes modalIn{from{opacity:0;transform:scale(.95) translateY(12px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.modal-header{margin-bottom:20px}
+.modal-title{font-family:var(--font-disp);font-size:1.2rem;font-weight:700}
+.modal-subtitle{font-size:13px;color:var(--text2);margin-top:4px}
+.modal-footer{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}
+.auth-tabs{display:flex;gap:3px;background:var(--bg3);border-radius:8px;padding:3px;margin-bottom:18px}
+.auth-tab{flex:1;padding:7px;border-radius:6px;border:none;font-family:var(--font-body);font-size:13px;font-weight:500;cursor:pointer;background:transparent;color:var(--text2);transition:all .15s}
+.auth-tab.active{background:var(--bg2);color:var(--text);box-shadow:var(--shadow)}
+.btn-google{background:var(--bg3);color:var(--text);border:1px solid var(--border2);width:100%;justify-content:center;padding:10px 16px;font-size:14px;border-radius:9px;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.btn-google:hover{background:var(--bg4);border-color:var(--primary)}
+.divider{display:flex;align-items:center;gap:10px;color:var(--text3);font-size:12px;margin:14px 0}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.auth-msg{padding:9px 13px;border-radius:8px;font-size:13px;margin-bottom:14px;display:none}
+.auth-msg.err{background:rgba(240,112,112,.08);border:1px solid rgba(240,112,112,.3);color:var(--red)}
+.auth-msg.ok{background:rgba(110,231,160,.08);border:1px solid rgba(110,231,160,.3);color:var(--green)}
+.spoiler{display:inline;cursor:pointer;background:var(--text);color:transparent;border-radius:3px;padding:1px 3px;transition:all .2s;user-select:none}
+.spoiler.revealed{background:transparent;color:inherit}
+.hidden{display:none!important}.tab-content{display:none}.tab-content.active{display:block}
+.q-count{font-size:12.5px;color:var(--text3);margin-bottom:12px;font-family:var(--font-mono)}
+.toast{position:fixed;bottom:24px;right:24px;z-index:999;background:var(--bg2);border:1px solid var(--border2);border-radius:11px;padding:12px 18px;font-size:13.5px;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:10px;animation:toastIn .25s ease;max-width:320px}
+.toast.success{border-color:var(--green);color:var(--green)}.toast.error{border-color:var(--red);color:var(--red)}
+@keyframes toastIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@media(max-width:600px){.header-inner{padding:0 18px}main{padding:20px 18px 48px}.detail-title{font-size:1.2rem}}
 </style>
 </head>
 <body>
@@ -226,20 +165,18 @@
 <header>
   <div class="header-inner">
     <a class="logo" href="index.html">
-      <div class="logo-icon">∑</div>
-      <h1>Math Olympiad Intuition Forum</h1>
+      <div class="logo-mark">&#8721;</div>
+      <span class="logo-name">MINT</span>
     </a>
     <div class="header-actions">
-      <div class="theme-toggle">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-        <!-- FIX: removed hardcoded checked; set correctly by initTheme() -->
-        <label class="switch"><input type="checkbox" id="themeToggle" /><span class="switch-track"></span><span class="switch-thumb"></span></label>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-      </div>
-      <span class="user-badge hidden" id="userBadge"></span>
+      <button class="theme-btn" id="themeBtn" title="Toggle theme">
+        <svg id="iconDark" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg id="iconLight" class="hidden" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      </button>
+      <div class="user-badge hidden" id="userBadge"><span class="user-badge-dot"></span><span id="badgeName"></span></div>
       <button class="btn btn-ghost btn-sm" id="authBtn">Log in</button>
       <button class="btn btn-primary btn-sm" id="postQuestionBtn">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         Post a Question
       </button>
     </div>
@@ -249,23 +186,18 @@
 <!-- LIST VIEW -->
 <main id="listView">
   <div class="breadcrumb">
-    <a href="index.html">Home</a>
-    <span>›</span>
+    <a href="index.html">Home</a><span>›</span>
     <span id="breadcrumbCurrent">Topic</span>
   </div>
-
   <div class="topic-header">
-    <div class="topic-header-row">
-      <div class="topic-header-left">
-        <span class="topic-icon-big" id="topicIcon"></span>
-        <div>
-          <div class="topic-name-big" id="topicName"></div>
-          <div class="topic-desc-small" id="topicDesc"></div>
-        </div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <span class="topic-icon-big" id="topicIcon"></span>
+      <div>
+        <div class="topic-name-big" id="topicName"></div>
+        <div class="topic-desc-small" id="topicDesc"></div>
       </div>
     </div>
   </div>
-
   <div class="topic-layout">
     <div class="sidebar">
       <div class="sidebar-title">Subtopics</div>
@@ -273,15 +205,12 @@
     </div>
     <div>
       <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:16px">
-        <!-- FIX: type=text, autocomplete off, clear button, bound via JS -->
-        <div class="search-wrap" style="flex:1;min-width:160px;margin-bottom:0">
+        <div class="search-wrap" style="flex:1;min-width:160px">
           <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input class="search-input" id="questionSearch" type="text" placeholder="Search questions..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
-          <button class="search-clear hidden" id="searchClear" title="Clear">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-          </button>
+          <input class="search-input" id="questionSearch" type="text" placeholder="Search questions..." autocomplete="off" autocorrect="off" spellcheck="false" />
+          <button class="search-clear hidden" id="searchClear"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
         </div>
-        <div class="tabs-list" style="margin-bottom:0">
+        <div class="tabs-list">
           <button class="tab-btn active" data-sort="relevance">Relevance</button>
           <button class="tab-btn" data-sort="recent">Recent</button>
           <button class="tab-btn" data-sort="top">Top</button>
@@ -317,7 +246,7 @@
     </div>
   </div>
   <div id="dtab-intuitions" class="tab-content active"></div>
-  <div id="dtab-takeaways"  class="tab-content"></div>
+  <div id="dtab-takeaways" class="tab-content"></div>
   <div id="postForm"></div>
 </main>
 
@@ -330,7 +259,7 @@
     </div>
     <div id="newQError"></div>
     <div class="form-group"><label class="form-label">Title</label>
-      <input class="form-input" id="newQTitle" placeholder="e.g. Why does a^n − b^n factorise so nicely?" /></div>
+      <input class="form-input" id="newQTitle" placeholder="e.g. Why does a&#x207F; &#x2212; b&#x207F; factorise so nicely?" /></div>
     <div class="form-group"><label class="form-label">About</label>
       <textarea class="form-textarea" id="newQAbout" placeholder="Brief description of what you want to understand..."></textarea></div>
     <div class="form-group"><label class="form-label">Sub-category (optional)</label>
@@ -346,86 +275,49 @@
 <div class="modal-overlay" id="authModalOverlay">
   <div class="modal" style="max-width:420px">
     <div class="modal-header">
-      <div class="modal-title">Welcome</div>
-      <div class="modal-subtitle">Log in or create an account to post intuitions and takeaways</div>
+      <div class="modal-title">Welcome to MINT</div>
+      <div class="modal-subtitle">Sign in to post questions, share intuitions, and vote</div>
     </div>
-
-    <!-- FIX: Google sign-in -->
     <button class="btn btn-google" id="googleSignInBtn">
-      <svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-      </svg>
+      <svg width="18" height="18" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
       Continue with Google
     </button>
-    <div class="divider">or</div>
-
+    <div class="divider">or continue with email</div>
     <div class="auth-tabs">
       <button class="auth-tab active" id="loginTab">Log in</button>
       <button class="auth-tab" id="signupTab">Sign up</button>
     </div>
-
-    <!-- FIX: real <form> for autofill; single unique ids; correct autocomplete -->
-    <form id="authForm" autocomplete="on" onsubmit="return false;">
-      <div id="authError"   style="color:var(--red);font-size:13px;margin-bottom:12px;display:none;padding:8px 12px;background:rgba(224,108,117,.1);border-radius:7px;border:1px solid var(--red)"></div>
-      <div id="authSuccess" style="color:var(--green);font-size:13px;margin-bottom:12px;display:none;padding:8px 12px;background:rgba(92,184,122,.1);border-radius:7px;border:1px solid var(--green)"></div>
-      <div class="form-group">
-        <label class="form-label" for="authEmail">Email</label>
-        <input class="form-input" id="authEmail" name="email" type="email" placeholder="you@example.com" autocomplete="email" />
-      </div>
-      <div class="form-group hidden" id="usernameWrap">
-        <label class="form-label" for="authUsername">Username</label>
-        <input class="form-input" id="authUsername" name="username" type="text" placeholder="e.g. mathwiz42" autocomplete="username" />
-      </div>
-      <div class="form-group">
-        <label class="form-label" for="authPassword">Password</label>
-        <!-- FIX: single id, no duplicate; autocomplete set via setAttribute -->
-        <input class="form-input" id="authPassword" name="password" type="password" placeholder="••••••••" autocomplete="current-password" />
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-ghost" id="authCancelBtn">Cancel</button>
-        <button type="submit" class="btn btn-primary" id="authSubmitBtn">Log in</button>
-      </div>
-    </form>
+    <div class="auth-msg err" id="authErr"></div>
+    <div class="auth-msg ok" id="authOk"></div>
+    <div class="form-group" id="identWrap">
+      <label class="form-label">Email</label>
+      <input class="form-input" id="authEmail" type="email" placeholder="you@example.com" autocomplete="email" />
+    </div>
+    <div class="form-group hidden" id="userWrap">
+      <label class="form-label">Username</label>
+      <input class="form-input" id="authUser" type="text" placeholder="mathwiz42" autocomplete="off" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <input class="form-input" id="authPass" type="password" placeholder="••••••••" autocomplete="current-password" />
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" id="authCancelBtn">Cancel</button>
+      <button class="btn btn-primary" id="authSubmitBtn">Log in</button>
+    </div>
   </div>
 </div>
 
 <script>
-// ── SUPABASE ─────────────────────────────────────────────
-// Required Supabase Dashboard setup for Google OAuth:
-//   1. Auth → Providers → Google: enable, add Client ID + Secret
-//   2. Auth → URL Configuration → Site URL: https://math-intuitions.org
-//   3. Auth → URL Configuration → Redirect URLs, add ALL of:
-//        https://math-intuitions.org/
-//        https://math-intuitions.org/index.html
-//        https://math-intuitions.org/algebra
-//        https://math-intuitions.org/algebra.html
-//        https://math-intuitions.org/combinatorics.html
-//        https://math-intuitions.org/geometry.html
-//        https://math-intuitions.org/number-theory.html
 const SUPABASE_URL = 'https://idlrmpecdvsofaykphfe.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlkbHJtcGVjZHZzb2ZheWtwaGZlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMzk5NTAsImV4cCI6MjA4OTgxNTk1MH0.FWSllmspL4twQ1aF2q20---HmoLxBM1NqFnQ2OPOoUg';
-const { createClient } = supabase;
-// FIX: persistSession + shared storageKey = login persists across all pages on the site
-//      detectSessionInUrl handles the OAuth redirect back from Google
-//      flowType:'pkce' is the modern, more reliable OAuth flow
-const db = createClient(SUPABASE_URL, SUPABASE_KEY, {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-    detectSessionInUrl: true,
-    storageKey: 'math-intuitions-auth',
-    flowType: 'pkce',
-  }
-});
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const CATEGORIES = {
-  'Algebra':      { icon:'𝑥', subs:['Exponents','Polynomials','Inequalities','AM-GM','Cauchy-Schwarz'], desc:'Expressions, equations, polynomials and algebraic structures' },
-  'Combinatorics':{ icon:'⊕', subs:["Euler's Identity","Euler's Totient",'Graph Theory','Enumeration','Pigeonhole Principle'], desc:'Counting, graphs, permutations and discrete mathematics' },
-  'Geometry':     { icon:'△', subs:['Angle Chasing','Cyclic Quadrilaterals','Inversion','Circles','Vectors'], desc:'Shapes, angles, circles and spatial reasoning' },
-  'Number Theory':{ icon:'ℕ', subs:['Divisibility','GCD/LCM','Modular Arithmetic','Primes'], desc:'Primes, divisibility, modular arithmetic and number systems' },
+  'Algebra':       { glyph:'&#119909;&#178;', color:'#7ab0f5', subs:['Exponents','Polynomials','Inequalities','AM-GM','Cauchy-Schwarz'],   desc:'Expressions, equations, polynomials and algebraic structures' },
+  'Combinatorics': { glyph:'&#8853;',         color:'#b090f5', subs:["Euler's Identity",'Graph Theory','Pigeonhole','Enumeration'],        desc:'Counting, graphs, permutations and discrete mathematics' },
+  'Geometry':      { glyph:'&#9651;',         color:'#6ee7a0', subs:['Angle Chasing','Cyclic Quads','Inversion','Circles','Vectors'],      desc:'Shapes, angles, circles and spatial reasoning' },
+  'Number Theory': { glyph:'&#8469;',         color:'#f0c060', subs:['Divisibility','GCD/LCM','Modular Arithmetic','Primes'],              desc:'Primes, divisibility, modular arithmetic and number systems' },
 };
 
 function detectTopic() {
@@ -436,47 +328,32 @@ function detectTopic() {
 const TOPIC_NAME = detectTopic();
 const TOPIC = CATEGORIES[TOPIC_NAME];
 
-// ── AUTH ──────────────────────────────────────────────────
+// ── AUTH ─────────────────────────────────────────────────
 let currentUser = null, currentProfile = null, authMode = 'login';
 
-// FIX: onAuthStateChange fires with INITIAL_SESSION on every page load when session exists,
-//      keeping the user logged in as long as storageKey matches across all pages.
-db.auth.onAuthStateChange(async (event, session) => {
+db.auth.onAuthStateChange(async (ev, session) => {
   currentUser = session?.user ?? null;
   if (currentUser) {
-    await loadProfile(currentUser);
+    if (!currentProfile) {
+      currentProfile = { username: currentUser.user_metadata?.username || currentUser.user_metadata?.full_name || currentUser.email.split('@')[0] };
+    }
+    updateAuthUI();
+    fetchCurrentProfile(currentUser);
   } else {
     currentProfile = null;
     updateAuthUI();
   }
-  // FIX: handle SIGNED_IN regardless of whether modal was open (covers OAuth redirect)
-  if (event === 'SIGNED_IN') {
-    closeAuthModal();
-    showToast('Welcome back!', 'success');
-  }
   if (selectedQuestion) renderPostForm();
 });
 
-// FIX: loadProfile as a standalone function with first-time profile creation for Google users
-async function loadProfile(user) {
-  try {
-    const { data, error } = await db.from('profiles').select('username').eq('id', user.id).maybeSingle();
-    if (error) { console.error('[profile]', error.message); currentProfile = null; updateAuthUI(); return; }
-    if (data) { currentProfile = data; updateAuthUI(); return; }
-    // No profile yet — auto-create one (Google sign-in first time)
-    const base = (user.user_metadata?.full_name || user.user_metadata?.name || user.email.split('@')[0])
-      .replace(/[^a-zA-Z0-9_]/g, '_').slice(0, 16);
-    const uname = base + '_' + Math.random().toString(36).slice(2, 6);
-    const { data: ins, error: insErr } = await db.from('profiles').insert({ id: user.id, username: uname }).select('username').maybeSingle();
-    if (insErr) {
-      // Race condition: another tab may have created it already
-      const { data: retry } = await db.from('profiles').select('username').eq('id', user.id).maybeSingle();
-      currentProfile = retry ?? null;
-    } else {
-      currentProfile = ins;
-    }
-    updateAuthUI();
-  } catch(e) { console.error('[loadProfile]', e); }
+async function fetchCurrentProfile(user) {
+  const { data } = await db.from('profiles').select('username,email').eq('id', user.id).maybeSingle();
+  if (data) { currentProfile = data; updateAuthUI(); return; }
+  const base = (user.user_metadata?.full_name || user.email.split('@')[0]).replace(/[^a-zA-Z0-9_]/g,'_').slice(0,16);
+  const username = base + '_' + Math.random().toString(36).slice(2,5);
+  const { data: ins } = await db.from('profiles').insert({ id: user.id, username, email: user.email }).select('username,email').maybeSingle();
+  currentProfile = ins ?? null;
+  updateAuthUI();
 }
 
 function updateAuthUI() {
@@ -486,23 +363,20 @@ function updateAuthUI() {
   if (currentUser) {
     const name = currentProfile?.username || currentUser.email?.split('@')[0] || 'You';
     btn.textContent = 'Log out';
-    btn.onclick = () => db.auth.signOut().then(() => showToast('Logged out.', 'success'));
-    badge.textContent = name; badge.classList.remove('hidden');
+    btn.onclick = () => { currentProfile = null; db.auth.signOut().then(() => showToast('Logged out', 'success')); };
+    document.getElementById('badgeName').textContent = name;
+    badge.classList.remove('hidden');
   } else {
     btn.textContent = 'Log in'; btn.onclick = openAuthModal;
     badge.classList.add('hidden');
   }
 }
 
-// ── GOOGLE SIGN-IN ────────────────────────────────────────
+// ── GOOGLE OAUTH ─────────────────────────────────────────
 async function handleGoogleSignIn() {
-  // FIX: redirectTo must be whitelisted in Supabase → Auth → URL Configuration
   const { error } = await db.auth.signInWithOAuth({
     provider: 'google',
-    options: {
-      redirectTo: window.location.origin + '/',
-      queryParams: { access_type: 'offline', prompt: 'consent' },
-    }
+    options: { redirectTo: location.origin + location.pathname, queryParams: { access_type: 'offline', prompt: 'consent' } }
   });
   if (error) showToast('Google sign-in failed: ' + error.message, 'error');
 }
@@ -511,100 +385,89 @@ async function handleGoogleSignIn() {
 function openAuthModal() {
   document.getElementById('authModalOverlay').classList.add('open');
   switchAuthTab('login');
-  setTimeout(() => document.getElementById('authEmail').focus(), 100);
+  setTimeout(() => document.getElementById('authEmail').focus(), 80);
 }
 function closeAuthModal() {
   document.getElementById('authModalOverlay').classList.remove('open');
-  // FIX: form.reset() properly clears fields and browser autofill state
-  document.getElementById('authForm').reset();
-  document.getElementById('authError').style.display = 'none';
-  document.getElementById('authSuccess').style.display = 'none';
+  ['authEmail','authUser','authPass'].forEach(id => document.getElementById(id).value = '');
+  setAuthMsg('err',''); setAuthMsg('ok','');
   const btn = document.getElementById('authSubmitBtn');
-  btn.disabled = false;
-  btn.textContent = authMode === 'login' ? 'Log in' : 'Create account';
+  btn.disabled = false; btn.textContent = authMode === 'login' ? 'Log in' : 'Create account';
 }
 function switchAuthTab(mode) {
   authMode = mode;
   document.getElementById('loginTab').classList.toggle('active', mode === 'login');
   document.getElementById('signupTab').classList.toggle('active', mode === 'signup');
   document.getElementById('authSubmitBtn').textContent = mode === 'login' ? 'Log in' : 'Create account';
-  document.getElementById('authError').style.display = 'none';
-  document.getElementById('authSuccess').style.display = 'none';
-  const uw = document.getElementById('usernameWrap');
-  if (uw) uw.classList.toggle('hidden', mode === 'login');
-  // FIX: setAttribute on the actual input (not JS property assignment)
-  document.getElementById('authPassword').setAttribute('autocomplete', mode === 'login' ? 'current-password' : 'new-password');
+  document.getElementById('identWrap').style.display = '';
+  document.getElementById('userWrap').classList.toggle('hidden', mode === 'login');
+  document.getElementById('authPass').autocomplete = mode === 'login' ? 'current-password' : 'new-password';
+  setAuthMsg('err',''); setAuthMsg('ok','');
 }
-function showAuthMsg(type, msg) {
-  const el = document.getElementById(type === 'error' ? 'authError' : 'authSuccess');
-  const other = document.getElementById(type === 'error' ? 'authSuccess' : 'authError');
-  el.textContent = msg; el.style.display = 'block'; other.style.display = 'none';
+function setAuthMsg(t, txt) {
+  const el = document.getElementById(t === 'err' ? 'authErr' : 'authOk');
+  el.textContent = txt; el.style.display = txt ? 'block' : 'none';
+  document.getElementById(t === 'err' ? 'authOk' : 'authErr').style.display = 'none';
 }
 async function handleAuthSubmit() {
   const email = document.getElementById('authEmail').value.trim();
-  const pass  = document.getElementById('authPassword').value;
+  const pass  = document.getElementById('authPass').value;
   const btn   = document.getElementById('authSubmitBtn');
-  if (!email || !pass) { showAuthMsg('error','Please fill in both fields.'); return; }
-  if (pass.length < 6) { showAuthMsg('error','Password must be at least 6 characters.'); return; }
+  if (!email || !pass) { setAuthMsg('err','Please fill in both fields.'); return; }
+  if (pass.length < 6) { setAuthMsg('err','Password must be at least 6 characters.'); return; }
   btn.disabled = true; btn.textContent = authMode === 'login' ? 'Logging in...' : 'Creating account...';
   if (authMode === 'login') {
-    // FIX: friendlyError instead of raw Supabase messages
     const { error } = await db.auth.signInWithPassword({ email, password: pass });
-    if (error) { showAuthMsg('error', friendlyError(error.message)); btn.disabled = false; btn.textContent = 'Log in'; return; }
-    closeAuthModal();
+    if (error) { setAuthMsg('err', niceErr(error.message)); btn.disabled = false; btn.textContent = 'Log in'; return; }
+    closeAuthModal(); showToast('Welcome back!', 'success');
   } else {
-    const username = document.getElementById('authUsername')?.value.trim();
-    if (!username) { showAuthMsg('error','Please choose a username.'); btn.disabled = false; btn.textContent = 'Create account'; return; }
-    if (!/^[a-zA-Z0-9_]{3,20}$/.test(username)) { showAuthMsg('error','Username: 3–20 chars, letters/numbers/underscores only.'); btn.disabled = false; btn.textContent = 'Create account'; return; }
-    const { data: existing } = await db.from('profiles').select('id').eq('username', username).maybeSingle();
-    if (existing) { showAuthMsg('error','Username already taken.'); btn.disabled = false; btn.textContent = 'Create account'; return; }
+    const username = document.getElementById('authUser').value.trim();
+    if (!username) { setAuthMsg('err','Please choose a username.'); btn.disabled = false; btn.textContent = 'Create account'; return; }
+    if (!/^[a-zA-Z0-9_]{3,20}$/.test(username)) { setAuthMsg('err','Username: 3-20 chars, letters/numbers/underscores.'); btn.disabled = false; btn.textContent = 'Create account'; return; }
+    const { data: ex } = await db.from('profiles').select('id').eq('username', username).maybeSingle();
+    if (ex) { setAuthMsg('err','Username already taken.'); btn.disabled = false; btn.textContent = 'Create account'; return; }
     const { data: sd, error } = await db.auth.signUp({ email, password: pass, options: { data: { username } } });
-    if (error) { showAuthMsg('error', friendlyError(error.message)); btn.disabled = false; btn.textContent = 'Create account'; return; }
-    if (sd?.session) { closeAuthModal(); }
-    else { showAuthMsg('success','✅ Check your email to confirm, then log in.'); btn.disabled = false; btn.textContent = 'Create account'; }
+    if (error) { setAuthMsg('err', niceErr(error.message)); btn.disabled = false; btn.textContent = 'Create account'; return; }
+    if (sd?.user) await db.from('profiles').upsert({ id: sd.user.id, username, email }, { onConflict: 'id' });
+    if (sd?.session) { closeAuthModal(); showToast('Welcome to MINT!', 'success'); }
+    else { setAuthMsg('ok','Check your email to confirm, then log in.'); btn.disabled = false; btn.textContent = 'Create account'; }
   }
 }
-function friendlyError(msg) {
-  if (!msg) return 'Something went wrong. Please try again.';
-  if (msg.includes('Invalid login credentials')) return 'Incorrect email or password.';
-  if (msg.includes('Email not confirmed')) return 'Please confirm your email before logging in.';
-  if (msg.includes('User already registered')) return 'An account with this email already exists.';
-  if (msg.includes('Password should be')) return 'Password must be at least 6 characters.';
-  return msg;
+function niceErr(m) {
+  if (!m) return 'Something went wrong.';
+  if (m.includes('Invalid login credentials')) return 'Incorrect email or password.';
+  if (m.includes('Email not confirmed')) return 'Please confirm your email first.';
+  if (m.includes('User already registered')) return 'An account with that email already exists.';
+  return m;
 }
 
 // ── TOAST ─────────────────────────────────────────────────
-let toastTimer = null;
+let toastTimer;
 function showToast(msg, type = 'success') {
-  const existing = document.querySelector('.toast');
-  if (existing) existing.remove();
-  clearTimeout(toastTimer);
-  const t = document.createElement('div');
-  t.className = 'toast';
-  t.style.cssText = `position:fixed;bottom:24px;right:24px;z-index:999;background:var(--bg2);border:1px solid ${type==='success'?'var(--green)':'var(--red)'};border-radius:10px;padding:12px 18px;font-size:13.5px;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:10px;animation:toastIn .25s ease;max-width:340px;color:${type==='success'?'var(--green)':'var(--red)'}`;
-  t.innerHTML = `<span>${type === 'success' ? '✓' : '✕'}</span> ${msg}`;
-  document.body.appendChild(t);
-  toastTimer = setTimeout(() => t.remove(), 3500);
+  document.querySelector('.toast')?.remove(); clearTimeout(toastTimer);
+  const t = document.createElement('div'); t.className = `toast ${type}`;
+  t.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">${type==='success'?'<polyline points="20 6 9 17 4 12"/>':'<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>'}</svg> ${msg}`;
+  document.body.appendChild(t); toastTimer = setTimeout(() => t.remove(), 3200);
 }
 
 // ── THEME ─────────────────────────────────────────────────
-function initTheme() {
-  const t = localStorage.getItem('theme') || 'dark';
+function applyTheme(t) {
   document.documentElement.className = t;
-  document.getElementById('themeToggle').checked = t === 'dark';
+  document.getElementById('iconDark').classList.toggle('hidden', t === 'dark');
+  document.getElementById('iconLight').classList.toggle('hidden', t === 'light');
 }
-document.getElementById('themeToggle').addEventListener('change', e => {
-  const t = e.target.checked ? 'dark' : 'light';
-  document.documentElement.className = t; localStorage.setItem('theme', t);
+document.getElementById('themeBtn').addEventListener('click', () => {
+  const t = document.documentElement.className === 'dark' ? 'light' : 'dark';
+  localStorage.setItem('theme', t); applyTheme(t);
 });
 
 // ── HELPERS ───────────────────────────────────────────────
 function timeAgo(ts) {
-  const d=Date.now()-new Date(ts).getTime(),m=Math.floor(d/60000),h=Math.floor(d/3600000),dy=Math.floor(d/86400000),w=Math.floor(d/604800000);
-  if(m<1)return'just now';if(m<60)return`${m}m ago`;if(h<24)return`${h}h ago`;if(dy<7)return`${dy}d ago`;return`${w}w ago`;
+  const d=Date.now()-new Date(ts),m=~~(d/6e4),h=~~(d/36e5),dy=~~(d/864e5);
+  return m<1?'just now':m<60?`${m}m ago`:h<24?`${h}h ago`:dy<7?`${dy}d ago`:`${~~(dy/7)}w ago`;
 }
 function processText(raw) {
-  if(!raw)return'';
+  if(!raw) return '';
   return raw.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')
     .replace(/\|\|([^|]+)\|\|/g,(_,c)=>`<span class="spoiler" onclick="this.classList.toggle('revealed')">${c}</span>`);
 }
@@ -612,16 +475,13 @@ function renderLatex(el) {
   if(window.renderMathInElement) renderMathInElement(el,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false});
 }
 function isValidURL(s){try{new URL(s);return true;}catch{return false;}}
-function getParam(name){return new URLSearchParams(window.location.search).get(name);}
-
-// FIX: vote_counts wrapped in try/catch — page loads fine even if view is missing
+function getParam(n){return new URLSearchParams(window.location.search).get(n);}
 async function fetchVoteCounts(ids, type) {
   if(!ids.length) return {};
   try {
-    const { data, error } = await db.from('vote_counts').select('target_id,upvotes,downvotes').eq('target_type',type).in('target_id',ids);
-    if(error){ console.warn('[vote_counts]', error.message); return {}; }
-    const map={};(data||[]).forEach(v=>{map[v.target_id]={upvotes:+v.upvotes,downvotes:+v.downvotes};});return map;
-  } catch(e){ console.warn('[vote_counts]', e); return {}; }
+    const { data } = await db.from('vote_counts').select('target_id,upvotes,downvotes').eq('target_type',type).in('target_id',ids);
+    const m={};(data||[]).forEach(v=>{m[v.target_id]={upvotes:+v.upvotes,downvotes:+v.downvotes};});return m;
+  } catch(e){ return {}; }
 }
 
 // ── STATE ─────────────────────────────────────────────────
@@ -632,148 +492,106 @@ let idCounter=1000;
 const formState={statement:'',explanation:'',explanationLinks:[],exampleLink:'',exampleExplanation:'',takeawayContent:'',takeawayLinks:[]};
 
 // ── BOOT ──────────────────────────────────────────────────
-// FIX: all event listeners bound here, not as inline onclick attrs
 function bindEvents() {
-  // Auth modal
   document.getElementById('authModalOverlay').addEventListener('click', e => { if(e.target===e.currentTarget) closeAuthModal(); });
   document.getElementById('googleSignInBtn').addEventListener('click', handleGoogleSignIn);
   document.getElementById('loginTab').addEventListener('click', () => switchAuthTab('login'));
   document.getElementById('signupTab').addEventListener('click', () => switchAuthTab('signup'));
   document.getElementById('authCancelBtn').addEventListener('click', closeAuthModal);
-  document.getElementById('authBtn').addEventListener('click', openAuthModal);
-  // FIX: form submit = Enter key works + browser can trigger autofill submit
-  document.getElementById('authForm').addEventListener('submit', e => {
-    e.preventDefault();
-    if (!document.getElementById('authSubmitBtn').disabled) handleAuthSubmit();
-  });
-
-  // New question modal
+  document.getElementById('authSubmitBtn').addEventListener('click', handleAuthSubmit);
   document.getElementById('newQModal').addEventListener('click', e => { if(e.target===e.currentTarget) closeNewQModal(); });
   document.getElementById('newQCancelBtn').addEventListener('click', closeNewQModal);
   document.getElementById('newQSubmitBtn').addEventListener('click', submitNewQuestion);
   document.getElementById('postQuestionBtn').addEventListener('click', openNewQModal);
-
-  // Back button
   document.getElementById('backBtn').addEventListener('click', goBack);
-
-  // Sort tabs (list view)
-  document.querySelectorAll('.tab-btn[data-sort]').forEach(btn => {
-    btn.addEventListener('click', () => switchSort(btn));
-  });
-
-  // Detail tabs
-  document.querySelectorAll('.tab-btn[data-dtab]').forEach(btn => {
-    btn.addEventListener('click', () => switchDetailTab(btn));
-  });
-
-  // Detail sort
-  document.querySelectorAll('.sort-btn[data-dsort]').forEach(btn => {
-    btn.addEventListener('click', () => switchDetailSort(btn));
-  });
-
-  // FIX: search bound via addEventListener; clear button dispatches 'input' so state is consistent
-  const searchInput = document.getElementById('questionSearch');
-  const searchClear = document.getElementById('searchClear');
-  searchInput.addEventListener('input', () => {
-    searchClear.classList.toggle('hidden', !searchInput.value);
-    renderQuestions();
-  });
-  searchClear.addEventListener('click', () => {
-    searchInput.value = '';
-    searchInput.dispatchEvent(new Event('input'));
-    searchInput.focus();
-  });
-
-  // Keyboard shortcuts
+  document.querySelectorAll('.tab-btn[data-sort]').forEach(btn => btn.addEventListener('click', () => switchSort(btn)));
+  document.querySelectorAll('.tab-btn[data-dtab]').forEach(btn => btn.addEventListener('click', () => switchDetailTab(btn)));
+  document.querySelectorAll('.sort-btn[data-dsort]').forEach(btn => btn.addEventListener('click', () => switchDetailSort(btn)));
+  const si = document.getElementById('questionSearch'), sc = document.getElementById('searchClear');
+  si.addEventListener('input', () => { sc.classList.toggle('hidden', !si.value); renderQuestions(); });
+  sc.addEventListener('click', () => { si.value=''; si.dispatchEvent(new Event('input')); si.focus(); });
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
       if (document.getElementById('authModalOverlay').classList.contains('open')) closeAuthModal();
       else if (document.getElementById('newQModal').classList.contains('open')) closeNewQModal();
-      else if (searchInput.value) { searchInput.value = ''; searchInput.dispatchEvent(new Event('input')); }
+    }
+    if (e.key === 'Enter' && document.getElementById('authModalOverlay').classList.contains('open')) {
+      const b = document.getElementById('authSubmitBtn'); if(!b.disabled) handleAuthSubmit();
     }
   });
-
   window.addEventListener('popstate', () => { if(!getParam('q')) goBack(); });
 }
 
 async function boot() {
-  initTheme();
+  applyTheme(localStorage.getItem('theme') || 'dark');
   bindEvents();
-  document.title = `${TOPIC_NAME} — Math Olympiad Forum`;
-  document.getElementById('topicIcon').textContent = TOPIC.icon;
+  document.title = `${TOPIC_NAME} — MINT`;
+  document.getElementById('topicIcon').innerHTML = TOPIC.glyph;
   document.getElementById('topicName').textContent = TOPIC_NAME;
   document.getElementById('topicDesc').textContent = TOPIC.desc;
   document.getElementById('breadcrumbCurrent').textContent = TOPIC_NAME;
-
   const subList = document.getElementById('subtopicList');
   const subSel  = document.getElementById('newQSub');
   subList.innerHTML = `<button class="subtopic-btn active" data-sub="">All Questions</button>` +
     TOPIC.subs.map(s=>`<button class="subtopic-btn" data-sub="${s}">${s}</button>`).join('');
-  // FIX: bind subtopic buttons via JS
-  subList.querySelectorAll('.subtopic-btn').forEach(btn => {
-    btn.addEventListener('click', () => setSubtopic(btn.dataset.sub || null, btn));
-  });
+  subList.querySelectorAll('.subtopic-btn').forEach(btn => btn.addEventListener('click', () => setSubtopic(btn.dataset.sub||null, btn)));
   TOPIC.subs.forEach(s => { const o=document.createElement('option');o.value=s;o.textContent=s;subSel.appendChild(o); });
-
   await loadQuestions();
-  const qParam = getParam('q');
-  if (qParam) { const q=questions.find(x=>x.id===qParam); if(q) openQuestion(q.id); }
+  const qp = getParam('q');
+  if (qp) { const q=questions.find(x=>x.id===qp); if(q) openQuestion(q.id); }
 }
 
-// FIX: onKatex() is the entry point called by KaTeX's onload
 function onKatex() { boot(); }
 if (document.readyState !== 'loading' && window.renderMathInElement) boot();
 
 function setSubtopic(name, btn) {
   activeSubtopic = name;
   document.querySelectorAll('.subtopic-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  renderQuestions();
+  btn.classList.add('active'); renderQuestions();
 }
 
-// ── LOAD QUESTIONS ─────────────────────────────────────────
+// ── LOAD QUESTIONS ────────────────────────────────────────
 async function loadQuestions() {
-  document.getElementById('questionsList').innerHTML = `<div class="loading-state"><div class="loading-spinner"></div>Loading questions...</div>`;
+  document.getElementById('questionsList').innerHTML = '<div class="loading-state"><div class="loading-spinner"></div>Loading questions...</div>';
   try {
-    const { data: tagData, error: tagError } = await db.from('tags').select('id,name').eq('category', TOPIC_NAME);
-    if (tagError) { document.getElementById('questionsList').innerHTML=`<div class="error-banner">Error: ${tagError.message}</div>`; return; }
-    if (!tagData||!tagData.length) { questions=[]; renderQuestions(); return; }
-    const { data: qtData, error: qtError } = await db.from('question_tags').select('question_id').in('tag_id', tagData.map(t=>t.id));
-    if (qtError) { document.getElementById('questionsList').innerHTML=`<div class="error-banner">Error: ${qtError.message}</div>`; return; }
-    if (!qtData||!qtData.length) { questions=[]; renderQuestions(); return; }
+    const { data: tagData, error: te } = await db.from('tags').select('id,name').eq('category', TOPIC_NAME);
+    if (te) throw te;
+    if (!tagData?.length) { questions=[]; renderQuestions(); return; }
+    const { data: qtData, error: qte } = await db.from('question_tags').select('question_id').in('tag_id', tagData.map(t=>t.id));
+    if (qte) throw qte;
+    if (!qtData?.length) { questions=[]; renderQuestions(); return; }
     const qIds = [...new Set(qtData.map(qt=>qt.question_id))];
     const { data, error } = await db.from('questions')
-      .select('id,title,about,created_at,question_tags(tags(name,category)),intuitions(id),takeaways(id)')
+      .select('id,title,about,created_at,question_tags(tags(name)),intuitions(id),takeaways(id)')
       .in('id',qIds).order('created_at',{ascending:false});
-    if (error) { document.getElementById('questionsList').innerHTML=`<div class="error-banner">Error: ${error.message}</div>`; return; }
-    // FIX: safe null-coalescing on all array accesses
+    if (error) throw error;
     questions = (data||[]).map(q=>({
-      id:q.id,title:q.title,about:q.about,
-      createdAt:timeAgo(q.created_at),createdAtRaw:q.created_at,
+      id:q.id, title:q.title, about:q.about,
+      createdAt:timeAgo(q.created_at), createdAtRaw:q.created_at,
       tags:(q.question_tags||[]).map(qt=>qt.tags?.name).filter(Boolean),
-      intuitionCount:(q.intuitions||[]).length,takeawayCount:(q.takeaways||[]).length,upvotes:0,downvotes:0,
+      intuitionCount:(q.intuitions||[]).length, takeawayCount:(q.takeaways||[]).length,
+      upvotes:0, downvotes:0,
     }));
-    const voteCounts = await fetchVoteCounts(qIds,'question');
-    questions.forEach(q=>{const v=voteCounts[q.id]||{upvotes:0,downvotes:0};q.upvotes=+v.upvotes;q.downvotes=+v.downvotes;});
+    const vc = await fetchVoteCounts(qIds,'question');
+    questions.forEach(q=>{const v=vc[q.id]||{};q.upvotes=+v.upvotes||0;q.downvotes=+v.downvotes||0;});
     if (currentUser) {
       const { data: vd } = await db.from('votes').select('target_id,direction').eq('user_id',currentUser.id).eq('target_type','question').in('target_id',qIds);
       (vd||[]).forEach(v=>{questionVotes[v.target_id]=v.direction;});
     }
     renderQuestions();
   } catch(e) {
-    console.error('[loadQuestions]', e);
-    document.getElementById('questionsList').innerHTML=`<div class="error-banner">Failed to load questions. Please refresh.</div>`;
+    document.getElementById('questionsList').innerHTML=`<div class="error-banner">Failed to load: ${e.message}</div>`;
   }
 }
 
-// ── SORT & RENDER ──────────────────────────────────────────
+// ── SORT & RENDER ─────────────────────────────────────────
 function switchSort(btn) {
   document.querySelectorAll('.tab-btn[data-sort]').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active'); currentSort=btn.dataset.sort; renderQuestions();
 }
-function sortItems(items,type) {
+function sortItems(items, type) {
   const arr=[...items];
-  function rel(x){const s=x.upvotes-x.downvotes,h=(Date.now()-new Date(x.createdAtRaw).getTime())/3600000;return s*.7+(Math.max(0,24-h)/24)*5;}
+  function rel(x){const s=x.upvotes-x.downvotes,h=(Date.now()-new Date(x.createdAtRaw))/3600000;return s*.7+(Math.max(0,24-h)/24)*5;}
   if(type==='top') return arr.sort((a,b)=>(b.upvotes-b.downvotes)-(a.upvotes-a.downvotes));
   if(type==='relevance') return arr.sort((a,b)=>rel(b)-rel(a));
   return arr.sort((a,b)=>new Date(b.createdAtRaw)-new Date(a.createdAtRaw));
@@ -781,63 +599,48 @@ function sortItems(items,type) {
 function renderQuestions() {
   const q=document.getElementById('questionSearch').value.trim().toLowerCase();
   const filtered=questions.filter(x=>{
-    const matchSub=!activeSubtopic||x.tags.includes(activeSubtopic);
-    const matchQ=!q||x.title.toLowerCase().includes(q)||(x.about||'').toLowerCase().includes(q)||x.tags.some(t=>t.toLowerCase().includes(q));
-    return matchSub&&matchQ;
+    const ms=!activeSubtopic||x.tags.includes(activeSubtopic);
+    const mq=!q||x.title.toLowerCase().includes(q)||(x.about||'').toLowerCase().includes(q)||x.tags.some(t=>t.toLowerCase().includes(q));
+    return ms&&mq;
   });
   const sorted=sortItems(filtered,currentSort);
   document.getElementById('qCount').textContent=`${sorted.length} question${sorted.length!==1?'s':''}${activeSubtopic?` in ${activeSubtopic}`:''}`;
   const container=document.getElementById('questionsList');
-  if(!sorted.length){container.innerHTML=`<div class="empty-state"><div class="empty-state-icon">💭</div>No questions yet${activeSubtopic?` in ${activeSubtopic}`:''}. Be the first!</div>`;return;}
+  if(!sorted.length){container.innerHTML=`<div class="empty-state"><div class="empty-state-icon">&#128173;</div>No questions yet${activeSubtopic?` in ${activeSubtopic}`:''}. Be the first!</div>`;return;}
   container.innerHTML=sorted.map(q=>questionCardHTML(q)).join('');
   container.querySelectorAll('.katex-render').forEach(el=>renderLatex(el));
-  // FIX: bind card clicks and vote buttons via JS (not inline onclick)
-  container.querySelectorAll('.question-card').forEach(card => {
-    card.addEventListener('click', () => openQuestion(card.dataset.qid));
-  });
-  container.querySelectorAll('.vote-btn[data-vid]').forEach(btn => {
-    btn.addEventListener('click', e => { e.stopPropagation(); handleVote(btn.dataset.vid, btn.dataset.vdir, 'q'); });
-  });
+  container.querySelectorAll('.question-card').forEach(card => card.addEventListener('click', () => openQuestion(card.dataset.qid)));
+  container.querySelectorAll('.vote-btn[data-vid]').forEach(btn => btn.addEventListener('click', e => { e.stopPropagation(); handleVote(btn.dataset.vid, btn.dataset.vdir, 'q'); }));
 }
 function questionCardHTML(q) {
-  const score=q.upvotes-q.downvotes,vu=questionVotes[q.id];
-  const sc=score>0?'positive':score<0?'negative':'';
+  const score=q.upvotes-q.downvotes, vu=questionVotes[q.id], sc=score>0?'positive':score<0?'negative':'';
   return `<div class="question-card" data-qid="${q.id}">
     <div class="vote-col">
-      <button class="vote-btn ${vu==='up'?'voted-up':''}" data-vid="${q.id}" data-vdir="up">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="${vu==='up'?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M7 11l5-5 5 5M7 17l5-5 5 5"/></svg>
-      </button>
+      <button class="vote-btn ${vu==='up'?'voted-up':''}" data-vid="${q.id}" data-vdir="up"><svg width="18" height="18" viewBox="0 0 24 24" fill="${vu==='up'?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M7 11l5-5 5 5M7 17l5-5 5 5"/></svg></button>
       <span class="vote-score ${sc}">${score}</span>
-      <button class="vote-btn ${vu==='down'?'voted-down':''}" data-vid="${q.id}" data-vdir="down">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="${vu==='down'?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M7 7l5 5 5-5M7 13l5 5 5-5"/></svg>
-      </button>
-      <div class="intuition-count">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 1 7 7c0 2.5-1.3 4.7-3.3 6l-.7.6V18H9v-2.4l-.7-.6A7 7 0 0 1 12 2z"/></svg>
-        ${q.intuitionCount}/${q.takeawayCount}
-      </div>
+      <button class="vote-btn ${vu==='down'?'voted-down':''}" data-vid="${q.id}" data-vdir="down"><svg width="18" height="18" viewBox="0 0 24 24" fill="${vu==='down'?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M7 7l5 5 5-5M7 13l5 5 5-5"/></svg></button>
+      <div class="intuition-count"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 1 7 7c0 2.5-1.3 4.7-3.3 6l-.7.6V18H9v-2.4l-.7-.6A7 7 0 0 1 12 2z"/></svg>${q.intuitionCount}</div>
     </div>
     <div class="card-content">
       <div class="card-title katex-render">${processText(q.title)}</div>
-      <div class="card-about"><span class="label">About: </span><span class="katex-render">${processText(q.about)}</span></div>
+      <div class="card-about"><span class="label">About </span><span class="katex-render">${processText(q.about)}</span></div>
       <div class="tags">${q.tags.map((t,i)=>`<span class="tag ${i===0?'tag-primary':'tag-secondary'}">${t}</span>`).join('')}</div>
       <div class="card-meta">${q.createdAt}</div>
     </div>
   </div>`;
 }
 
-// ── DETAIL VIEW ────────────────────────────────────────────
+// ── DETAIL VIEW ───────────────────────────────────────────
 async function openQuestion(id) {
   selectedQuestion=questions.find(q=>q.id===id);
   document.getElementById('listView').style.display='none';
   document.getElementById('detailView').style.display='block';
   renderDetailHeader();
-  document.getElementById('dtab-intuitions').innerHTML=`<div class="loading-state"><div class="loading-spinner"></div>Loading...</div>`;
-  document.getElementById('dtab-takeaways').innerHTML=`<div class="loading-state"><div class="loading-spinner"></div>Loading...</div>`;
+  document.getElementById('dtab-intuitions').innerHTML='<div class="loading-state"><div class="loading-spinner"></div>Loading...</div>';
+  document.getElementById('dtab-takeaways').innerHTML='<div class="loading-state"><div class="loading-spinner"></div>Loading...</div>';
   history.pushState({q:id},'',`?q=${id}`);
   await loadDetailItems(id);
-  renderDetailItems();
-  renderPostForm();
-  window.scrollTo(0,0);
+  renderDetailItems(); renderPostForm(); window.scrollTo(0,0);
 }
 function goBack() {
   selectedQuestion=null;
@@ -856,8 +659,8 @@ async function loadDetailItems(qid) {
   takeaways[qid]=(takData||[]).map(t=>({id:t.id,content:t.content,author:t.profiles?.username||'Anonymous',createdAt:timeAgo(t.created_at),createdAtRaw:t.created_at,upvotes:0,downvotes:0,links:(t.links||[]).map(l=>l.url),comments:[]}));
   const intIds=intuitions[qid].map(i=>i.id), takIds=takeaways[qid].map(t=>t.id);
   const [ivc,tvc]=await Promise.all([fetchVoteCounts(intIds,'intuition'),fetchVoteCounts(takIds,'takeaway')]);
-  intuitions[qid].forEach(i=>{const v=ivc[i.id]||{upvotes:0,downvotes:0};i.upvotes=+v.upvotes;i.downvotes=+v.downvotes;});
-  takeaways[qid].forEach(t=>{const v=tvc[t.id]||{upvotes:0,downvotes:0};t.upvotes=+v.upvotes;t.downvotes=+v.downvotes;});
+  intuitions[qid].forEach(i=>{const v=ivc[i.id]||{};i.upvotes=+v.upvotes||0;i.downvotes=+v.downvotes||0;});
+  takeaways[qid].forEach(t=>{const v=tvc[t.id]||{};t.upvotes=+v.upvotes||0;t.downvotes=+v.downvotes||0;});
   if(currentUser){
     const allIds=[...intIds,...takIds];
     if(allIds.length){const{data:vd}=await db.from('votes').select('target_id,target_type,direction').eq('user_id',currentUser.id).in('target_id',allIds);(vd||[]).forEach(v=>{if(v.target_type==='intuition')intuitionVotes[v.target_id]=v.direction;if(v.target_type==='takeaway')takeawayVotes[v.target_id]=v.direction;});}
@@ -865,70 +668,61 @@ async function loadDetailItems(qid) {
 }
 
 function renderDetailHeader() {
-  const q=selectedQuestion,score=q.upvotes-q.downvotes,vu=questionVotes[q.id];
-  const sc=score>0?'positive':score<0?'negative':'';
+  const q=selectedQuestion, score=q.upvotes-q.downvotes, vu=questionVotes[q.id], sc=score>0?'positive':score<0?'negative':'';
   document.getElementById('detailVoteCol').innerHTML=`
-    <button class="vote-btn ${vu==='up'?'voted-up':''}" id="dvUp"><svg width="22" height="22" viewBox="0 0 24 24" fill="${vu==='up'?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M7 11l5-5 5 5M7 17l5-5 5 5"/></svg></button>
-    <span class="vote-score ${sc}" style="font-size:18px">${score}</span>
-    <button class="vote-btn ${vu==='down'?'voted-down':''}" id="dvDown"><svg width="22" height="22" viewBox="0 0 24 24" fill="${vu==='down'?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M7 7l5 5 5-5M7 13l5 5 5-5"/></svg></button>
-    <div class="intuition-count" style="flex-direction:column;gap:2px;margin-top:8px;text-align:center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 1 7 7c0 2.5-1.3 4.7-3.3 6l-.7.6V18H9v-2.4l-.7-.6A7 7 0 0 1 12 2z"/></svg><span>${(intuitions[q.id]||[]).length}</span></div>`;
-  // FIX: bind via JS not inline onclick
+    <button class="vote-btn ${vu==='up'?'voted-up':''}" id="dvUp"><svg width="20" height="20" viewBox="0 0 24 24" fill="${vu==='up'?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M7 11l5-5 5 5M7 17l5-5 5 5"/></svg></button>
+    <span class="vote-score ${sc}" style="font-size:17px">${score}</span>
+    <button class="vote-btn ${vu==='down'?'voted-down':''}" id="dvDown"><svg width="20" height="20" viewBox="0 0 24 24" fill="${vu==='down'?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M7 7l5 5 5-5M7 13l5 5 5-5"/></svg></button>
+    <div class="intuition-count" style="flex-direction:column;gap:2px;margin-top:8px;text-align:center"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 1 7 7c0 2.5-1.3 4.7-3.3 6l-.7.6V18H9v-2.4l-.7-.6A7 7 0 0 1 12 2z"/></svg><span>${(intuitions[q.id]||[]).length}</span></div>`;
   document.getElementById('dvUp').addEventListener('click', () => handleVote(q.id,'up','q'));
   document.getElementById('dvDown').addEventListener('click', () => handleVote(q.id,'down','q'));
   document.getElementById('detailContent').innerHTML=`
     <div class="detail-title katex-render">${processText(q.title)}</div>
     <div class="detail-about"><strong>About:</strong> <span class="katex-render">${processText(q.about)}</span></div>
-    <div class="tags" style="margin:12px 0">${q.tags.map((t,i)=>`<span class="tag ${i===0?'tag-primary':'tag-secondary'}">${t}</span>`).join('')}</div>
-    <div class="detail-meta">${q.createdAt} · ${q.upvotes} up · ${q.downvotes} down</div>`;
+    <div class="tags" style="margin:10px 0">${q.tags.map((t,i)=>`<span class="tag ${i===0?'tag-primary':'tag-secondary'}">${t}</span>`).join('')}</div>
+    <div class="detail-meta">${q.createdAt}</div>`;
   document.querySelectorAll('#detailContent .katex-render').forEach(el=>renderLatex(el));
 }
 
 function switchDetailTab(btn){
   document.querySelectorAll('.tab-btn[data-dtab]').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');currentDetailTab=btn.dataset.dtab;
+  btn.classList.add('active'); currentDetailTab=btn.dataset.dtab;
   document.querySelectorAll('[id^="dtab-"]').forEach(c=>c.classList.remove('active'));
   document.getElementById('dtab-'+currentDetailTab).classList.add('active');
   renderPostForm();
 }
 function switchDetailSort(btn){
   document.querySelectorAll('.sort-btn[data-dsort]').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');currentDetailSort=btn.dataset.dsort;renderDetailItems();
+  btn.classList.add('active'); currentDetailSort=btn.dataset.dsort; renderDetailItems();
 }
 
 function renderDetailItems() {
-  if(!selectedQuestion)return;
-  const qid=selectedQuestion.id,intList=intuitions[qid]||[],takList=takeaways[qid]||[];
-  document.getElementById('intCount').textContent=intList.length;
-  document.getElementById('takCount').textContent=takList.length;
-  selectedQuestion.intuitionCount=intList.length;selectedQuestion.takeawayCount=takList.length;
-  const ic=document.getElementById('dtab-intuitions'),si=sortItems(intList,currentDetailSort);
-  ic.innerHTML=si.length?si.map(i=>intuitionCardHTML(i)).join(''):`<div class="empty-state"><div class="empty-state-icon">💡</div>No intuitions yet. Be the first!</div>`;
+  if(!selectedQuestion) return;
+  const qid=selectedQuestion.id, il=intuitions[qid]||[], tl=takeaways[qid]||[];
+  document.getElementById('intCount').textContent=il.length;
+  document.getElementById('takCount').textContent=tl.length;
+  const ic=document.getElementById('dtab-intuitions'), si=sortItems(il,currentDetailSort);
+  ic.innerHTML=si.length?si.map(i=>intuitionCardHTML(i)).join(''):'<div class="empty-state"><div class="empty-state-icon">&#128161;</div>No intuitions yet. Be the first!</div>';
   ic.querySelectorAll('.katex-render').forEach(el=>renderLatex(el));
-  // FIX: bind i-card vote buttons via JS
-  ic.querySelectorAll('.vote-btn[data-vid]').forEach(btn => {
-    btn.addEventListener('click', () => handleVote(btn.dataset.vid, btn.dataset.vdir, 'i'));
-  });
-  const tc=document.getElementById('dtab-takeaways'),st=sortItems(takList,currentDetailSort);
-  tc.innerHTML=st.length?st.map(t=>takeawayCardHTML(t)).join(''):`<div class="empty-state"><div class="empty-state-icon">📝</div>No takeaways yet. Share what you learned!</div>`;
+  ic.querySelectorAll('.vote-btn[data-vid]').forEach(btn => btn.addEventListener('click', () => handleVote(btn.dataset.vid,btn.dataset.vdir,'i')));
+  const tc=document.getElementById('dtab-takeaways'), st=sortItems(tl,currentDetailSort);
+  tc.innerHTML=st.length?st.map(t=>takeawayCardHTML(t)).join(''):'<div class="empty-state"><div class="empty-state-icon">&#128221;</div>No takeaways yet. Share what you learned!</div>';
   tc.querySelectorAll('.katex-render').forEach(el=>renderLatex(el));
-  tc.querySelectorAll('.vote-btn[data-vid]').forEach(btn => {
-    btn.addEventListener('click', () => handleVote(btn.dataset.vid, btn.dataset.vdir, 't'));
-  });
+  tc.querySelectorAll('.vote-btn[data-vid]').forEach(btn => btn.addEventListener('click', () => handleVote(btn.dataset.vid,btn.dataset.vdir,'t')));
   renderDetailHeader();
 }
 
 function intuitionCardHTML(item) {
-  const score=item.upvotes-item.downvotes,vu=intuitionVotes[item.id],sc=score>0?'positive':score<0?'negative':'';
-  const exp=item.explanation||'',trunc=exp.length>300,disp=trunc?exp.substring(0,300)+'...':exp;
+  const score=item.upvotes-item.downvotes, vu=intuitionVotes[item.id], sc=score>0?'positive':score<0?'negative':'';
+  const exp=item.explanation||'', trunc=exp.length>300, disp=trunc?exp.substring(0,300)+'...':exp;
   const linksHTML=(item.explanationLinks||[]).length?`<div class="i-links">${item.explanationLinks.map(l=>`<a class="i-link" href="${l}" target="_blank" rel="noopener">${l}</a>`).join('')}</div>`:'';
   const exHTML=(item.exampleLink||item.exampleExplanation)?`<div class="i-example"><div class="i-label">Example</div>${item.exampleLink?`<a class="i-link" href="${item.exampleLink}" target="_blank" rel="noopener">${item.exampleLink}</a>`:''}${item.exampleExplanation?`<div class="katex-render" style="font-size:13.5px;color:var(--text2);margin-top:6px">${processText(item.exampleExplanation)}</div>`:''}</div>`:'';
-  const cc=(item.comments||[]).length;
-  const cHTML=(item.comments||[]).map(c=>`<div class="comment-item"><div class="comment-text">${processText(c.text)}</div><div class="comment-meta">${c.author} · ${c.createdAt}</div></div>`).join('');
+  const cc=(item.comments||[]).length, cHTML=(item.comments||[]).map(c=>`<div class="comment-item"><div class="comment-text">${processText(c.text)}</div><div class="comment-meta">${c.author} · ${c.createdAt}</div></div>`).join('');
   return `<div class="i-card" id="icard-${item.id}"><div class="i-card-inner">
     <div class="vote-col">
-      <button class="vote-btn ${vu==='up'?'voted-up':''}" data-vid="${item.id}" data-vdir="up"><svg width="18" height="18" viewBox="0 0 24 24" fill="${vu==='up'?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M7 11l5-5 5 5M7 17l5-5 5 5"/></svg></button>
+      <button class="vote-btn ${vu==='up'?'voted-up':''}" data-vid="${item.id}" data-vdir="up"><svg width="16" height="16" viewBox="0 0 24 24" fill="${vu==='up'?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M7 11l5-5 5 5M7 17l5-5 5 5"/></svg></button>
       <span class="vote-score ${sc}">${score}</span>
-      <button class="vote-btn ${vu==='down'?'voted-down':''}" data-vid="${item.id}" data-vdir="down"><svg width="18" height="18" viewBox="0 0 24 24" fill="${vu==='down'?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M7 7l5 5 5-5M7 13l5 5 5-5"/></svg></button>
+      <button class="vote-btn ${vu==='down'?'voted-down':''}" data-vid="${item.id}" data-vdir="down"><svg width="16" height="16" viewBox="0 0 24 24" fill="${vu==='down'?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M7 7l5 5 5-5M7 13l5 5 5-5"/></svg></button>
     </div>
     <div class="i-content">
       <div class="i-label">Intuition</div>
@@ -938,8 +732,8 @@ function intuitionCardHTML(item) {
       ${trunc?`<button class="btn-link" id="iexpbtn-${item.id}">Show more</button>`:''}
       ${linksHTML}${exHTML}
       <div class="i-footer">
-        <span>By ${item.author} · ${item.createdAt} · ${item.upvotes} up · ${item.downvotes} down</span>
-        <button class="comment-btn" data-cid="${item.id}" data-ctype="i"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>${cc} comment${cc!==1?'s':''}</button>
+        <span>By ${item.author} · ${item.createdAt}</span>
+        <button class="comment-btn" data-cid="${item.id}" data-ctype="i"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>${cc} comment${cc!==1?'s':''}</button>
       </div>
     </div>
   </div>
@@ -949,16 +743,15 @@ function intuitionCardHTML(item) {
 }
 
 function takeawayCardHTML(item) {
-  const score=item.upvotes-item.downvotes,vu=takeawayVotes[item.id],sc=score>0?'positive':score<0?'negative':'';
-  const content=item.content||'',trunc=content.length>300,disp=trunc?content.substring(0,300)+'...':content;
+  const score=item.upvotes-item.downvotes, vu=takeawayVotes[item.id], sc=score>0?'positive':score<0?'negative':'';
+  const content=item.content||'', trunc=content.length>300, disp=trunc?content.substring(0,300)+'...':content;
   const linksHTML=(item.links||[]).length?`<div class="i-links">${item.links.map(l=>`<a class="i-link" href="${l}" target="_blank" rel="noopener">${l}</a>`).join('')}</div>`:'';
-  const cc=(item.comments||[]).length;
-  const cHTML=(item.comments||[]).map(c=>`<div class="comment-item"><div class="comment-text">${processText(c.text)}</div><div class="comment-meta">${c.author} · ${c.createdAt}</div></div>`).join('');
+  const cc=(item.comments||[]).length, cHTML=(item.comments||[]).map(c=>`<div class="comment-item"><div class="comment-text">${processText(c.text)}</div><div class="comment-meta">${c.author} · ${c.createdAt}</div></div>`).join('');
   return `<div class="i-card" id="tcard-${item.id}"><div class="i-card-inner">
     <div class="vote-col">
-      <button class="vote-btn ${vu==='up'?'voted-up':''}" data-vid="${item.id}" data-vdir="up"><svg width="18" height="18" viewBox="0 0 24 24" fill="${vu==='up'?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M7 11l5-5 5 5M7 17l5-5 5 5"/></svg></button>
+      <button class="vote-btn ${vu==='up'?'voted-up':''}" data-vid="${item.id}" data-vdir="up"><svg width="16" height="16" viewBox="0 0 24 24" fill="${vu==='up'?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M7 11l5-5 5 5M7 17l5-5 5 5"/></svg></button>
       <span class="vote-score ${sc}">${score}</span>
-      <button class="vote-btn ${vu==='down'?'voted-down':''}" data-vid="${item.id}" data-vdir="down"><svg width="18" height="18" viewBox="0 0 24 24" fill="${vu==='down'?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M7 7l5 5 5-5M7 13l5 5 5-5"/></svg></button>
+      <button class="vote-btn ${vu==='down'?'voted-down':''}" data-vid="${item.id}" data-vdir="down"><svg width="16" height="16" viewBox="0 0 24 24" fill="${vu==='down'?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M7 7l5 5 5-5M7 13l5 5 5-5"/></svg></button>
     </div>
     <div class="i-content">
       <div class="i-label">Takeaway by ${item.author}</div>
@@ -966,8 +759,8 @@ function takeawayCardHTML(item) {
       ${trunc?`<button class="btn-link" id="texpbtn-${item.id}">Show more</button>`:''}
       ${linksHTML}
       <div class="i-footer">
-        <span>${item.createdAt} · ${item.upvotes} up · ${item.downvotes} down</span>
-        <button class="comment-btn" data-cid="${item.id}" data-ctype="t"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>${cc} comment${cc!==1?'s':''}</button>
+        <span>${item.createdAt}</span>
+        <button class="comment-btn" data-cid="${item.id}" data-ctype="t"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>${cc} comment${cc!==1?'s':''}</button>
       </div>
     </div>
   </div>
@@ -976,7 +769,7 @@ function takeawayCardHTML(item) {
   </div></div>`;
 }
 
-// FIX: event delegation handles expand, comment toggle, comment post, link removal
+// Event delegation for expand, comment toggle, comment post
 document.addEventListener('click', e => {
   const expBtn = e.target.closest('[id^="iexpbtn-"],[id^="texpbtn-"]');
   if (expBtn) { const m=expBtn.id.match(/^([it])expbtn-(.+)$/); if(m) toggleExpand(m[2],m[1]); return; }
@@ -984,53 +777,49 @@ document.addEventListener('click', e => {
   if (cBtn) { toggleComments(cBtn.dataset.cid, cBtn.dataset.ctype); return; }
   const postBtn = e.target.closest('button[data-postid]');
   if (postBtn) { addComment(postBtn.dataset.postid, postBtn.dataset.posttype); return; }
-  const rlBtn = e.target.closest('.remove-link-btn[data-ridx]');
-  if (rlBtn) { const t=rlBtn.dataset.rtype,i=+rlBtn.dataset.ridx; if(t==='int')removeIntLink(i); else removeTakLink(i); return; }
-  if (e.target.id==='loginPromptInt'||e.target.id==='loginPromptTak') openAuthModal();
 });
 
-// ── EXPAND / COMMENTS ──────────────────────────────────────
 const expandState={};
 function toggleExpand(id,type){
-  const key=type+id;expandState[key]=!expandState[key];
+  const key=type+id; expandState[key]=!expandState[key];
   const list=type==='i'?(intuitions[selectedQuestion.id]||[]):(takeaways[selectedQuestion.id]||[]);
-  const item=list.find(x=>x.id===id);if(!item)return;
-  const content=type==='i'?item.explanation:item.content,ex=expandState[key];
+  const item=list.find(x=>x.id===id); if(!item) return;
+  const content=type==='i'?item.explanation:item.content, ex=expandState[key];
   const el=document.getElementById((type==='i'?'iexp':'texp')+'-'+id);
   const btn=document.getElementById((type==='i'?'iexpbtn':'texpbtn')+'-'+id);
   if(el){el.innerHTML=processText(ex?content:content.substring(0,300)+'...');renderLatex(el);}
-  if(btn)btn.textContent=ex?'Show less':'Show more';
+  if(btn) btn.textContent=ex?'Show less':'Show more';
 }
 function toggleComments(id,type){document.getElementById(`comments-${type}-${id}`)?.classList.toggle('open');}
 function addComment(id,type){
   if(!currentUser){openAuthModal();return;}
-  const el=document.getElementById(`ctext-${type}-${id}`),text=el?.value.trim();if(!text)return;
+  const el=document.getElementById(`ctext-${type}-${id}`), text=el?.value.trim(); if(!text) return;
   const comment={id:'c'+(++idCounter),text,author:currentProfile?.username||'You',createdAt:'just now'};
   const list=type==='i'?(intuitions[selectedQuestion.id]||[]):(takeaways[selectedQuestion.id]||[]);
-  const item=list.find(x=>x.id===id);if(item){if(!item.comments)item.comments=[];item.comments.push(comment);}
+  const item=list.find(x=>x.id===id); if(item){if(!item.comments)item.comments=[];item.comments.push(comment);}
   db.from('comments').insert({parent_id:id,parent_type:type==='i'?'intuition':'takeaway',text,author_id:currentUser.id});
   renderDetailItems();
   setTimeout(()=>document.getElementById(`comments-${type}-${id}`)?.classList.add('open'),10);
 }
 
-// ── VOTING ─────────────────────────────────────────────────
+// ── VOTING ────────────────────────────────────────────────
 async function handleVote(id,dir,type){
   if(!currentUser){openAuthModal();return;}
   const vm=type==='q'?questionVotes:type==='i'?intuitionVotes:takeawayVotes;
-  const cur=vm[id]??null,next=cur===dir?null:dir;
+  const cur=vm[id]??null, next=cur===dir?null:dir;
   const ttype=type==='q'?'question':type==='i'?'intuition':'takeaway';
-  const ud=(cur==='up'?-1:0)+(next==='up'?1:0),dd=(cur==='down'?-1:0)+(next==='down'?1:0);
+  const ud=(cur==='up'?-1:0)+(next==='up'?1:0), dd=(cur==='down'?-1:0)+(next==='down'?1:0);
   vm[id]=next;
   const apply=item=>{item.upvotes+=ud;item.downvotes+=dd;};
   if(type==='q'){const q=questions.find(q=>q.id===id);if(q)apply(q);renderQuestions();}
   else if(type==='i'&&selectedQuestion){const i=(intuitions[selectedQuestion.id]||[]).find(x=>x.id===id);if(i)apply(i);renderDetailItems();}
   else if(type==='t'&&selectedQuestion){const t=(takeaways[selectedQuestion.id]||[]).find(x=>x.id===id);if(t)apply(t);renderDetailItems();}
-  if(next===null)await db.from('votes').delete().eq('user_id',currentUser.id).eq('target_id',id).eq('target_type',ttype);
-  else if(cur===null)await db.from('votes').insert({user_id:currentUser.id,target_id:id,target_type:ttype,direction:next});
+  if(next===null) await db.from('votes').delete().eq('user_id',currentUser.id).eq('target_id',id).eq('target_type',ttype);
+  else if(cur===null) await db.from('votes').insert({user_id:currentUser.id,target_id:id,target_type:ttype,direction:next});
   else await db.from('votes').update({direction:next}).eq('user_id',currentUser.id).eq('target_id',id).eq('target_type',ttype);
 }
 
-// ── POST FORM ──────────────────────────────────────────────
+// ── POST FORM ─────────────────────────────────────────────
 function renderPostForm(){
   const c=document.getElementById('postForm');
   c.innerHTML=currentDetailTab==='intuitions'?intuitionFormHTML():takeawayFormHTML();
@@ -1043,14 +832,12 @@ function renderPostForm(){
     document.getElementById('pf-explanation').addEventListener('input', e=>{formState.explanation=e.target.value;updateWordCount();});
     document.getElementById('pf-exampleLink').addEventListener('input', e=>{formState.exampleLink=e.target.value;});
     document.getElementById('pf-exampleExp').addEventListener('input', e=>{formState.exampleExplanation=e.target.value;});
-    document.getElementById('pf-link')?.addEventListener('keydown', e=>{if(e.key==='Enter'){e.preventDefault();addIntLink();}});
     document.getElementById('pf-addlink')?.addEventListener('click', addIntLink);
     document.getElementById('pf-submitInt')?.addEventListener('click', submitIntuition);
-    renderLinkList('int');updateWordCount();
+    renderLinkList('int'); updateWordCount();
   } else {
     document.getElementById('pf-takeaway').value=formState.takeawayContent;
     document.getElementById('pf-takeaway').addEventListener('input', e=>{formState.takeawayContent=e.target.value;});
-    document.getElementById('pf-taklink')?.addEventListener('keydown', e=>{if(e.key==='Enter'){e.preventDefault();addTakLink();}});
     document.getElementById('pf-addtaklink')?.addEventListener('click', addTakLink);
     document.getElementById('pf-submitTak')?.addEventListener('click', submitTakeaway);
     renderLinkList('tak');
@@ -1059,80 +846,85 @@ function renderPostForm(){
 function intuitionFormHTML(){
   const li=!!currentUser;
   return `<div class="form-card"><div class="form-title">Share Your Intuition</div>
-    ${!li?`<div class="error-banner">You need to <button class="btn-link" id="loginPromptInt">log in</button> to post an intuition.</div>`:''}
+    ${!li?`<div class="error-banner">You need to <button class="btn-link" id="loginPrompt">log in</button> to post.</div>`:''}
     <div class="form-group"><label class="form-label">Intuition Statement</label><input class="form-input" id="pf-statement" placeholder="e.g. It is composed of many primes" ${!li?'disabled':''} /></div>
-    <div class="form-group"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><label class="form-label" style="margin:0">Explanation</label><span class="word-count" id="wordCount">0 / 400 words</span></div>
+    <div class="form-group"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><label class="form-label" style="margin:0">Explanation</label><span id="wordCount" style="font-size:11.5px;color:var(--text3)">0 / 400 words</span></div>
       <textarea class="form-textarea" id="pf-explanation" style="min-height:110px" ${!li?'disabled':''} placeholder="Explain your intuition... ($LaTeX$ and ||spoiler|| supported)"></textarea></div>
     <div class="form-group"><label class="form-label">Links (optional, max 3)</label>
-      <div class="link-input-row"><input class="form-input" id="pf-link" placeholder="https://example.com" style="flex:1" ${!li?'disabled':''} /><button class="btn btn-ghost btn-sm" id="pf-addlink" ${!li?'disabled':''}>Add</button></div>
+      <div class="link-input-row"><input class="form-input" id="pf-link" placeholder="https://..." style="flex:1" ${!li?'disabled':''} /><button class="btn btn-ghost btn-sm" id="pf-addlink" ${!li?'disabled':''}>Add</button></div>
       <div class="link-list" id="int-links"></div></div>
     <hr class="form-divider"/>
-    <div class="form-group"><label class="form-label">Problem Link (optional)</label><input class="form-input" id="pf-exampleLink" placeholder="https://artofproblemsolving.com/..." ${!li?'disabled':''} /></div>
-    <div class="form-group"><label class="form-label">Additional Context (optional)</label><textarea class="form-textarea" id="pf-exampleExp" style="min-height:70px" ${!li?'disabled':''} placeholder="Extra notes..."></textarea></div>
+    <div class="form-group"><label class="form-label">Problem Link (optional)</label><input class="form-input" id="pf-exampleLink" placeholder="https://..." ${!li?'disabled':''} /></div>
+    <div class="form-group"><label class="form-label">Additional Context (optional)</label><textarea class="form-textarea" id="pf-exampleExp" style="min-height:70px" ${!li?'disabled':''}></textarea></div>
     <button class="btn btn-primary" id="pf-submitInt" ${!li?'disabled':''}>Post Intuition</button></div>`;
 }
 function takeawayFormHTML(){
   const li=!!currentUser;
   return `<div class="form-card"><div class="form-title">Share Your Takeaway</div>
-    ${!li?`<div class="error-banner">You need to <button class="btn-link" id="loginPromptTak">log in</button> to post a takeaway.</div>`:''}
+    ${!li?`<div class="error-banner">You need to <button class="btn-link" id="loginPrompt">log in</button> to post.</div>`:''}
     <div class="form-group"><label class="form-label">Your Takeaway</label><textarea class="form-textarea" id="pf-takeaway" style="min-height:130px" ${!li?'disabled':''} placeholder="Share your insights... ($LaTeX$ and ||spoiler|| supported)"></textarea></div>
     <div class="form-group"><label class="form-label">Links (optional)</label>
-      <div class="link-input-row"><input class="form-input" id="pf-taklink" placeholder="https://example.com" style="flex:1" ${!li?'disabled':''} /><button class="btn btn-ghost btn-sm" id="pf-addtaklink" ${!li?'disabled':''}>Add</button></div>
+      <div class="link-input-row"><input class="form-input" id="pf-taklink" placeholder="https://..." style="flex:1" ${!li?'disabled':''} /><button class="btn btn-ghost btn-sm" id="pf-addtaklink" ${!li?'disabled':''}>Add</button></div>
       <div class="link-list" id="tak-links"></div></div>
     <button class="btn btn-primary" id="pf-submitTak" ${!li?'disabled':''}>Post Takeaway</button></div>`;
 }
+document.addEventListener('click', e => { if(e.target.id==='loginPrompt') openAuthModal(); });
 function updateWordCount(){
-  const el=document.getElementById('pf-explanation'),wc=document.getElementById('wordCount');
-  if(!el||!wc)return;
+  const el=document.getElementById('pf-explanation'), wc=document.getElementById('wordCount');
+  if(!el||!wc) return;
   const c=el.value.trim().split(/\s+/).filter(Boolean).length;
-  wc.textContent=`${c} / 400 words`;wc.className='word-count'+(c>400?' over':'');
+  wc.textContent=`${c} / 400 words`; wc.style.color=c>400?'var(--red)':'var(--text3)';
   const btn=document.getElementById('pf-submitInt');
-  if(btn)btn.disabled=c>400||!formState.statement.trim()||!formState.explanation.trim();
+  if(btn) btn.disabled=c>400||!formState.statement.trim()||!formState.explanation.trim();
 }
 function addIntLink(){
-  const i=document.getElementById('pf-link'),v=i?.value.trim();if(!v)return;
+  const i=document.getElementById('pf-link'), v=i?.value.trim(); if(!v) return;
   if(!isValidURL(v)){alert('Valid URL required');return;}
   if(formState.explanationLinks.length>=3){alert('Max 3 links');return;}
-  formState.explanationLinks.push(v);i.value='';renderLinkList('int');
+  formState.explanationLinks.push(v); i.value=''; renderLinkList('int');
 }
 function removeIntLink(idx){formState.explanationLinks.splice(idx,1);renderLinkList('int');}
 function addTakLink(){
-  const i=document.getElementById('pf-taklink'),v=i?.value.trim();if(!v)return;
+  const i=document.getElementById('pf-taklink'), v=i?.value.trim(); if(!v) return;
   if(!isValidURL(v)){alert('Valid URL required');return;}
-  formState.takeawayLinks.push(v);i.value='';renderLinkList('tak');
+  formState.takeawayLinks.push(v); i.value=''; renderLinkList('tak');
 }
 function removeTakLink(idx){formState.takeawayLinks.splice(idx,1);renderLinkList('tak');}
 function renderLinkList(type){
-  const c=document.getElementById(type+'-links');if(!c)return;
+  const c=document.getElementById(type+'-links'); if(!c) return;
   const links=type==='int'?formState.explanationLinks:formState.takeawayLinks;
-  c.innerHTML=links.map((l,i)=>`<div class="link-item"><a href="${l}" target="_blank" rel="noopener">${l}</a><button class="remove-link-btn" data-rtype="${type}" data-ridx="${i}" title="Remove"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>`).join('');
+  const fn=type==='int'?'removeIntLink':'removeTakLink';
+  c.innerHTML=links.map((l,i)=>`<div class="link-item"><a href="${l}" target="_blank" rel="noopener">${l}</a><button class="remove-link-btn" onclick="${fn}(${i})"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>`).join('');
 }
 async function submitIntuition(){
   if(!currentUser){openAuthModal();return;}
-  const stmt=document.getElementById('pf-statement')?.value.trim(),exp=document.getElementById('pf-explanation')?.value.trim();
+  const stmt=document.getElementById('pf-statement')?.value.trim(), exp=document.getElementById('pf-explanation')?.value.trim();
   if(!stmt||!exp){alert('Please fill in statement and explanation.');return;}
   if(exp.split(/\s+/).filter(Boolean).length>400){alert('Explanation exceeds 400 words.');return;}
-  const btn=document.getElementById('pf-submitInt');btn.disabled=true;btn.textContent='Posting...';
+  const btn=document.getElementById('pf-submitInt'); btn.disabled=true; btn.textContent='Posting...';
   const{data:d,error:e}=await db.from('intuitions').insert({question_id:selectedQuestion.id,statement:stmt,explanation:exp,example_link:document.getElementById('pf-exampleLink')?.value.trim()||null,example_explanation:document.getElementById('pf-exampleExp')?.value.trim()||null,author_id:currentUser.id}).select('id').single();
   if(e){alert('Error: '+e.message);btn.disabled=false;btn.textContent='Post Intuition';return;}
-  if(formState.explanationLinks.length>0&&d)await db.from('links').insert(formState.explanationLinks.map(url=>({parent_id:d.id,parent_type:'intuition',url})));
+  if(formState.explanationLinks.length&&d) await db.from('links').insert(formState.explanationLinks.map(url=>({parent_id:d.id,parent_type:'intuition',url})));
   Object.assign(formState,{statement:'',explanation:'',explanationLinks:[],exampleLink:'',exampleExplanation:''});
-  await loadDetailItems(selectedQuestion.id);renderDetailItems();renderPostForm();
+  await loadDetailItems(selectedQuestion.id); renderDetailItems(); renderPostForm();
   window.scrollTo({top:document.getElementById('dtab-intuitions').offsetTop-80,behavior:'smooth'});
 }
 async function submitTakeaway(){
   if(!currentUser){openAuthModal();return;}
-  const content=document.getElementById('pf-takeaway')?.value.trim();if(!content){alert('Please write your takeaway.');return;}
+  const content=document.getElementById('pf-takeaway')?.value.trim(); if(!content){alert('Please write your takeaway.');return;}
   const{data:d,error:e}=await db.from('takeaways').insert({question_id:selectedQuestion.id,content,author_id:currentUser.id}).select('id').single();
   if(e){alert('Error: '+e.message);return;}
-  if(formState.takeawayLinks.length>0&&d)await db.from('links').insert(formState.takeawayLinks.map(url=>({parent_id:d.id,parent_type:'takeaway',url})));
+  if(formState.takeawayLinks.length&&d) await db.from('links').insert(formState.takeawayLinks.map(url=>({parent_id:d.id,parent_type:'takeaway',url})));
   Object.assign(formState,{takeawayContent:'',takeawayLinks:[]});
-  await loadDetailItems(selectedQuestion.id);renderDetailItems();renderPostForm();
+  await loadDetailItems(selectedQuestion.id); renderDetailItems(); renderPostForm();
   window.scrollTo({top:document.getElementById('dtab-takeaways').offsetTop-80,behavior:'smooth'});
 }
 
-// ── NEW QUESTION MODAL ─────────────────────────────────────
-function openNewQModal(){document.getElementById('newQModal').classList.add('open');}
+// ── NEW QUESTION MODAL ────────────────────────────────────
+function openNewQModal(){
+  if(!currentUser){openAuthModal();return;}
+  document.getElementById('newQModal').classList.add('open');
+}
 function closeNewQModal(){
   document.getElementById('newQModal').classList.remove('open');
   document.getElementById('newQTitle').value='';
@@ -1143,17 +935,17 @@ function closeNewQModal(){
   document.getElementById('newQSubmitBtn').textContent='Post Question';
 }
 async function submitNewQuestion(){
-  const title=document.getElementById('newQTitle').value.trim(),about=document.getElementById('newQAbout').value.trim(),sub=document.getElementById('newQSub').value;
+  const title=document.getElementById('newQTitle').value.trim(), about=document.getElementById('newQAbout').value.trim(), sub=document.getElementById('newQSub').value;
   if(!title||!about){document.getElementById('newQError').innerHTML='<div class="error-banner">Please fill in title and description.</div>';return;}
-  const btn=document.getElementById('newQSubmitBtn');btn.disabled=true;btn.textContent='Posting...';
+  const btn=document.getElementById('newQSubmitBtn'); btn.disabled=true; btn.textContent='Posting...';
   const{data:qd,error:qe}=await db.from('questions').insert({title,about}).select('id').single();
   if(qe){document.getElementById('newQError').innerHTML=`<div class="error-banner">${qe.message}</div>`;btn.disabled=false;btn.textContent='Post Question';return;}
   for(const name of(sub?[TOPIC_NAME,sub]:[TOPIC_NAME])){
     let{data:tag}=await db.from('tags').select('id').eq('name',name).maybeSingle();
     if(!tag){const{data:nt}=await db.from('tags').insert({name,category:TOPIC_NAME}).select('id').single();tag=nt;}
-    if(tag)await db.from('question_tags').insert({question_id:qd.id,tag_id:tag.id});
+    if(tag) await db.from('question_tags').insert({question_id:qd.id,tag_id:tag.id});
   }
-  closeNewQModal();await loadQuestions();
+  closeNewQModal(); await loadQuestions();
 }
 </script>
 </body>
