@@ -171,7 +171,7 @@ html.light .auth-msg.ok{background:rgba(30,122,72,.06);border-color:rgba(30,122,
   <div class="hero">
     <div class="hero-eyebrow"><span class="eyebrow-dot"></span>Community Forum</div>
     <h1 class="hero-title">
-      Build <em>M</em>athematical <em>Int</em>uition
+      Build Mathematical <em>Intuition</em>
       <span class="sub">Together, one insight at a time.</span>
     </h1>
     <p class="hero-body">Share the intuitions and insights behind Olympiad mathematics. Ask questions, post your thinking, and sharpen your understanding alongside others.</p>
@@ -271,8 +271,8 @@ let me = null, profile = null, authMode = 'login', searchCtrl = null, searchTime
 document.addEventListener('DOMContentLoaded', () => {
   applyTheme(localStorage.getItem('theme') || 'dark');
   buildGrid();
-  // Set up the login button default before session loads
   refreshHeader();
+  loadRecent(); // always load questions immediately on page load
 });
 
 // onAuthStateChange fires INITIAL_SESSION on every page load (logged in or out),
@@ -298,7 +298,7 @@ db.auth.onAuthStateChange(async (ev, session) => {
     toast('Welcome back!', 'success');
   }
 
-  if (ev === 'INITIAL_SESSION' || ev === 'SIGNED_IN' || ev === 'SIGNED_OUT') {
+  if (ev === 'SIGNED_IN' || ev === 'SIGNED_OUT') {
     loadRecent();
   }
 });
