@@ -269,52 +269,49 @@ const CATS = {
 let me = null, profile = null, authMode = 'login', searchCtrl = null, searchTimer = null;
 
 // ── BOOT SEQUENCE ────────────────────────────────────────────────────────────
-// Hide the auth controls while we check localStorage — prevents the "Log in"
-// flash before the persisted session is confirmed.
+// Hide auth controls until we know the session state — prevents the "Log in"
+// flash on every reload for logged-in users.
 document.body.classList.add('auth-loading');
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   applyTheme(localStorage.getItem('theme') || 'dark');
   buildGrid();
 
-  // Eagerly restore from localStorage so the header shows the right state
-  // before the async Supabase session check completes.
-  restoreSessionFromStorage();
+  // getSession() reads the cached token from localStorage without a network
+  // call, so it resolves almost instantly and gives us the right state before
+  // onAuthStateChange fires its async INITIAL_SESSION event.
+  const { data: { session } } = await db.auth.getSession();
+  if (session?.user) {
+    me = session.user;
+    // Show a display name immediately from the token's metadata while we
+    // fetch the real profile row in the background.
+    const meta = session.user.user_metadata;
+    profile = {
+      username: meta?.username || meta?.full_name || session.user.email.split('@')[0],
+      email: session.user.email,
+    };
+    refreshHeader();
+    // Fetch the real profile row in background (updates username pill).
+    fetchProfile(session.user);
+  }
+  // Reveal the header now that we know the correct state.
+  document.body.classList.remove('auth-loading');
+
+  // Load questions right away — don't wait for onAuthStateChange.
+  loadRecent();
 });
 
-// Try to read the cached session from localStorage synchronously so the header
-// shows the correct state with zero delay on every page load/navigation.
-function restoreSessionFromStorage() {
-  try {
-    const raw = localStorage.getItem('mint-session');
-    if (!raw) return; // no stored session → stay logged-out
-    const stored = JSON.parse(raw);
-    const user = stored?.user ?? stored?.currentSession?.user ?? null;
-    if (!user) return;
-    // Optimistically show the user as logged in from cache.
-    // onAuthStateChange will validate/refresh the token in the background.
-    me = user;
-    // Fetch profile or derive a display name from the stored data.
-    const cached = stored?.user?.user_metadata;
-    const displayName = cached?.username || cached?.full_name || user.email?.split('@')[0] || 'You';
-    profile = { username: displayName, email: user.email };
-    refreshHeader();
-  } catch (_) {
-    // Malformed storage — ignore; onAuthStateChange will handle it.
-  }
-}
-
-// onAuthStateChange is the authoritative driver for auth state.
-// INITIAL_SESSION fires on every page load and gives us the real validated session.
+// onAuthStateChange handles live events: new sign-ins, sign-outs, and token
+// refreshes. We no longer rely on it for the initial page-load state.
 db.auth.onAuthStateChange(async (ev, session) => {
+  if (ev === 'INITIAL_SESSION') return; // already handled in DOMContentLoaded
+
   me = session?.user ?? null;
   if (me) {
     await fetchProfile(me);
   } else {
     profile = null;
   }
-  // Session is confirmed (or confirmed absent) — show the header now.
-  document.body.classList.remove('auth-loading');
   refreshHeader();
 
   if (ev === 'SIGNED_IN' && document.getElementById('authOverlay').classList.contains('open')) {
@@ -322,7 +319,7 @@ db.auth.onAuthStateChange(async (ev, session) => {
     toast('Welcome back!', 'success');
   }
 
-  if (ev === 'INITIAL_SESSION' || ev === 'SIGNED_IN' || ev === 'SIGNED_OUT') {
+  if (ev === 'SIGNED_IN' || ev === 'SIGNED_OUT') {
     loadRecent();
   }
 });
