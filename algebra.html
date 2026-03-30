@@ -35,6 +35,26 @@ html.light .logo-mark{color:#fff;box-shadow:0 0 20px rgba(30,122,72,.2)}
 .user-pill-dot{width:8px;height:8px;background:var(--green);border-radius:50%;flex-shrink:0;box-shadow:0 0 6px rgba(110,231,160,.6)}
 html.light .user-pill-dot{box-shadow:0 0 6px rgba(30,122,72,.4)}
 
+/* ── POST DROPDOWN ── */
+.post-dropdown-wrap{position:relative;flex-shrink:0}
+.btn-post-main{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;border:none;font-family:var(--font-body);font-size:13.5px;font-weight:600;cursor:pointer;background:var(--primary);color:#0b0c10;box-shadow:0 0 20px rgba(110,231,160,.2);transition:all .15s;white-space:nowrap}
+html.light .btn-post-main{color:#fff}
+.btn-post-main:hover{filter:brightness(1.08);transform:translateY(-1px);box-shadow:0 0 28px rgba(110,231,160,.3)}
+.btn-post-chevron{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:6px;background:rgba(0,0,0,.15);margin-left:2px;transition:background .15s}
+.btn-post-main:hover .btn-post-chevron{background:rgba(0,0,0,.25)}
+.post-dropdown-menu{position:absolute;top:calc(100% + 8px);right:0;min-width:220px;background:var(--bg2);border:1px solid var(--border2);border-radius:12px;box-shadow:var(--shadow-lg);overflow:hidden;z-index:200;opacity:0;transform:translateY(-6px) scale(.97);pointer-events:none;transition:opacity .18s ease,transform .18s ease}
+.post-dropdown-menu.open{opacity:1;transform:none;pointer-events:auto}
+.post-menu-item{display:flex;align-items:center;gap:11px;width:100%;padding:12px 16px;border:none;background:transparent;color:var(--text);font-family:var(--font-body);font-size:13.5px;cursor:pointer;transition:background .12s;text-align:left}
+.post-menu-item:hover{background:var(--bg3)}
+.post-menu-item + .post-menu-item{border-top:1px solid var(--border)}
+.post-menu-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px}
+.post-menu-icon.intuition{background:rgba(110,231,160,.12);color:var(--green)}
+.post-menu-icon.takeaway{background:rgba(240,192,96,.12);color:var(--gold)}
+.post-menu-icon.tbd{background:rgba(176,144,245,.12);color:var(--purple)}
+.post-menu-label{font-weight:600;font-size:13px;line-height:1.2}
+.post-menu-sub{font-size:11px;color:var(--text3);margin-top:1px;font-weight:400}
+.post-menu-tbd{opacity:.55}
+
 /* ── BUTTONS ── */
 .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border-radius:8px;border:none;font-family:var(--font-body);font-size:13.5px;font-weight:500;cursor:pointer;transition:all .15s;white-space:nowrap;text-decoration:none}
 .btn-primary{background:var(--primary);color:#0b0c10;font-weight:600;box-shadow:0 0 20px rgba(110,231,160,.2)}
@@ -78,7 +98,6 @@ html.light .subtopic-btn.active{color:#fff}
 .subtopic-chevron{transition:transform .2s;opacity:.5;flex-shrink:0}
 .subtopic-btn.open .subtopic-chevron{transform:rotate(90deg)}
 .subtopic-btn.active .subtopic-chevron{opacity:.7}
-/* SSC panel */
 .ssc-panel{overflow:hidden;max-height:0;transition:max-height .28s cubic-bezier(.4,0,.2,1);margin-bottom:2px}
 .ssc-panel.open{max-height:600px}
 .ssc-group-label{display:flex;align-items:center;gap:6px;padding:6px 10px 3px;font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--text3);margin-top:4px}
@@ -184,7 +203,7 @@ html.light .sort-btn.active{color:#fff}
 /* ── TAB CONTENT ── */
 .tab-content{display:none}.tab-content.active{display:block}
 
-/* ── FORM CARD ── */
+/* ── FORM CARD (inline on detail view) ── */
 .form-card{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:24px 26px;box-shadow:var(--shadow);margin-top:24px}
 .form-title{font-family:var(--font-disp);font-size:1.1rem;font-weight:700;margin-bottom:18px}
 .form-group{margin-bottom:16px}
@@ -205,14 +224,41 @@ html.light .form-input:focus,.form-textarea:focus,.form-select:focus{box-shadow:
 .login-notice{background:rgba(110,231,160,.06);border:1px solid rgba(110,231,160,.15);border-radius:9px;padding:12px 16px;font-size:13.5px;color:var(--text2);margin-bottom:16px}
 html.light .login-notice{background:rgba(30,122,72,.05);border-color:rgba(30,122,72,.15)}
 
-/* ── NEW Q MODAL ── */
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);z-index:200;align-items:center;justify-content:center;padding:24px}
+/* ── GLOBAL POST MODAL (Intuition / Takeaway) ── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);z-index:200;align-items:flex-start;justify-content:center;padding:24px;overflow-y:auto}
 .modal-overlay.open{display:flex}
-.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;padding:28px;max-width:520px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg);animation:modalIn .22s cubic-bezier(.22,1,.36,1)}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;padding:28px;max-width:580px;width:100%;margin:auto;box-shadow:var(--shadow-lg);animation:modalIn .22s cubic-bezier(.22,1,.36,1)}
 @keyframes modalIn{from{opacity:0;transform:scale(.93) translateY(16px)}to{opacity:1;transform:none}}
 .modal-title{font-family:var(--font-disp);font-size:1.2rem;font-weight:700;margin-bottom:4px}
 .modal-sub{font-size:13px;color:var(--text2);margin-bottom:20px;font-family:var(--font-serif)}
 .modal-footer{display:flex;justify-content:flex-end;gap:10px;margin-top:22px}
+
+/* ── QUESTION SEARCH IN MODAL ── */
+.q-search-wrap{position:relative;margin-bottom:8px}
+.q-search-wrap .search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none}
+.q-search-input{width:100%;padding:9px 12px 9px 36px;background:var(--bg3);border:1px solid var(--border2);border-radius:9px;color:var(--text);font-family:var(--font-body);font-size:13.5px;outline:none;transition:all .15s}
+.q-search-input:focus{border-color:var(--primary);background:var(--bg2);box-shadow:0 0 0 3px rgba(110,231,160,.08)}
+.q-search-input::placeholder{color:var(--text3)}
+.q-picker-list{max-height:220px;overflow-y:auto;border:1px solid var(--border2);border-radius:9px;background:var(--bg3)}
+.q-picker-list:empty::after{content:'No questions found';display:block;padding:14px 16px;font-size:13px;color:var(--text3);font-style:italic;font-family:var(--font-serif)}
+.q-picker-item{display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .1s;user-select:none}
+.q-picker-item:last-child{border-bottom:none}
+.q-picker-item:hover{background:var(--bg4)}
+.q-picker-item.selected{background:rgba(110,231,160,.08)}
+html.light .q-picker-item.selected{background:rgba(30,122,72,.06)}
+.q-picker-check{width:18px;height:18px;border-radius:5px;border:2px solid var(--border3);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .12s}
+.q-picker-item.selected .q-picker-check{background:var(--primary);border-color:var(--primary)}
+html.light .q-picker-item.selected .q-picker-check{background:var(--primary);border-color:var(--primary)}
+.q-picker-check svg{display:none}
+.q-picker-item.selected .q-picker-check svg{display:block;color:#0b0c10}
+html.light .q-picker-item.selected .q-picker-check svg{color:#fff}
+.q-picker-text{flex:1;min-width:0}
+.q-picker-title{font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:var(--font-disp)}
+.q-picker-sub{font-size:11px;color:var(--text3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.q-selected-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;min-height:0}
+.q-chip{display:inline-flex;align-items:center;gap:5px;padding:3px 10px 3px 10px;background:rgba(110,231,160,.1);border:1px solid rgba(110,231,160,.25);border-radius:20px;font-size:12px;color:var(--green);font-weight:600}
+.q-chip-remove{background:none;border:none;cursor:pointer;color:var(--green);opacity:.7;padding:0;display:flex;align-items:center;transition:opacity .1s;margin-left:2px}
+.q-chip-remove:hover{opacity:1}
 
 /* ── AUTH MODAL ── */
 .auth-tabs{display:flex;gap:3px;background:var(--bg3);border-radius:9px;padding:3px;margin-bottom:18px}
@@ -235,6 +281,9 @@ html.light .auth-msg.ok{background:rgba(30,122,72,.06);border-color:rgba(30,122,
 .toast{position:fixed;bottom:24px;right:24px;z-index:999;background:var(--bg2);border:1px solid var(--border2);border-radius:11px;padding:12px 18px;font-size:13.5px;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:10px;animation:toastIn .25s ease;max-width:320px}
 .toast.success{border-color:var(--green);color:var(--green)}.toast.error{border-color:var(--red);color:var(--red)}
 @keyframes toastIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* ── TBD BADGE ── */
+.tbd-badge{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:2px 7px;border-radius:6px;background:rgba(176,144,245,.12);color:var(--purple);border:1px solid rgba(176,144,245,.2);margin-left:auto}
 
 @media(max-width:680px){.header-inner{padding:0 18px}main{padding:20px 18px 48px}.logo-tagline{display:none}.topic-layout{grid-template-columns:1fr}.sidebar{position:static}}
 </style>
@@ -260,10 +309,43 @@ html.light .auth-msg.ok{background:rgba(30,122,72,.06);border-color:rgba(30,122,
         <span id="pillName"></span>
       </div>
       <button class="btn btn-ghost btn-sm" id="authBtn">Log in</button>
-      <button class="btn btn-primary btn-sm" id="postQuestionBtn">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        Post a Question
-      </button>
+
+      <!-- Post dropdown -->
+      <div class="post-dropdown-wrap" id="postDropdownWrap">
+        <button class="btn-post-main" id="postDropdownBtn">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Post
+          <span class="btn-post-chevron">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </span>
+        </button>
+        <div class="post-dropdown-menu" id="postDropdownMenu">
+          <button class="post-menu-item" id="menuPostIntuition">
+            <span class="post-menu-icon intuition">💡</span>
+            <span>
+              <div class="post-menu-label">Post an Intuition</div>
+              <div class="post-menu-sub">Attach your insight to any question</div>
+            </span>
+          </button>
+          <button class="post-menu-item" id="menuPostTakeaway">
+            <span class="post-menu-icon takeaway">📝</span>
+            <span>
+              <div class="post-menu-label">Post a Takeaway</div>
+              <div class="post-menu-sub">Share what you learned</div>
+            </span>
+          </button>
+          <button class="post-menu-item post-menu-tbd" id="menuTbd" disabled>
+            <span class="post-menu-icon tbd">✦</span>
+            <span>
+              <div class="post-menu-label" style="display:flex;align-items:center;gap:7px">
+                Coming Soon
+                <span class="tbd-badge">TBD</span>
+              </div>
+              <div class="post-menu-sub">More ways to contribute</div>
+            </span>
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </header>
@@ -286,7 +368,7 @@ html.light .auth-msg.ok{background:rgba(30,122,72,.06);border-color:rgba(30,122,
   </div>
   <div class="topic-layout">
     <div class="sidebar">
-      <div class="sidebar-title">Subtopics</div>
+      <div class="sidebar-title">Topics</div>
       <div id="subtopicList"></div>
     </div>
     <div>
@@ -338,53 +420,100 @@ html.light .auth-msg.ok{background:rgba(30,122,72,.06);border-color:rgba(30,122,
   <div id="postForm"></div>
 </main>
 
-<!-- NEW QUESTION MODAL -->
-<div class="modal-overlay" id="newQModal">
-  <div class="modal">
-    <div class="modal-title">Post a Question</div>
-    <div class="modal-sub">Share a problem whose intuition you'd like the community to unpack</div>
-    <div id="newQError"></div>
+<!-- ══════════════════════════════════════════════════════
+     GLOBAL POST INTUITION MODAL
+═══════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="postIntModal">
+  <div class="modal" style="max-width:600px">
+    <div class="modal-title">💡 Post an Intuition</div>
+    <div class="modal-sub">Attach your intuition to one or more questions</div>
+    <div id="postIntError"></div>
+
+    <!-- Question picker -->
     <div class="form-group">
-      <label class="form-label">Title</label>
-      <input class="form-input" id="newQTitle" placeholder="e.g. Why does aⁿ − bⁿ factorise so nicely?" />
-    </div>
-    <div class="form-group">
-      <label class="form-label">About</label>
-      <textarea class="form-textarea" id="newQAbout" placeholder="Brief description of what you want to understand…"></textarea>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Sub-category (optional)</label>
-      <select class="form-select" id="newQSub" onchange="onNewQSubChange()">
-        <option value="">No sub-category</option>
-        <option>Exponents</option><option>Polynomials</option><option>Inequalities</option><option>AM-GM</option><option>Cauchy-Schwarz</option>
-      </select>
-    </div>
-    <div id="newQSscWrap" style="display:none">
-      <div class="form-group">
-        <label class="form-label">Sub-sub-category (optional)</label>
-        <select class="form-select" id="newQSsc" onchange="onNewQSscChange()">
-          <option value="">No sub-sub-category</option>
-        </select>
+      <label class="form-label">Attach to Question(s)</label>
+      <div class="q-search-wrap">
+        <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input class="q-search-input" id="intQSearch" placeholder="Search questions…" autocomplete="off" />
       </div>
-      <div id="newQSscTypeWrap" style="display:none" class="form-group">
-        <label class="form-label">Type</label>
-        <div style="display:flex;gap:8px">
-          <label style="display:flex;align-items:center;gap:7px;cursor:pointer;padding:8px 14px;border-radius:8px;border:1px solid var(--border2);flex:1;transition:all .15s" id="typeStructureLabel">
-            <input type="radio" name="newQSscType" value="structure" id="typeStructure" style="accent-color:var(--blue)" onchange="syncTypeLabels()" />
-            <span class="ssc-type-dot structure"></span>
-            <span style="font-size:13px;font-weight:500">Structure</span>
-          </label>
-          <label style="display:flex;align-items:center;gap:7px;cursor:pointer;padding:8px 14px;border-radius:8px;border:1px solid var(--border2);flex:1;transition:all .15s" id="typeTechniqueLabel">
-            <input type="radio" name="newQSscType" value="technique" id="typeTechnique" style="accent-color:var(--gold)" onchange="syncTypeLabels()" />
-            <span class="ssc-type-dot technique"></span>
-            <span style="font-size:13px;font-weight:500">Technique</span>
-          </label>
-        </div>
-      </div>
+      <div class="q-picker-list" id="intQList"></div>
+      <div class="q-selected-chips" id="intQChips"></div>
     </div>
+
+    <!-- Intuition fields -->
+    <div class="form-group">
+      <label class="form-label">Intuition Statement</label>
+      <input class="form-input" id="intStatement" placeholder="e.g. It factors because of a common root" />
+    </div>
+    <div class="form-group">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <label class="form-label" style="margin:0">Explanation</label>
+        <span id="intWordCount" class="word-count">0 / 400 words</span>
+      </div>
+      <textarea class="form-textarea" id="intExplanation" style="min-height:120px" placeholder="Explain your intuition… ($LaTeX$ and ||spoiler|| supported)"></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Links (optional, max 3)</label>
+      <div class="link-input-row">
+        <input class="form-input" id="intLinkInput" placeholder="https://…" style="flex:1" />
+        <button class="btn btn-ghost btn-sm" id="intAddLink">Add</button>
+      </div>
+      <div class="link-list" id="intLinkList"></div>
+    </div>
+    <hr class="form-divider"/>
+    <div class="form-group">
+      <label class="form-label">Problem Link (optional)</label>
+      <input class="form-input" id="intExampleLink" placeholder="https://…" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Additional Context (optional)</label>
+      <textarea class="form-textarea" id="intExampleExp" style="min-height:70px"></textarea>
+    </div>
+
     <div class="modal-footer">
-      <button class="btn btn-ghost" id="newQCancelBtn">Cancel</button>
-      <button class="btn btn-primary" id="newQSubmitBtn">Post Question</button>
+      <button class="btn btn-ghost" id="postIntCancelBtn">Cancel</button>
+      <button class="btn btn-primary" id="postIntSubmitBtn">Post Intuition</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     GLOBAL POST TAKEAWAY MODAL
+═══════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="postTakModal">
+  <div class="modal" style="max-width:600px">
+    <div class="modal-title">📝 Post a Takeaway</div>
+    <div class="modal-sub">Share what you learned across one or more questions</div>
+    <div id="postTakError"></div>
+
+    <!-- Question picker -->
+    <div class="form-group">
+      <label class="form-label">Attach to Question(s)</label>
+      <div class="q-search-wrap">
+        <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input class="q-search-input" id="takQSearch" placeholder="Search questions…" autocomplete="off" />
+      </div>
+      <div class="q-picker-list" id="takQList"></div>
+      <div class="q-selected-chips" id="takQChips"></div>
+    </div>
+
+    <!-- Takeaway fields -->
+    <div class="form-group">
+      <label class="form-label">Your Takeaway</label>
+      <textarea class="form-textarea" id="takContent" style="min-height:130px" placeholder="Share your insights… ($LaTeX$ and ||spoiler|| supported)"></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Links (optional)</label>
+      <div class="link-input-row">
+        <input class="form-input" id="takLinkInput" placeholder="https://…" style="flex:1" />
+        <button class="btn btn-ghost btn-sm" id="takAddLink">Add</button>
+      </div>
+      <div class="link-list" id="takLinkList"></div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-ghost" id="postTakCancelBtn">Cancel</button>
+      <button class="btn btn-primary" id="postTakSubmitBtn">Post Takeaway</button>
     </div>
   </div>
 </div>
@@ -436,7 +565,6 @@ const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 const TOPIC_NAME = 'Algebra';
 const SUBS = ['Functional Equations', 'Inequality', 'Sequences', 'Polynomials', 'Others'];
 
-// Sub-sub-categories: each subtopic has Structure and Technique SSCs
 const SSC = {
   'Functional Equations': {
     structure: ['Reals', 'Positive Reals', 'Rationals/Integers', 'Natural Numbers', 'Injectivity/Surjectivity'],
@@ -448,7 +576,7 @@ const SSC = {
   },
   'Sequences': {
     structure: ['Periodic', 'Bounded', 'Monotonic'],
-    technique: ['Recurrence Relations', 'Summation Methods'], // Added common techniques for completeness
+    technique: ['Recurrence Relations', 'Summation Methods'],
   },
   'Polynomials': {
     structure: ['Coefficients', 'Degree', 'Integer Polynomials', 'Rational Polynomials', 'Real Polynomials', 'Roots'],
@@ -459,7 +587,7 @@ const SSC = {
     technique: ['Calculus'],
   }
 };
-// Helper: encode/decode SSC tag names stored as "Sub::SSCName::type"
+
 function sscTagName(sub, sscName, type) { return `${sub}::${sscName}::${type}`; }
 function parseSscTag(tag) {
   const p = tag.split('::');
@@ -475,6 +603,10 @@ let selectedQuestion = null, activeSubtopic = null, activeSsc = null, activeSscT
 let currentSort = 'relevance', currentDetailTab = 'intuitions', currentDetailSort = 'relevance';
 let idCounter = 9000;
 const formState = { statement:'', explanation:'', explanationLinks:[], exampleLink:'', exampleExplanation:'', takeawayContent:'', takeawayLinks:[] };
+
+// Global post modal state
+const gIntState = { selectedQIds: new Set(), links: [] };
+const gTakState = { selectedQIds: new Set(), links: [] };
 
 // ── AUTH STATE ────────────────────────────────────────────
 db.auth.onAuthStateChange(async (ev, session) => {
@@ -646,6 +778,222 @@ async function fetchVoteCounts(ids, type) {
   } catch { return {}; }
 }
 
+// ── POST DROPDOWN ─────────────────────────────────────────
+function initPostDropdown() {
+  const btn  = document.getElementById('postDropdownBtn');
+  const menu = document.getElementById('postDropdownMenu');
+
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    menu.classList.toggle('open');
+  });
+  document.addEventListener('click', () => menu.classList.remove('open'));
+
+  document.getElementById('menuPostIntuition').addEventListener('click', () => {
+    menu.classList.remove('open');
+    if (!me) { openAuthModal(); return; }
+    openGlobalIntModal();
+  });
+  document.getElementById('menuPostTakeaway').addEventListener('click', () => {
+    menu.classList.remove('open');
+    if (!me) { openAuthModal(); return; }
+    openGlobalTakModal();
+  });
+}
+
+// ── GLOBAL INTUITION MODAL ────────────────────────────────
+function openGlobalIntModal(preselectedQId) {
+  gIntState.selectedQIds = new Set(preselectedQId ? [preselectedQId] : []);
+  gIntState.links = [];
+  document.getElementById('intStatement').value = '';
+  document.getElementById('intExplanation').value = '';
+  document.getElementById('intLinkInput').value = '';
+  document.getElementById('intExampleLink').value = '';
+  document.getElementById('intExampleExp').value = '';
+  document.getElementById('intWordCount').textContent = '0 / 400 words';
+  document.getElementById('postIntError').innerHTML = '';
+  renderQPicker('int');
+  renderIntLinks();
+  document.getElementById('postIntModal').classList.add('open');
+  setTimeout(() => document.getElementById('intQSearch').focus(), 80);
+}
+function closeGlobalIntModal() {
+  document.getElementById('postIntModal').classList.remove('open');
+}
+
+function openGlobalTakModal(preselectedQId) {
+  gTakState.selectedQIds = new Set(preselectedQId ? [preselectedQId] : []);
+  gTakState.links = [];
+  document.getElementById('takContent').value = '';
+  document.getElementById('takLinkInput').value = '';
+  document.getElementById('postTakError').innerHTML = '';
+  renderQPicker('tak');
+  renderTakLinks();
+  document.getElementById('postTakModal').classList.add('open');
+  setTimeout(() => document.getElementById('takQSearch').focus(), 80);
+}
+function closeGlobalTakModal() {
+  document.getElementById('postTakModal').classList.remove('open');
+}
+
+// ── QUESTION PICKER ───────────────────────────────────────
+function renderQPicker(prefix) {
+  const searchEl = document.getElementById(`${prefix}QSearch`);
+  const listEl   = document.getElementById(`${prefix}QList`);
+  const chipsEl  = document.getElementById(`${prefix}QChips`);
+  const state    = prefix === 'int' ? gIntState : gTakState;
+  const q        = (searchEl?.value || '').trim().toLowerCase();
+
+  const filtered = questions.filter(x =>
+    !q || x.title.toLowerCase().includes(q) || (x.about||'').toLowerCase().includes(q)
+  ).slice(0, 40);
+
+  listEl.innerHTML = filtered.map(x => {
+    const sel = state.selectedQIds.has(x.id);
+    const sub = (x.tags.find(t => SUBS.includes(t)) || '');
+    return `<div class="q-picker-item ${sel?'selected':''}" data-qid="${x.id}">
+      <span class="q-picker-check">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+      </span>
+      <span class="q-picker-text">
+        <span class="q-picker-title">${esc(x.title)}</span>
+        ${sub ? `<span class="q-picker-sub">${esc(sub)}</span>` : ''}
+      </span>
+    </div>`;
+  }).join('');
+
+  // Wire item clicks
+  listEl.querySelectorAll('.q-picker-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const id = item.dataset.qid;
+      if (state.selectedQIds.has(id)) state.selectedQIds.delete(id);
+      else state.selectedQIds.add(id);
+      renderQPicker(prefix);
+    });
+  });
+
+  // Chips
+  const selectedQs = questions.filter(x => state.selectedQIds.has(x.id));
+  chipsEl.innerHTML = selectedQs.map(x =>
+    `<span class="q-chip">
+      ${esc(x.title.length > 40 ? x.title.substring(0,40)+'…' : x.title)}
+      <button class="q-chip-remove" data-qid="${x.id}">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </span>`
+  ).join('');
+  chipsEl.querySelectorAll('.q-chip-remove').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.selectedQIds.delete(btn.dataset.qid);
+      renderQPicker(prefix);
+    });
+  });
+}
+
+// Live search wiring — called after modals mount
+function wireQPickers() {
+  ['int','tak'].forEach(prefix => {
+    const searchEl = document.getElementById(`${prefix}QSearch`);
+    if (searchEl) searchEl.addEventListener('input', () => renderQPicker(prefix));
+  });
+}
+
+// ── LINKS ──────────────────────────────────────────────────
+function renderIntLinks() {
+  const c = document.getElementById('intLinkList'); if (!c) return;
+  c.innerHTML = gIntState.links.map((l,i) =>
+    `<div class="link-item"><a href="${esc(l)}" target="_blank" rel="noopener">${esc(l)}</a><button class="remove-link-btn" onclick="removeGIntLink(${i})"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>`
+  ).join('');
+}
+function removeGIntLink(i) { gIntState.links.splice(i,1); renderIntLinks(); }
+function renderTakLinks() {
+  const c = document.getElementById('takLinkList'); if (!c) return;
+  c.innerHTML = gTakState.links.map((l,i) =>
+    `<div class="link-item"><a href="${esc(l)}" target="_blank" rel="noopener">${esc(l)}</a><button class="remove-link-btn" onclick="removeGTakLink(${i})"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>`
+  ).join('');
+}
+function removeGTakLink(i) { gTakState.links.splice(i,1); renderTakLinks(); }
+
+// ── SUBMIT GLOBAL INTUITION ───────────────────────────────
+async function submitGlobalIntuition() {
+  if (!me) { openAuthModal(); return; }
+  const stmt = document.getElementById('intStatement').value.trim();
+  const exp  = document.getElementById('intExplanation').value.trim();
+  if (!gIntState.selectedQIds.size) { document.getElementById('postIntError').innerHTML = '<div class="err-box">Please select at least one question.</div>'; return; }
+  if (!stmt || !exp) { document.getElementById('postIntError').innerHTML = '<div class="err-box">Please fill in the statement and explanation.</div>'; return; }
+  if (exp.split(/\s+/).filter(Boolean).length > 400) { document.getElementById('postIntError').innerHTML = '<div class="err-box">Explanation exceeds 400 words.</div>'; return; }
+
+  const btn = document.getElementById('postIntSubmitBtn');
+  btn.disabled = true; btn.textContent = 'Posting…';
+
+  const exLink = document.getElementById('intExampleLink').value.trim() || null;
+  const exExp  = document.getElementById('intExampleExp').value.trim() || null;
+  const qIds   = [...gIntState.selectedQIds];
+
+  let posted = 0, failed = 0;
+  for (const qid of qIds) {
+    const { data: d, error: e } = await db.from('intuitions').insert({
+      question_id: qid, statement: stmt, explanation: exp,
+      example_link: exLink, example_explanation: exExp, author_id: me.id,
+    }).select('id').single();
+
+    if (e) { failed++; continue; }
+    posted++;
+    if (gIntState.links.length && d) {
+      await db.from('links').insert(gIntState.links.map(url => ({ parent_id: d.id, parent_type: 'intuition', url })));
+    }
+  }
+
+  btn.disabled = false; btn.textContent = 'Post Intuition';
+  if (failed) showToast(`${posted} posted, ${failed} failed.`, failed === qIds.length ? 'error' : 'success');
+  else showToast(`Intuition posted to ${posted} question${posted!==1?'s':''}!`, 'success');
+
+  closeGlobalIntModal();
+  // Refresh if detail view is open for one of the affected questions
+  if (selectedQuestion && gIntState.selectedQIds.has(selectedQuestion.id)) {
+    await loadDetailItems(selectedQuestion.id);
+    renderDetailItems();
+  }
+  await loadQuestions();
+}
+
+// ── SUBMIT GLOBAL TAKEAWAY ────────────────────────────────
+async function submitGlobalTakeaway() {
+  if (!me) { openAuthModal(); return; }
+  const content = document.getElementById('takContent').value.trim();
+  if (!gTakState.selectedQIds.size) { document.getElementById('postTakError').innerHTML = '<div class="err-box">Please select at least one question.</div>'; return; }
+  if (!content) { document.getElementById('postTakError').innerHTML = '<div class="err-box">Please write your takeaway.</div>'; return; }
+
+  const btn = document.getElementById('postTakSubmitBtn');
+  btn.disabled = true; btn.textContent = 'Posting…';
+
+  const qIds = [...gTakState.selectedQIds];
+  let posted = 0, failed = 0;
+
+  for (const qid of qIds) {
+    const { data: d, error: e } = await db.from('takeaways').insert({
+      question_id: qid, content, author_id: me.id,
+    }).select('id').single();
+
+    if (e) { failed++; continue; }
+    posted++;
+    if (gTakState.links.length && d) {
+      await db.from('links').insert(gTakState.links.map(url => ({ parent_id: d.id, parent_type: 'takeaway', url })));
+    }
+  }
+
+  btn.disabled = false; btn.textContent = 'Post Takeaway';
+  if (failed) showToast(`${posted} posted, ${failed} failed.`, failed === qIds.length ? 'error' : 'success');
+  else showToast(`Takeaway posted to ${posted} question${posted!==1?'s':''}!`, 'success');
+
+  closeGlobalTakModal();
+  if (selectedQuestion && gTakState.selectedQIds.has(selectedQuestion.id)) {
+    await loadDetailItems(selectedQuestion.id);
+    renderDetailItems();
+  }
+  await loadQuestions();
+}
+
 // ── BOOT ──────────────────────────────────────────────────
 function onKatexReady() { boot(); }
 if (document.readyState !== 'loading' && window.renderMathInElement) boot();
@@ -654,6 +1002,8 @@ async function boot() {
   applyTheme(localStorage.getItem('theme') || 'dark');
   bindEvents();
   buildSidebar();
+  initPostDropdown();
+  wireQPickers();
   await loadQuestions();
   const qp = getParam('q');
   if (qp) { const q = questions.find(x => x.id === qp); if (q) openQuestion(q.id); }
@@ -661,7 +1011,6 @@ async function boot() {
 
 function buildSidebar() {
   const list = document.getElementById('subtopicList');
-  // "All Questions" button
   list.innerHTML = `<button class="subtopic-btn active" data-sub="" data-ssc="" data-ssctype="">
     All Questions
     <svg class="subtopic-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:none"><polyline points="9 18 15 12 9 6"/></svg>
@@ -669,7 +1018,6 @@ function buildSidebar() {
 
   SUBS.forEach(sub => {
     const sscData = SSC[sub] || { structure:[], technique:[] };
-    // Subtopic row
     const row = document.createElement('div');
     row.innerHTML = `<button class="subtopic-btn" data-sub="${sub}" data-ssc="" data-ssctype="">
       <span>${sub}</span>
@@ -684,7 +1032,6 @@ function buildSidebar() {
     list.appendChild(row);
   });
 
-  // Wire up clicks
   list.querySelectorAll('.subtopic-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const sub = btn.dataset.sub;
@@ -692,28 +1039,18 @@ function buildSidebar() {
       const panelId = sub ? `ssc-panel-${sub.replace(/[^a-z0-9]/gi,'-')}` : null;
       const panel = panelId ? document.getElementById(panelId) : null;
       const wasOpen = btn.classList.contains('open');
-
-      // If clicking an already-active subtopic, toggle its panel
       if (btn.classList.contains('active') && !isAll) {
         btn.classList.toggle('open', !wasOpen);
         if (panel) panel.classList.toggle('open', !wasOpen);
         return;
       }
-
-      // Deactivate all
       list.querySelectorAll('.subtopic-btn').forEach(b => b.classList.remove('active','open'));
       list.querySelectorAll('.ssc-panel').forEach(p => p.classList.remove('open'));
       list.querySelectorAll('.ssc-btn').forEach(b => b.classList.remove('active','active-technique'));
-
       btn.classList.add('active');
       activeSubtopic = sub || null;
       activeSsc = null; activeSscType = null;
-
-      // Open panel for non-All
-      if (!isAll && panel) {
-        btn.classList.add('open');
-        panel.classList.add('open');
-      }
+      if (!isAll && panel) { btn.classList.add('open'); panel.classList.add('open'); }
       renderQuestions();
     });
   });
@@ -723,20 +1060,12 @@ function buildSidebar() {
       e.stopPropagation();
       const sub = btn.dataset.sub, ssc = btn.dataset.ssc, type = btn.dataset.ssctype;
       const isSame = activeSsc === ssc && activeSscType === type;
-
       list.querySelectorAll('.ssc-btn').forEach(b => b.classList.remove('active','active-technique'));
-      // Set parent subtopic active without toggling panel
       list.querySelectorAll('.subtopic-btn').forEach(b => b.classList.remove('active'));
       const parentBtn = list.querySelector(`.subtopic-btn[data-sub="${sub}"]`);
       if (parentBtn) parentBtn.classList.add('active','open');
-
-      if (isSame) {
-        // Clicking same SSC deselects it, fall back to subtopic
-        activeSsc = null; activeSscType = null;
-      } else {
-        btn.classList.add(type === 'technique' ? 'active-technique' : 'active');
-        activeSubtopic = sub; activeSsc = ssc; activeSscType = type;
-      }
+      if (isSame) { activeSsc = null; activeSscType = null; }
+      else { btn.classList.add(type === 'technique' ? 'active-technique' : 'active'); activeSubtopic = sub; activeSsc = ssc; activeSscType = type; }
       renderQuestions();
     });
   });
@@ -749,27 +1078,54 @@ function bindEvents() {
   document.getElementById('signupTab').addEventListener('click', () => switchAuthTab('signup'));
   document.getElementById('authCancelBtn').addEventListener('click', closeAuthModal);
   document.getElementById('authSubmitBtn').addEventListener('click', handleAuthSubmit);
-  document.getElementById('newQModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeNewQModal(); });
-  document.getElementById('newQCancelBtn').addEventListener('click', closeNewQModal);
-  document.getElementById('newQSubmitBtn').addEventListener('click', submitNewQuestion);
-  document.getElementById('postQuestionBtn').addEventListener('click', openNewQModal);
+
+  // Global post modals
+  document.getElementById('postIntModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeGlobalIntModal(); });
+  document.getElementById('postIntCancelBtn').addEventListener('click', closeGlobalIntModal);
+  document.getElementById('postIntSubmitBtn').addEventListener('click', submitGlobalIntuition);
+  document.getElementById('intExplanation').addEventListener('input', () => {
+    const c = document.getElementById('intExplanation').value.trim().split(/\s+/).filter(Boolean).length;
+    const wc = document.getElementById('intWordCount');
+    wc.textContent = `${c} / 400 words`; wc.classList.toggle('over', c > 400);
+  });
+  document.getElementById('intAddLink').addEventListener('click', () => {
+    const i = document.getElementById('intLinkInput'), v = i?.value.trim(); if (!v) return;
+    if (!isValidURL(v)) { showToast('Please enter a valid URL', 'error'); return; }
+    if (gIntState.links.length >= 3) { showToast('Max 3 links allowed', 'error'); return; }
+    gIntState.links.push(v); i.value = ''; renderIntLinks();
+  });
+
+  document.getElementById('postTakModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeGlobalTakModal(); });
+  document.getElementById('postTakCancelBtn').addEventListener('click', closeGlobalTakModal);
+  document.getElementById('postTakSubmitBtn').addEventListener('click', submitGlobalTakeaway);
+  document.getElementById('takAddLink').addEventListener('click', () => {
+    const i = document.getElementById('takLinkInput'), v = i?.value.trim(); if (!v) return;
+    if (!isValidURL(v)) { showToast('Please enter a valid URL', 'error'); return; }
+    gTakState.links.push(v); i.value = ''; renderTakLinks();
+  });
+
   document.getElementById('backBtn').addEventListener('click', goBack);
   document.querySelectorAll('.tab-btn[data-sort]').forEach(btn => btn.addEventListener('click', () => switchSort(btn)));
   document.querySelectorAll('.tab-btn[data-dtab]').forEach(btn => btn.addEventListener('click', () => switchDetailTab(btn)));
   document.querySelectorAll('.sort-btn[data-dsort]').forEach(btn => btn.addEventListener('click', () => switchDetailSort(btn)));
+
   const si = document.getElementById('questionSearch'), sc = document.getElementById('searchClear');
   si.addEventListener('input', () => { sc.classList.toggle('hidden', !si.value); renderQuestions(); });
   sc.addEventListener('click', () => { si.value = ''; sc.classList.add('hidden'); renderQuestions(); si.focus(); });
+
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
+      if (document.getElementById('postIntModal').classList.contains('open')) { closeGlobalIntModal(); return; }
+      if (document.getElementById('postTakModal').classList.contains('open')) { closeGlobalTakModal(); return; }
       if (document.getElementById('authOverlay').classList.contains('open')) closeAuthModal();
-      else if (document.getElementById('newQModal').classList.contains('open')) closeNewQModal();
     }
     if (e.key === 'Enter' && document.getElementById('authOverlay').classList.contains('open')) {
       const b = document.getElementById('authSubmitBtn'); if (!b.disabled) handleAuthSubmit();
     }
   });
-  window.addEventListener('popstate', () => { if (!getParam('q')) { selectedQuestion = null; document.getElementById('detailView').style.display='none'; document.getElementById('listView').style.display='block'; } });
+  window.addEventListener('popstate', () => {
+    if (!getParam('q')) { selectedQuestion = null; document.getElementById('detailView').style.display='none'; document.getElementById('listView').style.display='block'; }
+  });
 }
 
 // ── LOAD QUESTIONS ────────────────────────────────────────
@@ -820,7 +1176,6 @@ function renderQuestions() {
   const q = document.getElementById('questionSearch').value.trim().toLowerCase();
   const filtered = questions.filter(x => {
     const ms = !activeSubtopic || x.tags.includes(activeSubtopic);
-    // SSC filter: tag stored as "Sub::SSCName::type"
     const mssc = !activeSsc || x.tags.includes(sscTagName(activeSubtopic, activeSsc, activeSscType));
     const mq = !q || x.title.toLowerCase().includes(q) || (x.about||'').toLowerCase().includes(q) || x.tags.some(t => t.toLowerCase().includes(q));
     return ms && mssc && mq;
@@ -894,22 +1249,17 @@ function goBack() {
 }
 
 async function loadDetailItems(qid) {
-  // Fetch intuitions and takeaways WITHOUT the links join — links are fetched separately
-  // to avoid silent failures when the links table RLS blocks the nested select.
   const [
     { data: intData,  error: intErr  },
     { data: takData,  error: takErr  },
   ] = await Promise.all([
     db.from('intuitions')
       .select('id,statement,explanation,example_link,example_explanation,created_at,author_id,profiles(username)')
-      .eq('question_id', qid)
-      .order('created_at', { ascending: false }),
+      .eq('question_id', qid).order('created_at', { ascending: false }),
     db.from('takeaways')
       .select('id,content,created_at,author_id,profiles(username)')
-      .eq('question_id', qid)
-      .order('created_at', { ascending: false }),
+      .eq('question_id', qid).order('created_at', { ascending: false }),
   ]);
-
   if (intErr)  console.error('intuitions fetch error:', intErr);
   if (takErr)  console.error('takeaways fetch error:',  takErr);
 
@@ -927,7 +1277,6 @@ async function loadDetailItems(qid) {
     upvotes: 0, downvotes: 0, links: [], comments: [],
   }));
 
-  // Fetch links separately (won't break intuitions if this fails)
   const intIds = intuitions[qid].map(i => i.id);
   const takIds = takeaways[qid].map(t => t.id);
   const allItemIds = [...intIds, ...takIds];
@@ -935,18 +1284,12 @@ async function loadDetailItems(qid) {
     try {
       const { data: linkData } = await db.from('links').select('parent_id,parent_type,url').in('parent_id', allItemIds);
       (linkData||[]).forEach(l => {
-        if (l.parent_type === 'intuition') {
-          const item = intuitions[qid].find(i => i.id === l.parent_id);
-          if (item) item.explanationLinks.push(l.url);
-        } else if (l.parent_type === 'takeaway') {
-          const item = takeaways[qid].find(t => t.id === l.parent_id);
-          if (item) item.links.push(l.url);
-        }
+        if (l.parent_type === 'intuition') { const item = intuitions[qid].find(i => i.id === l.parent_id); if (item) item.explanationLinks.push(l.url); }
+        else if (l.parent_type === 'takeaway') { const item = takeaways[qid].find(t => t.id === l.parent_id); if (item) item.links.push(l.url); }
       });
     } catch(e) { console.warn('links fetch failed (non-fatal):', e); }
   }
 
-  // Vote counts
   const [ivc, tvc] = await Promise.all([
     fetchVoteCounts(intIds, 'intuition'),
     fetchVoteCounts(takIds, 'takeaway'),
@@ -954,13 +1297,9 @@ async function loadDetailItems(qid) {
   intuitions[qid].forEach(i => { const v=ivc[i.id]||{}; i.upvotes=+v.upvotes||0; i.downvotes=+v.downvotes||0; });
   takeaways[qid].forEach(t => { const v=tvc[t.id]||{}; t.upvotes=+v.upvotes||0; t.downvotes=+v.downvotes||0; });
 
-  // User's own votes
   if (me && allItemIds.length) {
     try {
-      const { data: vd } = await db.from('votes')
-        .select('target_id,target_type,direction')
-        .eq('user_id', me.id)
-        .in('target_id', allItemIds);
+      const { data: vd } = await db.from('votes').select('target_id,target_type,direction').eq('user_id', me.id).in('target_id', allItemIds);
       (vd||[]).forEach(v => {
         if (v.target_type === 'intuition') intuitionVotes[v.target_id] = v.direction;
         if (v.target_type === 'takeaway')  takeawayVotes[v.target_id]  = v.direction;
@@ -1096,7 +1435,6 @@ function takeawayCardHTML(item, idx=0) {
   </div>`;
 }
 
-// Event delegation for expand, comments, comment post
 document.addEventListener('click', e => {
   const expBtn = e.target.closest('[id^="iexpbtn-"],[id^="texpbtn-"]');
   if (expBtn) { const m = expBtn.id.match(/^([it])expbtn-(.+)$/); if (m) toggleExpand(m[2],m[1]); return; }
@@ -1140,7 +1478,6 @@ async function handleVote(id, dir, type) {
   const ud = (cur==='up'?-1:0) + (next==='up'?1:0);
   const dd = (cur==='down'?-1:0) + (next==='down'?1:0);
   vm[id] = next;
-  // Update local state
   const applyDelta = item => { item.upvotes += ud; item.downvotes += dd; };
   if (type==='q') {
     const q = questions.find(q => q.id === id); if (q) applyDelta(q);
@@ -1152,7 +1489,6 @@ async function handleVote(id, dir, type) {
     const t = (takeaways[selectedQuestion.id]||[]).find(x => x.id === id); if (t) applyDelta(t);
     renderDetailItems();
   }
-  // Persist to DB
   try {
     if (next === null) {
       await db.from('votes').delete().eq('user_id',me.id).eq('target_id',id).eq('target_type',ttype);
@@ -1163,7 +1499,6 @@ async function handleVote(id, dir, type) {
     }
   } catch(e) {
     showToast('Vote failed: ' + e.message, 'error');
-    // Revert
     vm[id] = cur;
     const revert = item => { item.upvotes -= ud; item.downvotes -= dd; };
     if (type==='q') { const q = questions.find(q=>q.id===id); if(q) revert(q); renderQuestions(); }
@@ -1172,7 +1507,7 @@ async function handleVote(id, dir, type) {
   }
 }
 
-// ── POST FORM ─────────────────────────────────────────────
+// ── POST FORM (inline on detail view) ────────────────────
 function renderPostForm() {
   const c = document.getElementById('postForm');
   c.innerHTML = currentDetailTab === 'intuitions' ? intuitionFormHTML() : takeawayFormHTML();
@@ -1283,7 +1618,6 @@ function renderLinkList(type) {
   c.innerHTML = links.map((l,i) => `<div class="link-item"><a href="${esc(l)}" target="_blank" rel="noopener">${esc(l)}</a><button class="remove-link-btn" onclick="${fn}(${i})"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>`).join('');
 }
 
-// ── SUBMIT INTUITION (FIXED) ──────────────────────────────
 async function submitIntuition() {
   if (!me) { openAuthModal(); return; }
   const stmt = document.getElementById('pf-statement')?.value.trim();
@@ -1292,33 +1626,16 @@ async function submitIntuition() {
   if (exp.split(/\s+/).filter(Boolean).length > 400) { showToast('Explanation exceeds 400 words.', 'error'); return; }
   const btn = document.getElementById('pf-submitInt');
   btn.disabled = true; btn.textContent = 'Posting…';
-
   const exLink = document.getElementById('pf-exampleLink')?.value.trim() || null;
   const exExp  = document.getElementById('pf-exampleExp')?.value.trim() || null;
-
   const { data: d, error: e } = await db.from('intuitions').insert({
-    question_id: selectedQuestion.id,
-    statement: stmt,
-    explanation: exp,
-    example_link: exLink,
-    example_explanation: exExp,
-    author_id: me.id,  // ← FIXED: include author_id
+    question_id: selectedQuestion.id, statement: stmt, explanation: exp,
+    example_link: exLink, example_explanation: exExp, author_id: me.id,
   }).select('id').single();
-
-  if (e) {
-    showToast('Error posting: ' + e.message, 'error');
-    btn.disabled = false; btn.textContent = 'Post Intuition';
-    return;
-  }
-
-  // Save links if any
+  if (e) { showToast('Error posting: ' + e.message, 'error'); btn.disabled = false; btn.textContent = 'Post Intuition'; return; }
   if (formState.explanationLinks.length && d) {
-    await db.from('links').insert(formState.explanationLinks.map(url => ({
-      parent_id: d.id, parent_type: 'intuition', url
-    })));
+    await db.from('links').insert(formState.explanationLinks.map(url => ({ parent_id: d.id, parent_type: 'intuition', url })));
   }
-
-  // Reset form state
   Object.assign(formState, { statement:'', explanation:'', explanationLinks:[], exampleLink:'', exampleExplanation:'' });
   showToast('Intuition posted!', 'success');
   await loadDetailItems(selectedQuestion.id);
@@ -1326,114 +1643,24 @@ async function submitIntuition() {
   window.scrollTo({ top: document.getElementById('dtab-intuitions').offsetTop - 80, behavior: 'smooth' });
 }
 
-// ── SUBMIT TAKEAWAY (FIXED) ───────────────────────────────
 async function submitTakeaway() {
   if (!me) { openAuthModal(); return; }
   const content = document.getElementById('pf-takeaway')?.value.trim();
   if (!content) { showToast('Please write your takeaway.', 'error'); return; }
   const btn = document.getElementById('pf-submitTak');
   btn.disabled = true; btn.textContent = 'Posting…';
-
   const { data: d, error: e } = await db.from('takeaways').insert({
-    question_id: selectedQuestion.id,
-    content,
-    author_id: me.id,  // ← FIXED: include author_id
+    question_id: selectedQuestion.id, content, author_id: me.id,
   }).select('id').single();
-
-  if (e) {
-    showToast('Error posting: ' + e.message, 'error');
-    btn.disabled = false; btn.textContent = 'Post Takeaway';
-    return;
-  }
-
+  if (e) { showToast('Error posting: ' + e.message, 'error'); btn.disabled = false; btn.textContent = 'Post Takeaway'; return; }
   if (formState.takeawayLinks.length && d) {
-    await db.from('links').insert(formState.takeawayLinks.map(url => ({
-      parent_id: d.id, parent_type: 'takeaway', url
-    })));
+    await db.from('links').insert(formState.takeawayLinks.map(url => ({ parent_id: d.id, parent_type: 'takeaway', url })));
   }
-
   Object.assign(formState, { takeawayContent:'', takeawayLinks:[] });
   showToast('Takeaway posted!', 'success');
   await loadDetailItems(selectedQuestion.id);
   renderDetailItems(); renderPostForm();
   window.scrollTo({ top: document.getElementById('dtab-takeaways').offsetTop - 80, behavior: 'smooth' });
-}
-
-// ── NEW QUESTION MODAL CASCADES ───────────────────────────
-function onNewQSubChange() {
-  const sub = document.getElementById('newQSub').value;
-  const sscWrap = document.getElementById('newQSscWrap');
-  const sscSel  = document.getElementById('newQSsc');
-  if (!sub || !SSC[sub]) { sscWrap.style.display='none'; return; }
-  sscWrap.style.display = 'block';
-  sscSel.innerHTML = '<option value="">No sub-sub-category</option>' +
-    `<optgroup label="Structure">${(SSC[sub].structure||[]).map(n=>`<option value="${n}::structure">${n}</option>`).join('')}</optgroup>` +
-    `<optgroup label="Technique">${(SSC[sub].technique||[]).map(n=>`<option value="${n}::technique">${n}</option>`).join('')}</optgroup>`;
-  onNewQSscChange();
-}
-function onNewQSscChange() {
-  const val = document.getElementById('newQSsc').value;
-  const typeWrap = document.getElementById('newQSscTypeWrap');
-  if (!val) { typeWrap.style.display='none'; return; }
-  const [, type] = val.split('::');
-  typeWrap.style.display = 'block';
-  document.getElementById(type==='technique'?'typeTechnique':'typeStructure').checked = true;
-  syncTypeLabels();
-}
-function syncTypeLabels() {
-  const isTech = document.getElementById('typeTechnique').checked;
-  document.getElementById('typeStructureLabel').style.borderColor = !isTech ? 'var(--blue)' : 'var(--border2)';
-  document.getElementById('typeTechniqueLabel').style.borderColor =  isTech ? 'var(--gold)' : 'var(--border2)';
-}
-
-// ── NEW QUESTION MODAL ────────────────────────────────────
-function openNewQModal() {
-  if (!me) { openAuthModal(); return; }
-  document.getElementById('newQModal').classList.add('open');
-  setTimeout(() => document.getElementById('newQTitle').focus(), 80);
-}
-function closeNewQModal() {
-  document.getElementById('newQModal').classList.remove('open');
-  document.getElementById('newQTitle').value = '';
-  document.getElementById('newQAbout').value = '';
-  document.getElementById('newQSub').value = '';
-  document.getElementById('newQSscWrap').style.display = 'none';
-  document.getElementById('newQSsc').value = '';
-  document.getElementById('newQSscTypeWrap').style.display = 'none';
-  document.getElementById('typeStructure').checked = false;
-  document.getElementById('typeTechnique').checked = false;
-  document.getElementById('typeStructureLabel').style.borderColor = '';
-  document.getElementById('typeTechniqueLabel').style.borderColor = '';
-  document.getElementById('newQError').innerHTML = '';
-  document.getElementById('newQSubmitBtn').disabled = false;
-  document.getElementById('newQSubmitBtn').textContent = 'Post Question';
-}
-async function submitNewQuestion() {
-  const title = document.getElementById('newQTitle').value.trim();
-  const about = document.getElementById('newQAbout').value.trim();
-  const sub   = document.getElementById('newQSub').value;
-  if (!title || !about) { document.getElementById('newQError').innerHTML = '<div class="err-box">Please fill in both title and description.</div>'; return; }
-  const btn = document.getElementById('newQSubmitBtn'); btn.disabled = true; btn.textContent = 'Posting…';
-
-  const { data: qd, error: qe } = await db.from('questions').insert({ title, about }).select('id').single();
-  if (qe) { document.getElementById('newQError').innerHTML = `<div class="err-box">${esc(qe.message)}</div>`; btn.disabled = false; btn.textContent = 'Post Question'; return; }
-
-  // Build list of tag names to apply: topic, sub, and optionally SSC
-  const sscVal  = document.getElementById('newQSsc').value; // "SSCName::type" or ""
-  const sscType = document.querySelector('input[name="newQSscType"]:checked')?.value || null;
-  const sscName = sscVal ? sscVal.split('::')[0] : null;
-  const tagNames = [TOPIC_NAME];
-  if (sub) tagNames.push(sub);
-  if (sub && sscName && sscType) tagNames.push(sscTagName(sub, sscName, sscType));
-
-  for (const name of tagNames) {
-    let { data: tag } = await db.from('tags').select('id').eq('name',name).maybeSingle();
-    if (!tag) { const { data: nt } = await db.from('tags').insert({ name, category:TOPIC_NAME }).select('id').single(); tag = nt; }
-    if (tag) await db.from('question_tags').insert({ question_id:qd.id, tag_id:tag.id });
-  }
-  closeNewQModal();
-  showToast('Question posted!', 'success');
-  await loadQuestions();
 }
 </script>
 </body>
