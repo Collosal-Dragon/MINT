@@ -171,7 +171,7 @@ html.light .auth-msg.ok{background:rgba(30,122,72,.06);border-color:rgba(30,122,
   <div class="hero">
     <div class="hero-eyebrow"><span class="eyebrow-dot"></span>Community Forum</div>
     <h1 class="hero-title">
-      Build Mathematical <em>Intuition</em>
+      Build <em>M</em>athematical <em>Int</em>uition
       <span class="sub">Together, one insight at a time.</span>
     </h1>
     <p class="hero-body">Share the intuitions and insights behind Olympiad mathematics. Ask questions, post your thinking, and sharpen your understanding alongside others.</p>
@@ -245,16 +245,7 @@ html.light .auth-msg.ok{background:rgba(30,122,72,.06);border-color:rgba(30,122,
 const SUPABASE_URL = 'https://idlrmpecdvsofaykphfe.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlkbHJtcGVjZHZzb2ZheWtwaGZlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMzk5NTAsImV4cCI6MjA4OTgxNTk1MH0.FWSllmspL4twQ1aF2q20---HmoLxBM1NqFnQ2OPOoUg';
 
-const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
-  auth: {
-    persistSession:     true,
-    autoRefreshToken:   true,
-    detectSessionInUrl: true,
-    storageKey:         'mint-session',
-    storage:            window.localStorage,
-    lock:               (_name, _timeout, fn) => fn(),
-  }
-});
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const CATS = {
   'Algebra':         { glyph:'𝑥²', color:'#7ab0f5', desc:'Expressions, equations, polynomials and algebraic structures.',        subs:['Exponents','Polynomials','Inequalities','AM-GM','Cauchy-Schwarz'],   page:'algebra.html' },
@@ -273,22 +264,19 @@ document.addEventListener('DOMContentLoaded', () => {
   applyTheme(localStorage.getItem('theme') || 'dark');
   buildGrid();
   refreshHeader();
-  loadRecent(); // always load questions immediately on page load
 });
 
-// onAuthStateChange fires INITIAL_SESSION on every page load (logged in or out),
-// then SIGNED_IN / SIGNED_OUT for live changes. This is the single source of truth.
+// Single source of truth for all auth state and data loading.
+// INITIAL_SESSION fires on every page load, SIGNED_IN/SIGNED_OUT for changes.
 db.auth.onAuthStateChange(async (ev, session) => {
   me = session?.user ?? null;
 
   if (me) {
-    // Show logged-in state immediately (email as fallback name), then
-    // update again once the real profile row is fetched from the DB.
     if (!profile) {
       profile = { username: me.user_metadata?.username || me.user_metadata?.full_name || me.email.split('@')[0], email: me.email };
     }
     refreshHeader();
-    await fetchProfile(me);
+    fetchProfile(me); // non-blocking, updates username when done
   } else {
     profile = null;
     refreshHeader();
@@ -299,7 +287,7 @@ db.auth.onAuthStateChange(async (ev, session) => {
     toast('Welcome back!', 'success');
   }
 
-  if (ev === 'SIGNED_IN' || ev === 'SIGNED_OUT') {
+  if (ev === 'INITIAL_SESSION' || ev === 'SIGNED_IN' || ev === 'SIGNED_OUT') {
     loadRecent();
   }
 });
@@ -339,7 +327,7 @@ function refreshHeader() {
     document.getElementById('pillName').textContent = profile?.username || me.email.split('@')[0];
     pill.classList.remove('hidden');
     btn.textContent = 'Log out';
-    btn.onclick = () => db.auth.signOut().then(() => toast('Logged out', 'success'));
+    btn.onclick = () => { profile = null; db.auth.signOut().then(() => toast('Logged out', 'success')); };
   } else {
     pill.classList.add('hidden');
     btn.textContent = 'Log in';
@@ -480,13 +468,18 @@ function buildGrid() {
 }
 
 // ── QUESTIONS ─────────────────────────────────────────────────────────────────
-async function loadRecent() {
+async function loadRecent(retry = true) {
   document.getElementById('recentList').innerHTML =
     '<div class="loading-state"><div class="spinner"></div>Loading questions...</div>';
   const { data, error } = await db.from('questions')
     .select('id,title,about,created_at,question_tags(tags(name)),intuitions(id)')
     .order('created_at', { ascending: false }).limit(10);
   if (error) {
+    // Lock contention on rapid reloads — wait briefly and retry once
+    if (retry && error.message && error.message.includes('lock')) {
+      setTimeout(() => loadRecent(false), 800);
+      return;
+    }
     document.getElementById('recentList').innerHTML = `<div class="err-box">Could not load: ${error.message}</div>`;
     return;
   }
