@@ -743,34 +743,78 @@ function goBack() {
 }
 
 async function loadDetailItems(qid) {
-  const [{ data: intData }, { data: takData }] = await Promise.all([
-    db.from('intuitions').select('id,statement,explanation,example_link,example_explanation,created_at,profiles(username),links(url)').eq('question_id',qid).order('created_at',{ascending:false}),
-    db.from('takeaways').select('id,content,created_at,profiles(username),links(url)').eq('question_id',qid).order('created_at',{ascending:false}),
+  // Fetch intuitions and takeaways WITHOUT the links join — links are fetched separately
+  // to avoid silent failures when the links table RLS blocks the nested select.
+  const [
+    { data: intData,  error: intErr  },
+    { data: takData,  error: takErr  },
+  ] = await Promise.all([
+    db.from('intuitions')
+      .select('id,statement,explanation,example_link,example_explanation,created_at,author_id,profiles(username)')
+      .eq('question_id', qid)
+      .order('created_at', { ascending: false }),
+    db.from('takeaways')
+      .select('id,content,created_at,author_id,profiles(username)')
+      .eq('question_id', qid)
+      .order('created_at', { ascending: false }),
   ]);
+
+  if (intErr)  console.error('intuitions fetch error:', intErr);
+  if (takErr)  console.error('takeaways fetch error:',  takErr);
+
   intuitions[qid] = (intData||[]).map(i => ({
-    id:i.id, statement:i.statement, explanation:i.explanation,
-    exampleLink:i.example_link||'', exampleExplanation:i.example_explanation||'',
-    author:i.profiles?.username||'Anonymous', createdAt:ago(i.created_at), createdAtRaw:i.created_at,
-    upvotes:0, downvotes:0, explanationLinks:(i.links||[]).map(l=>l.url), comments:[]
+    id: i.id, statement: i.statement, explanation: i.explanation,
+    exampleLink: i.example_link||'', exampleExplanation: i.example_explanation||'',
+    author: i.profiles?.username || 'Anonymous',
+    createdAt: ago(i.created_at), createdAtRaw: i.created_at,
+    upvotes: 0, downvotes: 0, explanationLinks: [], comments: [],
   }));
   takeaways[qid] = (takData||[]).map(t => ({
-    id:t.id, content:t.content, author:t.profiles?.username||'Anonymous',
-    createdAt:ago(t.created_at), createdAtRaw:t.created_at,
-    upvotes:0, downvotes:0, links:(t.links||[]).map(l=>l.url), comments:[]
+    id: t.id, content: t.content,
+    author: t.profiles?.username || 'Anonymous',
+    createdAt: ago(t.created_at), createdAtRaw: t.created_at,
+    upvotes: 0, downvotes: 0, links: [], comments: [],
   }));
-  const intIds = intuitions[qid].map(i=>i.id), takIds = takeaways[qid].map(t=>t.id);
-  const [ivc, tvc] = await Promise.all([fetchVoteCounts(intIds,'intuition'), fetchVoteCounts(takIds,'takeaway')]);
+
+  // Fetch links separately (won't break intuitions if this fails)
+  const intIds = intuitions[qid].map(i => i.id);
+  const takIds = takeaways[qid].map(t => t.id);
+  const allItemIds = [...intIds, ...takIds];
+  if (allItemIds.length) {
+    try {
+      const { data: linkData } = await db.from('links').select('parent_id,parent_type,url').in('parent_id', allItemIds);
+      (linkData||[]).forEach(l => {
+        if (l.parent_type === 'intuition') {
+          const item = intuitions[qid].find(i => i.id === l.parent_id);
+          if (item) item.explanationLinks.push(l.url);
+        } else if (l.parent_type === 'takeaway') {
+          const item = takeaways[qid].find(t => t.id === l.parent_id);
+          if (item) item.links.push(l.url);
+        }
+      });
+    } catch(e) { console.warn('links fetch failed (non-fatal):', e); }
+  }
+
+  // Vote counts
+  const [ivc, tvc] = await Promise.all([
+    fetchVoteCounts(intIds, 'intuition'),
+    fetchVoteCounts(takIds, 'takeaway'),
+  ]);
   intuitions[qid].forEach(i => { const v=ivc[i.id]||{}; i.upvotes=+v.upvotes||0; i.downvotes=+v.downvotes||0; });
   takeaways[qid].forEach(t => { const v=tvc[t.id]||{}; t.upvotes=+v.upvotes||0; t.downvotes=+v.downvotes||0; });
-  if (me) {
-    const allIds = [...intIds, ...takIds];
-    if (allIds.length) {
-      const { data: vd } = await db.from('votes').select('target_id,target_type,direction').eq('user_id',me.id).in('target_id',allIds);
+
+  // User's own votes
+  if (me && allItemIds.length) {
+    try {
+      const { data: vd } = await db.from('votes')
+        .select('target_id,target_type,direction')
+        .eq('user_id', me.id)
+        .in('target_id', allItemIds);
       (vd||[]).forEach(v => {
         if (v.target_type === 'intuition') intuitionVotes[v.target_id] = v.direction;
-        if (v.target_type === 'takeaway') takeawayVotes[v.target_id] = v.direction;
+        if (v.target_type === 'takeaway')  takeawayVotes[v.target_id]  = v.direction;
       });
-    }
+    } catch(e) { console.warn('votes fetch failed:', e); }
   }
 }
 
