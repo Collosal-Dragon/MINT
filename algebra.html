@@ -15,32 +15,6 @@
 html.light{--bg:#f7f6f1;--bg2:#ffffff;--bg3:#f0ede6;--bg4:#e8e4db;--border:#ddd9d0;--border2:#ccc8be;--border3:#b8b3a8;--text:#1a1814;--text2:#4a4640;--text3:#8a8680;--primary:#1e7a48;--primary2:#155c36;--green:#1e7a48;--red:#c0392b;--gold:#b07820;--blue:#2060c0;--purple:#6040b0;--teal:#0a7a74;--card-bg:#ffffff;--card-hover:#faf9f6;--shadow:0 1px 3px rgba(0,0,0,.06),0 4px 12px rgba(0,0,0,.08);--shadow-lg:0 8px 32px rgba(0,0,0,.12)}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;line-height:1.6;transition:background .25s,color .25s;overflow-x:hidden}
-body::before{
-  content:'';
-  position:fixed;
-  inset:0;
-
-  background:
-    linear-gradient(60deg, rgba(255,255,255,0.03) 25%, transparent 25%) 0 0,
-    linear-gradient(-60deg, rgba(255,255,255,0.03) 25%, transparent 25%) 0 0,
-    linear-gradient(60deg, transparent 75%, rgba(255,255,255,0.03) 75%) 0 0,
-    linear-gradient(-60deg, transparent 75%, rgba(255,255,255,0.03) 75%) 0 0;
-
-  background-size: 60px 100px;
-  opacity: 0.25;
-
-  pointer-events:none;
-  z-index:0;
-}
-html.light body::before{
-  background:
-    linear-gradient(60deg, rgba(0,0,0,0.04) 25%, transparent 25%) 0 0,
-    linear-gradient(-60deg, rgba(0,0,0,0.04) 25%, transparent 25%) 0 0,
-    linear-gradient(60deg, transparent 75%, rgba(0,0,0,0.04) 75%) 0 0,
-    linear-gradient(-60deg, transparent 75%, rgba(0,0,0,0.04) 75%) 0 0;
-
-  background-size: 60px 100px;
-}
 
 /* ── HEADER ── */
 header{position:sticky;top:0;z-index:100;background:rgba(11,12,16,.85);border-bottom:1px solid var(--border);backdrop-filter:blur(0.3px) saturate(1.2);-webkit-backdrop-filter:blur(0.3px) saturate(1.2)}
