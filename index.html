@@ -15,8 +15,11 @@
 html.light{--bg:#f7f6f1;--bg2:#ffffff;--bg3:#f0ede6;--bg4:#e8e4db;--border:#ddd9d0;--border2:#ccc8be;--border3:#b8b3a8;--text:#1a1814;--text2:#4a4640;--text3:#8a8680;--primary:#1e7a48;--primary2:#155c36;--green:#1e7a48;--red:#c0392b;--gold:#b07820;--blue:#2060c0;--purple:#6040b0;--card-bg:#ffffff;--card-hover:#faf9f6;--glow:0 0 40px rgba(30,122,72,.04);--shadow:0 1px 3px rgba(0,0,0,.06),0 4px 12px rgba(0,0,0,.08);--shadow-lg:0 8px 32px rgba(0,0,0,.12)}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;line-height:1.6;transition:background .25s,color .25s;overflow-x:hidden}
-body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 50% at 20% -10%,rgba(110,231,160,.04) 0%,transparent 60%),radial-gradient(ellipse 60% 40% at 80% 110%,rgba(122,176,245,.03) 0%,transparent 55%);pointer-events:none;z-index:0}
-html.light body::before{background:radial-gradient(ellipse 80% 50% at 20% -10%,rgba(30,122,72,.04) 0%,transparent 60%),radial-gradient(ellipse 60% 40% at 80% 110%,rgba(32,96,192,.03) 0%,transparent 55%)}
+
+/* ── ISOMETRIC CUBE BACKGROUND ── */
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='104'%3E%3Cpolygon points='60,0 120,26 60,52 0,26' fill='%231e3328' stroke='%232a4535' stroke-width='0.7'/%3E%3Cpolygon points='0,26 60,52 60,104 0,78' fill='%23152a1f' stroke='%232a4535' stroke-width='0.7'/%3E%3Cpolygon points='60,52 120,26 120,78 60,104' fill='%231a2e24' stroke='%232a4535' stroke-width='0.7'/%3E%3C/svg%3E"),url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='104'%3E%3Cpolygon points='60,0 120,26 60,52 0,26' fill='%231e3328' stroke='%232a4535' stroke-width='0.7'/%3E%3Cpolygon points='0,26 60,52 60,104 0,78' fill='%23152a1f' stroke='%232a4535' stroke-width='0.7'/%3E%3Cpolygon points='60,52 120,26 120,78 60,104' fill='%231a2e24' stroke='%232a4535' stroke-width='0.7'/%3E%3C/svg%3E");background-size:120px 104px,120px 104px;background-position:0 0,60px 52px;pointer-events:none;z-index:0;opacity:.9}
+html.light body::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='104'%3E%3Cpolygon points='60,0 120,26 60,52 0,26' fill='%23f0f8f4' stroke='%23c8e0d4' stroke-width='0.7'/%3E%3Cpolygon points='0,26 60,52 60,104 0,78' fill='%23d8ede3' stroke='%23c8e0d4' stroke-width='0.7'/%3E%3Cpolygon points='60,52 120,26 120,78 60,104' fill='%23e4f2eb' stroke='%23c8e0d4' stroke-width='0.7'/%3E%3C/svg%3E"),url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='104'%3E%3Cpolygon points='60,0 120,26 60,52 0,26' fill='%23f0f8f4' stroke='%23c8e0d4' stroke-width='0.7'/%3E%3Cpolygon points='0,26 60,52 60,104 0,78' fill='%23d8ede3' stroke='%23c8e0d4' stroke-width='0.7'/%3E%3Cpolygon points='60,52 120,26 120,78 60,104' fill='%23e4f2eb' stroke='%23c8e0d4' stroke-width='0.7'/%3E%3C/svg%3E");background-size:120px 104px,120px 104px;background-position:0 0,60px 52px;opacity:1}
+
 header{position:sticky;top:0;z-index:100;background:rgba(11,12,16,.85);border-bottom:1px solid var(--border);backdrop-filter:blur(20px) saturate(1.2);-webkit-backdrop-filter:blur(20px) saturate(1.2)}
 html.light header{background:rgba(247,246,241,.9)}
 .header-inner{max-width:1040px;margin:0 auto;padding:0 28px;height:62px;display:flex;align-items:center;justify-content:space-between;gap:16px}
@@ -257,17 +260,12 @@ const CATS = {
 
 let me = null, profile = null, authMode = 'login', searchCtrl = null, searchTimer = null;
 
-// ── BOOT SEQUENCE ────────────────────────────────────────────────────────────
-// Hide auth controls until we know the session state — prevents the "Log in"
-// flash on every reload for logged-in users.
 document.addEventListener('DOMContentLoaded', () => {
   applyTheme(localStorage.getItem('theme') || 'dark');
   buildGrid();
   refreshHeader();
 });
 
-// Single source of truth for all auth state and data loading.
-// INITIAL_SESSION fires on every page load, SIGNED_IN/SIGNED_OUT for changes.
 db.auth.onAuthStateChange(async (ev, session) => {
   me = session?.user ?? null;
 
@@ -276,7 +274,7 @@ db.auth.onAuthStateChange(async (ev, session) => {
       profile = { username: me.user_metadata?.username || me.user_metadata?.full_name || me.email.split('@')[0], email: me.email };
     }
     refreshHeader();
-    fetchProfile(me); // non-blocking, updates username when done
+    fetchProfile(me);
   } else {
     profile = null;
     refreshHeader();
@@ -292,7 +290,6 @@ db.auth.onAuthStateChange(async (ev, session) => {
   }
 });
 
-// Re-validate when the user returns to a backgrounded/suspended tab.
 document.addEventListener('visibilitychange', async () => {
   if (document.visibilityState !== 'visible' || !me) return;
   const { error } = await db.auth.refreshSession();
@@ -306,7 +303,6 @@ document.addEventListener('visibilitychange', async () => {
 
 function onKatexReady() { document.querySelectorAll('.kr').forEach(renderMath); }
 
-// ── PROFILE ──────────────────────────────────────────────────────────────────
 async function fetchProfile(user) {
   const { data } = await db.from('profiles').select('username,email').eq('id', user.id).maybeSingle();
   if (data) { profile = data; refreshHeader(); return; }
@@ -335,7 +331,6 @@ function refreshHeader() {
   }
 }
 
-// ── GOOGLE OAUTH ─────────────────────────────────────────────────────────────
 async function googleSignIn() {
   const { error } = await db.auth.signInWithOAuth({
     provider: 'google',
@@ -344,7 +339,6 @@ async function googleSignIn() {
   if (error) toast('Google sign-in failed: ' + error.message, 'error');
 }
 
-// ── AUTH MODAL ────────────────────────────────────────────────────────────────
 function openAuth() {
   document.getElementById('authOverlay').classList.add('open');
   switchTab('login');
@@ -393,7 +387,6 @@ async function submitAuth() {
     if (err) { setMsg('err', err); btn.disabled = false; btn.textContent = 'Log in'; return; }
     const { error } = await db.auth.signInWithPassword({ email, password: pass });
     if (error) { setMsg('err', niceErr(error.message)); btn.disabled = false; btn.textContent = 'Log in'; return; }
-    // closeAuth + toast handled in onAuthStateChange SIGNED_IN
   } else {
     const email    = document.getElementById('authEmail').value.trim();
     const username = document.getElementById('authUser').value.trim();
@@ -422,7 +415,6 @@ function niceErr(m) {
   return m;
 }
 
-// ── THEME ─────────────────────────────────────────────────────────────────────
 function applyTheme(t) {
   document.documentElement.className = t;
   document.getElementById('iconDark').classList.toggle('hidden',  t === 'dark');
@@ -433,7 +425,6 @@ document.getElementById('themeBtn').addEventListener('click', () => {
   localStorage.setItem('theme', t); applyTheme(t);
 });
 
-// ── UTILITIES ─────────────────────────────────────────────────────────────────
 function ago(ts) {
   const d = Date.now() - new Date(ts), m = ~~(d/6e4), h = ~~(d/36e5), dy = ~~(d/864e5);
   return m < 1 ? 'just now' : m < 60 ? `${m}m ago` : h < 24 ? `${h}h ago` : dy < 7 ? `${dy}d ago` : `${~~(dy/7)}w ago`;
@@ -453,7 +444,6 @@ async function getVotes(ids, type) {
   return m;
 }
 
-// ── GRID ──────────────────────────────────────────────────────────────────────
 function buildGrid() {
   document.getElementById('topicGrid').innerHTML = Object.entries(CATS).map(([name, c]) => `
     <a class="topic-card" href="${c.page}" style="--tc:${c.color}">
@@ -467,7 +457,6 @@ function buildGrid() {
     </a>`).join('');
 }
 
-// ── QUESTIONS ─────────────────────────────────────────────────────────────────
 async function loadRecent(retry = true) {
   document.getElementById('recentList').innerHTML =
     '<div class="loading-state"><div class="spinner"></div>Loading questions...</div>';
@@ -475,7 +464,6 @@ async function loadRecent(retry = true) {
     .select('id,title,about,created_at,question_tags(tags(name)),intuitions(id)')
     .order('created_at', { ascending: false }).limit(10);
   if (error) {
-    // Lock contention on rapid reloads — wait briefly and retry once
     if (retry && error.message && error.message.includes('lock')) {
       setTimeout(() => loadRecent(false), 800);
       return;
@@ -522,7 +510,6 @@ function cardHTML(q, i = 0) {
   </a>`;
 }
 
-// ── SEARCH ────────────────────────────────────────────────────────────────────
 function handleSearch() {
   const v = document.getElementById('globalSearch').value;
   document.getElementById('searchClear').classList.toggle('hidden', !v);
@@ -567,7 +554,6 @@ async function doSearch() {
   }
 }
 
-// ── TOAST ─────────────────────────────────────────────────────────────────────
 let toastTimer;
 function toast(msg, type = 'success') {
   document.querySelector('.toast')?.remove(); clearTimeout(toastTimer);
@@ -578,7 +564,6 @@ function toast(msg, type = 'success') {
   document.body.appendChild(t); toastTimer = setTimeout(() => t.remove(), 3200);
 }
 
-// ── KEYBOARD ──────────────────────────────────────────────────────────────────
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
     if (document.getElementById('authOverlay').classList.contains('open')) closeAuth();
