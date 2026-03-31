@@ -1015,8 +1015,8 @@ async function submitSubtopic() {
   btn.disabled = true; btn.textContent = 'Posting…';
 
   try {
-    // Insert the question
-    const { data: qData, error: qErr } = await db.from('questions').insert({ title, about, author_id: me.id }).select('id').single();
+    // Insert the question — only include columns that exist in the schema
+    const { data: qData, error: qErr } = await db.from('questions').insert({ title, about }).select('id').single();
     if (qErr) throw qErr;
     const qid = qData.id;
 
@@ -1461,7 +1461,7 @@ function renderQuestions() {
     document.getElementById('clearSearchPill')?.addEventListener('click', () => {
       document.getElementById('questionSearch').value = '';
       document.getElementById('searchClear').classList.add('hidden');
-      activeHint = null; renderSearchHints(); renderQuestions();
+      renderQuestions();
     });
   } else {
     pillEl.innerHTML = '';
