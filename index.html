@@ -17,8 +17,28 @@ html.light{--bg:#f7f6f1;--bg2:#ffffff;--bg3:#f0ede6;--bg4:#e8e4db;--border:#ddd9
 body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;line-height:1.6;transition:background .25s,color .25s;overflow-x:hidden}
 
 /* ── ISOMETRIC CUBE BACKGROUND ── */
-body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='104'%3E%3Cpolygon points='60,0 120,26 60,52 0,26' fill='%231e3328' stroke='%232a4535' stroke-width='0.7'/%3E%3Cpolygon points='0,26 60,52 60,104 0,78' fill='%23152a1f' stroke='%232a4535' stroke-width='0.7'/%3E%3Cpolygon points='60,52 120,26 120,78 60,104' fill='%231a2e24' stroke='%232a4535' stroke-width='0.7'/%3E%3C/svg%3E"),url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='104'%3E%3Cpolygon points='60,0 120,26 60,52 0,26' fill='%231e3328' stroke='%232a4535' stroke-width='0.7'/%3E%3Cpolygon points='0,26 60,52 60,104 0,78' fill='%23152a1f' stroke='%232a4535' stroke-width='0.7'/%3E%3Cpolygon points='60,52 120,26 120,78 60,104' fill='%231a2e24' stroke='%232a4535' stroke-width='0.7'/%3E%3C/svg%3E");background-size:120px 104px,120px 104px;background-position:0 0,60px 52px;pointer-events:none;z-index:0;opacity:.9}
-html.light body::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='104'%3E%3Cpolygon points='60,0 120,26 60,52 0,26' fill='%23f0f8f4' stroke='%23c8e0d4' stroke-width='0.7'/%3E%3Cpolygon points='0,26 60,52 60,104 0,78' fill='%23d8ede3' stroke='%23c8e0d4' stroke-width='0.7'/%3E%3Cpolygon points='60,52 120,26 120,78 60,104' fill='%23e4f2eb' stroke='%23c8e0d4' stroke-width='0.7'/%3E%3C/svg%3E"),url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='104'%3E%3Cpolygon points='60,0 120,26 60,52 0,26' fill='%23f0f8f4' stroke='%23c8e0d4' stroke-width='0.7'/%3E%3Cpolygon points='0,26 60,52 60,104 0,78' fill='%23d8ede3' stroke='%23c8e0d4' stroke-width='0.7'/%3E%3Cpolygon points='60,52 120,26 120,78 60,104' fill='%23e4f2eb' stroke='%23c8e0d4' stroke-width='0.7'/%3E%3C/svg%3E");background-size:120px 104px,120px 104px;background-position:0 0,60px 52px;opacity:1}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='70'%3E%3Cpolygon points='40,2 78,22 40,42 2,22' fill='%23141c18' stroke='%231a2820' stroke-width='0.6'/%3E%3Cpolygon points='2,22 40,42 40,68 2,48' fill='%230e1612' stroke='%231a2820' stroke-width='0.6'/%3E%3Cpolygon points='40,42 78,22 78,48 40,68' fill='%23111a16' stroke='%231a2820' stroke-width='0.6'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='70'%3E%3Cpolygon points='40,2 78,22 40,42 2,22' fill='%23141c18' stroke='%231a2820' stroke-width='0.6'/%3E%3Cpolygon points='2,22 40,42 40,68 2,48' fill='%230e1612' stroke='%231a2820' stroke-width='0.6'/%3E%3Cpolygon points='40,42 78,22 78,48 40,68' fill='%23111a16' stroke='%231a2820' stroke-width='0.6'/%3E%3C/svg%3E");
+  background-size: 80px 70px, 80px 70px;
+  background-position: 0 0, 40px 35px;
+  pointer-events: none;
+  z-index: 0;
+  opacity: .85;
+}
+
+html.light body::before {
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='70'%3E%3Cpolygon points='40,2 78,22 40,42 2,22' fill='%23eef6f1' stroke='%23cde4d8' stroke-width='0.6'/%3E%3Cpolygon points='2,22 40,42 40,68 2,48' fill='%23daeee6' stroke='%23cde4d8' stroke-width='0.6'/%3E%3Cpolygon points='40,42 78,22 78,48 40,68' fill='%23e4f2ec' stroke='%23cde4d8' stroke-width='0.6'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='70'%3E%3Cpolygon points='40,2 78,22 40,42 2,22' fill='%23eef6f1' stroke='%23cde4d8' stroke-width='0.6'/%3E%3Cpolygon points='2,22 40,42 40,68 2,48' fill='%23daeee6' stroke='%23cde4d8' stroke-width='0.6'/%3E%3Cpolygon points='40,42 78,22 78,48 40,68' fill='%23e4f2ec' stroke='%23cde4d8' stroke-width='0.6'/%3E%3C/svg%3E");
+  background-size: 80px 70px, 80px 70px;
+  background-position: 0 0, 40px 35px;
+  opacity: 1;
+}
 
 header{position:sticky;top:0;z-index:100;background:rgba(11,12,16,.85);border-bottom:1px solid var(--border);backdrop-filter:blur(20px) saturate(1.2);-webkit-backdrop-filter:blur(20px) saturate(1.2)}
 html.light header{background:rgba(247,246,241,.9)}
