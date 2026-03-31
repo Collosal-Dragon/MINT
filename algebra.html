@@ -234,17 +234,6 @@ html.light .sort-btn.active{color:#fff}
 .login-notice{background:rgba(110,231,160,.06);border:1px solid rgba(110,231,160,.15);border-radius:9px;padding:12px 16px;font-size:13.5px;color:var(--text2);margin-bottom:16px}
 html.light .login-notice{background:rgba(30,122,72,.05);border-color:rgba(30,122,72,.15)}
 
-/* ── RADIO TOGGLE (for subtopic type) ── */
-.radio-group{display:flex;gap:8px;flex-wrap:wrap}
-.radio-option{display:flex;align-items:center;gap:7px;padding:8px 14px;border-radius:9px;border:1px solid var(--border2);background:var(--bg3);cursor:pointer;transition:all .15s;font-size:13px;color:var(--text2)}
-.radio-option:hover{border-color:var(--border3);color:var(--text)}
-.radio-option input{display:none}
-.radio-option.selected-structure{background:rgba(122,176,245,.1);border-color:rgba(122,176,245,.35);color:var(--blue);font-weight:600}
-.radio-option.selected-technique{background:rgba(240,192,96,.1);border-color:rgba(240,192,96,.35);color:var(--gold);font-weight:600}
-.radio-dot{width:8px;height:8px;border-radius:50%;background:var(--border3);transition:background .15s;flex-shrink:0}
-.radio-option.selected-structure .radio-dot{background:var(--blue)}
-.radio-option.selected-technique .radio-dot{background:var(--gold)}
-
 /* ── MODAL (shared) ── */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);z-index:200;align-items:flex-start;justify-content:center;padding:24px;overflow-y:auto}
 .modal-overlay.open{display:flex}
@@ -380,8 +369,8 @@ html.light .q-picker-item.selected .q-picker-check svg{color:#fff}
           <button class="post-menu-item" id="menuPostSubtopic">
             <span class="post-menu-icon subtopic">🗂</span>
             <span>
-              <div class="post-menu-label">Post a Subtopic</div>
-              <div class="post-menu-sub">Add a structure or technique tag</div>
+              <div class="post-menu-label">Post a Question</div>
+              <div class="post-menu-sub">Add a question for others to answer</div>
             </span>
           </button>
         </div>
@@ -553,17 +542,47 @@ html.light .q-picker-item.selected .q-picker-check svg{color:#fff}
 </div>
 
 <!-- ══════════════════════════════
-     POST SUBTOPIC MODAL
+     POST QUESTION MODAL
 ═══════════════════════════════ -->
 <div class="modal-overlay" id="postSubModal">
-  <div class="modal" style="max-width:560px">
-    <div class="modal-title">🗂 Post a Subtopic</div>
-    <div class="modal-sub">Suggest a new structure or technique tag for a specific topic area</div>
+  <div class="modal" style="max-width:600px">
+    <div class="modal-title">🗂 Post a Question</div>
+    <div class="modal-sub">Add a new question that others can post intuitions and takeaways under</div>
     <div id="postSubError"></div>
 
-    <!-- Parent topic search -->
+    <!-- Question title with preview -->
     <div class="form-group">
-      <label class="form-label">Parent Topic</label>
+      <label class="form-label">Question Title</label>
+      <div class="preview-toggle">
+        <button class="preview-tab active" id="qTitleWriteTab">Write</button>
+        <button class="preview-tab" id="qTitlePreviewTab">Preview</button>
+      </div>
+      <div class="preview-pane active" id="qTitleWritePane">
+        <input class="form-input" id="newQTitle" placeholder="e.g. Find all $f: \mathbb{R} \to \mathbb{R}$ such that…" />
+      </div>
+      <div class="preview-pane" id="qTitlePreviewPane">
+        <div class="preview-rendered kr" id="qTitlePreviewContent" style="min-height:44px"></div>
+      </div>
+    </div>
+
+    <!-- About / description with preview -->
+    <div class="form-group">
+      <label class="form-label">About <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text3)">(brief description)</span></label>
+      <div class="preview-toggle">
+        <button class="preview-tab active" id="qAboutWriteTab">Write</button>
+        <button class="preview-tab" id="qAboutPreviewTab">Preview</button>
+      </div>
+      <div class="preview-pane active" id="qAboutWritePane">
+        <textarea class="form-textarea" id="newQAbout" style="min-height:70px" placeholder="What is this question about? ($LaTeX$ and ||spoiler|| supported)"></textarea>
+      </div>
+      <div class="preview-pane" id="qAboutPreviewPane">
+        <div class="preview-rendered kr" id="qAboutPreviewContent"></div>
+      </div>
+    </div>
+
+    <!-- Topic -->
+    <div class="form-group">
+      <label class="form-label">Topic</label>
       <div class="q-search-wrap">
         <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <input class="q-search-input" id="subTopicSearch" placeholder="Search topics…" autocomplete="off" />
@@ -572,60 +591,23 @@ html.light .q-picker-item.selected .q-picker-check svg{color:#fff}
       <div id="subTopicChip" style="margin-top:8px"></div>
     </div>
 
-    <!-- Subtopic name -->
-    <div class="form-group">
-      <label class="form-label">Subtopic Name</label>
-      <input class="form-input" id="subName" placeholder="e.g. Vieta Jumping, SOS Method, Telescoping…" maxlength="50" />
-      <div class="char-count" id="subNameCount">0 / 50</div>
-    </div>
-
-    <!-- Type: Structure or Technique -->
-    <div class="form-group">
-      <label class="form-label">Type</label>
-      <div class="radio-group" id="subTypeGroup">
-        <label class="radio-option" id="radioStructure">
-          <input type="radio" name="subType" value="structure" />
-          <span class="radio-dot"></span>
-          <span>
-            <strong>Structure</strong>
-            <span style="display:block;font-size:11px;color:var(--text3);margin-top:1px">Classifies the form or domain of a problem</span>
-          </span>
-        </label>
-        <label class="radio-option" id="radioTechnique">
-          <input type="radio" name="subType" value="technique" />
-          <span class="radio-dot"></span>
-          <span>
-            <strong>Technique</strong>
-            <span style="display:block;font-size:11px;color:var(--text3);margin-top:1px">A method or approach used to solve it</span>
-          </span>
-        </label>
+    <!-- SSC tags (shown once topic selected) -->
+    <div id="newQSscWrap" style="display:none">
+      <div class="form-group">
+        <label class="form-label">Tags <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text3)">(optional)</span></label>
+        <div class="sub-preview show" style="margin-top:0">
+          <div class="sub-preview-label" style="margin-bottom:6px">Structure</div>
+          <div class="sub-preview-tags" id="newQStructureTags"></div>
+          <div class="sub-preview-label" style="margin-top:10px;margin-bottom:6px">Technique</div>
+          <div class="sub-preview-tags" id="newQTechniqueTags"></div>
+        </div>
+        <div id="newQSelectedTags" style="display:flex;flex-wrap:wrap;gap:5px;margin-top:8px"></div>
       </div>
-    </div>
-
-    <!-- Justification -->
-    <div class="form-group">
-      <label class="form-label">Why should this be added? <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text3)">(optional)</span></label>
-      <div class="preview-toggle">
-        <button class="preview-tab active" id="subJustWriteTab">Write</button>
-        <button class="preview-tab" id="subJustPreviewTab">Preview</button>
-      </div>
-      <div class="preview-pane active" id="subJustWritePane">
-        <textarea class="form-textarea" id="subJustification" style="min-height:80px" placeholder="Briefly explain when this subtopic applies… ($LaTeX$ and ||spoiler|| supported)"></textarea>
-      </div>
-      <div class="preview-pane" id="subJustPreviewPane">
-        <div class="preview-rendered kr" id="subJustPreviewContent"></div>
-      </div>
-    </div>
-
-    <!-- Preview of existing tags for the selected topic -->
-    <div class="sub-preview" id="subPreview">
-      <div class="sub-preview-label">Existing tags in this topic</div>
-      <div class="sub-preview-tags" id="subPreviewTags"></div>
     </div>
 
     <div class="modal-footer">
       <button class="btn btn-ghost" id="postSubCancelBtn">Cancel</button>
-      <button class="btn btn-primary" id="postSubSubmitBtn" style="background:var(--teal);box-shadow:0 0 16px rgba(93,216,208,.2)">Submit for Review</button>
+      <button class="btn btn-primary" id="postSubSubmitBtn">Post Question</button>
     </div>
   </div>
 </div>
@@ -907,26 +889,27 @@ function initPostDropdown() {
 
 // ── SUBTOPIC MODAL ────────────────────────────────────────
 let selectedSubTopic = null;
+let selectedNewQTags = new Set();
 
 function openSubModal(preselectedTopic) {
   selectedSubTopic = preselectedTopic || null;
-  document.getElementById('subTopicSearch').value = preselectedTopic || '';
-  document.getElementById('subName').value = '';
-  document.getElementById('subJustification').value = '';
-  document.getElementById('subNameCount').textContent = '0 / 50';
+  selectedNewQTags = new Set();
+  document.getElementById('subTopicSearch').value = '';
+  document.getElementById('newQTitle').value = '';
+  document.getElementById('newQAbout').value = '';
   document.getElementById('postSubError').innerHTML = '';
-  // Reset preview tabs to Write
-  document.getElementById('subJustWriteTab').classList.add('active');
-  document.getElementById('subJustPreviewTab').classList.remove('active');
-  document.getElementById('subJustWritePane').classList.add('active');
-  document.getElementById('subJustPreviewPane').classList.remove('active');
-  document.querySelectorAll('.radio-option').forEach(el => el.classList.remove('selected-structure','selected-technique'));
-  document.querySelectorAll('input[name="subType"]').forEach(r => r.checked = false);
+  // Reset all preview tabs to Write
+  ['qTitle','qAbout'].forEach(k => {
+    document.getElementById(`${k}WriteTab`).classList.add('active');
+    document.getElementById(`${k}PreviewTab`).classList.remove('active');
+    document.getElementById(`${k}WritePane`).classList.add('active');
+    document.getElementById(`${k}PreviewPane`).classList.remove('active');
+  });
   renderSubTopicPicker('');
   renderSubTopicChip();
-  updateSubPreview();
+  renderNewQSscTags();
   document.getElementById('postSubModal').classList.add('open');
-  setTimeout(() => document.getElementById('subTopicSearch').focus(), 80);
+  setTimeout(() => document.getElementById('newQTitle').focus(), 80);
 }
 function closeSubModal() {
   document.getElementById('postSubModal').classList.remove('open');
@@ -934,7 +917,6 @@ function closeSubModal() {
 
 function renderSubTopicPicker(query) {
   const listEl = document.getElementById('subTopicList');
-  // If a topic is already selected, hide the list
   if (selectedSubTopic) { listEl.innerHTML = ''; return; }
   const lq = query.toLowerCase();
   const filtered = SUBS.filter(s => !lq || s.toLowerCase().includes(lq));
@@ -942,17 +924,18 @@ function renderSubTopicPicker(query) {
     `<div class="q-picker-item" data-topic="${s}">
       <span class="q-picker-text">
         <span class="q-picker-title">${esc(s)}</span>
-        <span class="q-picker-sub">${(SSC[s]?.structure.length||0) + (SSC[s]?.technique.length||0)} existing tags</span>
+        <span class="q-picker-sub">${questions.filter(q => q.tags.includes(s)).length} existing questions</span>
       </span>
     </div>`
   ).join('') || `<div style="padding:12px 14px;font-size:13px;color:var(--text3);font-style:italic;font-family:var(--font-serif)">No topics match</div>`;
   listEl.querySelectorAll('.q-picker-item').forEach(item => {
     item.addEventListener('click', () => {
       selectedSubTopic = item.dataset.topic;
+      selectedNewQTags = new Set();
       document.getElementById('subTopicSearch').value = '';
       renderSubTopicPicker('');
       renderSubTopicChip();
-      updateSubPreview();
+      renderNewQSscTags();
     });
   });
 }
@@ -968,63 +951,97 @@ function renderSubTopicChip() {
   </span>`;
   document.getElementById('clearSubTopic').addEventListener('click', () => {
     selectedSubTopic = null;
+    selectedNewQTags = new Set();
     renderSubTopicPicker('');
     renderSubTopicChip();
-    updateSubPreview();
+    renderNewQSscTags();
   });
 }
 
-function updateSubPreview() {
-  const preview = document.getElementById('subPreview');
-  const tagsEl  = document.getElementById('subPreviewTags');
-  if (!selectedSubTopic || !SSC[selectedSubTopic]) { preview.classList.remove('show'); return; }
+function renderNewQSscTags() {
+  const wrap = document.getElementById('newQSscWrap');
+  if (!selectedSubTopic || !SSC[selectedSubTopic]) { wrap.style.display = 'none'; return; }
+  wrap.style.display = 'block';
   const sscData = SSC[selectedSubTopic];
-  tagsEl.innerHTML = [
-    ...sscData.structure.map(n => `<span class="sub-preview-tag structure">${esc(n)}</span>`),
-    ...sscData.technique.map(n => `<span class="sub-preview-tag technique">${esc(n)}</span>`),
-  ].join('');
-  preview.classList.add('show');
+
+  const makeTagBtn = (name, type) => {
+    const tagKey = sscTagName(selectedSubTopic, name, type);
+    const sel = selectedNewQTags.has(tagKey);
+    const col = type === 'technique' ? 'rgba(240,192,96,.15)' : 'rgba(122,176,245,.15)';
+    const colSel = type === 'technique' ? 'rgba(240,192,96,.35)' : 'rgba(122,176,245,.35)';
+    const tc = type === 'technique' ? 'var(--gold)' : 'var(--blue)';
+    const border = sel ? colSel : (type === 'technique' ? 'rgba(240,192,96,.2)' : 'rgba(122,176,245,.2)');
+    const bg = sel ? (type === 'technique' ? 'rgba(240,192,96,.25)' : 'rgba(122,176,245,.25)') : col;
+    return `<span class="sub-preview-tag ${type}" style="cursor:pointer;background:${bg};border-color:${border};color:${tc};outline:${sel?`2px solid ${tc}`:'none'};outline-offset:1px" data-tagkey="${tagKey}">${esc(name)}</span>`;
+  };
+
+  document.getElementById('newQStructureTags').innerHTML = sscData.structure.map(n => makeTagBtn(n,'structure')).join('');
+  document.getElementById('newQTechniqueTags').innerHTML = sscData.technique.map(n => makeTagBtn(n,'technique')).join('');
+
+  document.querySelectorAll('#newQStructureTags [data-tagkey], #newQTechniqueTags [data-tagkey]').forEach(el => {
+    el.addEventListener('click', () => {
+      const key = el.dataset.tagkey;
+      if (selectedNewQTags.has(key)) selectedNewQTags.delete(key); else selectedNewQTags.add(key);
+      renderNewQSscTags();
+    });
+  });
+
+  // Show selected tag chips
+  const selectedEl = document.getElementById('newQSelectedTags');
+  if (selectedNewQTags.size === 0) { selectedEl.innerHTML = ''; return; }
+  selectedEl.innerHTML = [...selectedNewQTags].map(key => {
+    const p = parseSscTag(key); if (!p) return '';
+    const tc = p.type === 'technique' ? 'var(--gold)' : 'var(--blue)';
+    return `<span style="display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:10px;font-size:11px;font-weight:600;background:${p.type==='technique'?'rgba(240,192,96,.12)':'rgba(122,176,245,.12)'};color:${tc};border:1px solid ${p.type==='technique'?'rgba(240,192,96,.25)':'rgba(122,176,245,.25)'}">
+      ${esc(p.name)}
+      <button style="background:none;border:none;cursor:pointer;color:${tc};opacity:.7;padding:0;display:flex;align-items:center" data-rmtag="${key}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </span>`;
+  }).join('');
+  selectedEl.querySelectorAll('[data-rmtag]').forEach(btn => {
+    btn.addEventListener('click', () => { selectedNewQTags.delete(btn.dataset.rmtag); renderNewQSscTags(); });
+  });
 }
+
 async function submitSubtopic() {
   if (!me) { openAuthModal(); return; }
-  const topic = selectedSubTopic;
-  const name  = document.getElementById('subName').value.trim();
-  const type  = document.querySelector('input[name="subType"]:checked')?.value;
-  const justification = document.getElementById('subJustification').value.trim();
+  const title = document.getElementById('newQTitle').value.trim();
+  const about = document.getElementById('newQAbout').value.trim();
 
-  if (!topic) { document.getElementById('postSubError').innerHTML = '<div class="err-box">Please select a parent topic.</div>'; return; }
-  if (!name)  { document.getElementById('postSubError').innerHTML = '<div class="err-box">Please enter a subtopic name.</div>'; return; }
-  if (!type)  { document.getElementById('postSubError').innerHTML = '<div class="err-box">Please select a type (Structure or Technique).</div>'; return; }
-  if (name.length < 2) { document.getElementById('postSubError').innerHTML = '<div class="err-box">Name must be at least 2 characters.</div>'; return; }
-
-  // Check for duplicates in existing SSC
-  const existing = [...(SSC[topic]?.structure||[]), ...(SSC[topic]?.technique||[])];
-  if (existing.some(e => e.toLowerCase() === name.toLowerCase())) {
-    document.getElementById('postSubError').innerHTML = '<div class="err-box">This subtopic already exists in that topic.</div>'; return;
-  }
+  if (!title) { document.getElementById('postSubError').innerHTML = '<div class="err-box">Please enter a question title.</div>'; return; }
+  if (!about) { document.getElementById('postSubError').innerHTML = '<div class="err-box">Please add a brief description.</div>'; return; }
+  if (!selectedSubTopic) { document.getElementById('postSubError').innerHTML = '<div class="err-box">Please select a topic.</div>'; return; }
 
   const btn = document.getElementById('postSubSubmitBtn');
-  btn.disabled = true; btn.textContent = 'Submitting…';
+  btn.disabled = true; btn.textContent = 'Posting…';
 
   try {
-    const { error } = await db.from('subtopic_proposals').insert({
-      parent_topic: topic,
-      name,
-      type,
-      justification: justification || null,
-      author_id: me.id,
-      status: 'pending',
-    });
-    if (error) throw error;
-    showToast('Subtopic submitted for review! Thanks 🎉', 'success');
+    // Insert the question
+    const { data: qData, error: qErr } = await db.from('questions').insert({ title, about, author_id: me.id }).select('id').single();
+    if (qErr) throw qErr;
+    const qid = qData.id;
+
+    // Attach topic tag + any SSC tags
+    const tagNames = [selectedSubTopic, ...selectedNewQTags];
+    // Resolve tag IDs (create if missing)
+    for (const tagName of tagNames) {
+      let { data: tagRow } = await db.from('tags').select('id').eq('name', tagName).eq('category', TOPIC_NAME).maybeSingle();
+      if (!tagRow) {
+        const { data: newTag } = await db.from('tags').insert({ name: tagName, category: TOPIC_NAME }).select('id').single();
+        tagRow = newTag;
+      }
+      if (tagRow?.id) await db.from('question_tags').insert({ question_id: qid, tag_id: tagRow.id });
+    }
+
+    showToast('Question posted!', 'success');
     closeSubModal();
+    await loadQuestions();
+    // Open the new question's detail view
+    const newQ = questions.find(q => q.id === qid);
+    if (newQ) openQuestion(qid);
   } catch(e) {
-    // Table might not exist yet — still show success to user (graceful degradation)
-    console.warn('subtopic_proposals insert failed (table may not exist):', e.message);
-    showToast('Subtopic submitted for review! Thanks 🎉', 'success');
-    closeSubModal();
+    document.getElementById('postSubError').innerHTML = `<div class="err-box">Error: ${e.message}</div>`;
   }
-  btn.disabled = false; btn.textContent = 'Submit for Review';
+  btn.disabled = false; btn.textContent = 'Post Question';
 }
 
 // ── GLOBAL INTUITION MODAL ────────────────────────────────
@@ -1271,36 +1288,28 @@ function bindEvents() {
   document.getElementById('postSubCancelBtn').addEventListener('click', closeSubModal);
   document.getElementById('postSubSubmitBtn').addEventListener('click', submitSubtopic);
   document.getElementById('subTopicSearch').addEventListener('input', e => renderSubTopicPicker(e.target.value));
-  // Subtopic justification live preview
-  document.getElementById('subJustWriteTab').addEventListener('click', () => {
-    document.getElementById('subJustWriteTab').classList.add('active');
-    document.getElementById('subJustPreviewTab').classList.remove('active');
-    document.getElementById('subJustWritePane').classList.add('active');
-    document.getElementById('subJustPreviewPane').classList.remove('active');
-  });
-  document.getElementById('subJustPreviewTab').addEventListener('click', () => {
-    document.getElementById('subJustPreviewTab').classList.add('active');
-    document.getElementById('subJustWriteTab').classList.remove('active');
-    document.getElementById('subJustPreviewPane').classList.add('active');
-    document.getElementById('subJustWritePane').classList.remove('active');
-    const raw = document.getElementById('subJustification').value.trim();
-    const el = document.getElementById('subJustPreviewContent');
-    if (!raw) { el.innerHTML = '<span class="preview-rendered empty">Nothing to preview yet.</span>'; el.classList.remove('preview-rendered'); }
-    else { el.className = 'preview-rendered kr'; el.innerHTML = processText(raw); renderMath(el); }
-  });
-  document.getElementById('subName').addEventListener('input', () => {
-    const len = document.getElementById('subName').value.length;
-    document.getElementById('subNameCount').textContent = `${len} / 50`;
-  });
-  // Radio styling for type
-  document.querySelectorAll('input[name="subType"]').forEach(radio => {
-    radio.addEventListener('change', () => {
-      document.getElementById('radioStructure').classList.remove('selected-structure','selected-technique');
-      document.getElementById('radioTechnique').classList.remove('selected-structure','selected-technique');
-      if (radio.value === 'structure' && radio.checked) document.getElementById('radioStructure').classList.add('selected-structure');
-      if (radio.value === 'technique' && radio.checked) document.getElementById('radioTechnique').classList.add('selected-technique');
+
+  // Post-question modal: title + about live previews
+  const makePreviewToggle = (key, getVal) => {
+    document.getElementById(`${key}WriteTab`).addEventListener('click', () => {
+      document.getElementById(`${key}WriteTab`).classList.add('active');
+      document.getElementById(`${key}PreviewTab`).classList.remove('active');
+      document.getElementById(`${key}WritePane`).classList.add('active');
+      document.getElementById(`${key}PreviewPane`).classList.remove('active');
     });
-  });
+    document.getElementById(`${key}PreviewTab`).addEventListener('click', () => {
+      document.getElementById(`${key}PreviewTab`).classList.add('active');
+      document.getElementById(`${key}WriteTab`).classList.remove('active');
+      document.getElementById(`${key}PreviewPane`).classList.add('active');
+      document.getElementById(`${key}WritePane`).classList.remove('active');
+      const raw = getVal().trim();
+      const el = document.getElementById(`${key}PreviewContent`);
+      if (!raw) { el.innerHTML = '<span style="color:var(--text3);font-style:italic;font-size:13px">Nothing to preview yet.</span>'; }
+      else { el.className = 'preview-rendered kr'; el.innerHTML = processText(raw); renderMath(el); }
+    });
+  };
+  makePreviewToggle('qTitle', () => document.getElementById('newQTitle').value);
+  makePreviewToggle('qAbout', () => document.getElementById('newQAbout').value);
 
   // Back / nav
   document.getElementById('backBtn').addEventListener('click', goBack);
