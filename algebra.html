@@ -15,15 +15,40 @@
 html.light{--bg:#f7f6f1;--bg2:#ffffff;--bg3:#f0ede6;--bg4:#e8e4db;--border:#ddd9d0;--border2:#ccc8be;--border3:#b8b3a8;--text:#1a1814;--text2:#4a4640;--text3:#8a8680;--primary:#1e7a48;--primary2:#155c36;--green:#1e7a48;--red:#c0392b;--gold:#b07820;--blue:#2060c0;--purple:#6040b0;--teal:#0a7a74;--card-bg:#ffffff;--card-hover:#faf9f6;--shadow:0 1px 3px rgba(0,0,0,.06),0 4px 12px rgba(0,0,0,.08);--shadow-lg:0 8px 32px rgba(0,0,0,.12)}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;line-height:1.6;transition:background .25s,color .25s;overflow-x:hidden}
-body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 50% at 20% -10%,rgba(110,231,160,.04) 0%,transparent 60%),radial-gradient(ellipse 60% 40% at 80% 110%,rgba(122,176,245,.03) 0%,transparent 55%);pointer-events:none;z-index:0}
-html.light body::before{background:radial-gradient(ellipse 80% 50% at 20% -10%,rgba(30,122,72,.04) 0%,transparent 60%),radial-gradient(ellipse 60% 40% at 80% 110%,rgba(32,96,192,.03) 0%,transparent 55%)}
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+
+  background:
+    linear-gradient(60deg, rgba(255,255,255,0.03) 25%, transparent 25%) 0 0,
+    linear-gradient(-60deg, rgba(255,255,255,0.03) 25%, transparent 25%) 0 0,
+    linear-gradient(60deg, transparent 75%, rgba(255,255,255,0.03) 75%) 0 0,
+    linear-gradient(-60deg, transparent 75%, rgba(255,255,255,0.03) 75%) 0 0;
+
+  background-size: 60px 100px;
+  opacity: 0.25;
+
+  pointer-events:none;
+  z-index:0;
+}
+html.light body::before{
+  background:
+    linear-gradient(60deg, rgba(0,0,0,0.04) 25%, transparent 25%) 0 0,
+    linear-gradient(-60deg, rgba(0,0,0,0.04) 25%, transparent 25%) 0 0,
+    linear-gradient(60deg, transparent 75%, rgba(0,0,0,0.04) 75%) 0 0,
+    linear-gradient(-60deg, transparent 75%, rgba(0,0,0,0.04) 75%) 0 0;
+
+  background-size: 60px 100px;
+}
 
 /* ── HEADER ── */
-header{position:sticky;top:0;z-index:100;background:rgba(11,12,16,.85);border-bottom:1px solid var(--border);backdrop-filter:blur(20px) saturate(1.2);-webkit-backdrop-filter:blur(20px) saturate(1.2)}
+header{position:sticky;top:0;z-index:100;background:rgba(11,12,16,.85);border-bottom:1px solid var(--border);backdrop-filter:blur(0.3px) saturate(1.2);-webkit-backdrop-filter:blur(0.3px) saturate(1.2)}
 html.light header{background:rgba(247,246,241,.9)}
 .header-inner{max-width:1040px;margin:0 auto;padding:0 28px;height:62px;display:flex;align-items:center;justify-content:space-between;gap:16px}
 .logo{display:flex;align-items:center;gap:12px;text-decoration:none;flex-shrink:0}
 .logo-mark{width:38px;height:38px;background:linear-gradient(135deg,var(--primary) 0%,var(--primary2) 100%);border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:var(--font-disp);font-size:20px;font-weight:900;color:#0b0c10;box-shadow:0 0 20px rgba(110,231,160,.25);flex-shrink:0}
+.logo-mark-img{width:38px;height:38px;object-fit:contain;border-radius:10px;box-shadow:0 0 20px rgba(110,231,160,.25);}
 html.light .logo-mark{color:#fff;box-shadow:0 0 20px rgba(30,122,72,.2)}
 .logo-text{display:flex;flex-direction:column;line-height:1.1}
 .logo-name{font-family:var(--font-disp);font-size:1.15rem;font-weight:700;color:var(--text);letter-spacing:.02em}
@@ -324,13 +349,11 @@ html.light .q-picker-item.selected .q-picker-check svg{color:#fff}
 
 <header>
   <div class="header-inner">
-    <a class="logo" href="index.html">
-      <div class="logo-mark">∑</div>
+    <img src="logo.png" class="logo-mark-img" />
       <div class="logo-text">
         <span class="logo-name">MINT</span>
         <span class="logo-tagline">Math Olympiad Intuition</span>
       </div>
-    </a>
     <div class="header-right">
       <button class="theme-btn" id="themeBtn" title="Toggle theme">
         <svg id="iconDark" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -489,6 +512,10 @@ html.light .q-picker-item.selected .q-picker-check svg{color:#fff}
       </div>
       <div class="link-list" id="intLinkList"></div>
     </div>
+    <div class="form-group">
+      <label class="form-label">Add Image (optional)</label>
+      <input type="file" id="intImage" accept="image/*" />
+    </div>
     <hr class="form-divider"/>
     <div class="form-group">
       <label class="form-label">Problem Link (optional)</label>
@@ -497,6 +524,10 @@ html.light .q-picker-item.selected .q-picker-check svg{color:#fff}
     <div class="form-group">
       <label class="form-label">Additional Context (optional)</label>
       <textarea class="form-textarea" id="intExampleExp" style="min-height:70px"></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Add Image (optional)</label>
+      <input type="file" id="takImage" accept="image/*" />
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" id="postIntCancelBtn">Cancel</button>
@@ -854,6 +885,20 @@ async function fetchVoteCounts(ids, type) {
     const m = {}; (data||[]).forEach(v => { m[v.target_id] = { upvotes:+v.upvotes, downvotes:+v.downvotes }; }); return m;
   } catch { return {}; }
 }
+async function uploadImage(file){
+  const fileName = `${Date.now()}_${file.name}`;
+  const { data, error } = await db.storage
+    .from('post-images')
+    .upload(fileName, file);
+
+  if(error) throw error;
+
+  const { data: urlData } = db.storage
+    .from('post-images')
+    .getPublicUrl(fileName);
+
+  return urlData.publicUrl;
+}
 
 // ── HIGHLIGHT SEARCH TERM ─────────────────────────────────
 function highlightText(text, query) {
@@ -1130,6 +1175,16 @@ function removeGTakLink(i) { gTakState.links.splice(i,1); renderTakLinks(); }
 // ── SUBMIT INTUITION (global) ─────────────────────────────
 async function submitGlobalIntuition() {
   if (!me) { openAuthModal(); return; }
+  const file = document.getElementById('intImage')?.files[0];
+  let imageUrl = null;
+  
+  if(file){
+    try{
+      imageUrl = await uploadImage(file);
+    }catch(e){
+      showToast('Image upload failed','error');
+    }
+  }
   const stmt = document.getElementById('intStatement').value.trim();
   const exp  = document.getElementById('intExplanation').value.trim();
   if (!gIntState.selectedQIds.size) { document.getElementById('postIntError').innerHTML = '<div class="err-box">Please select at least one question.</div>'; return; }
@@ -1142,7 +1197,7 @@ async function submitGlobalIntuition() {
   const qIds   = [...gIntState.selectedQIds];
   let posted = 0, failed = 0;
   for (const qid of qIds) {
-    const { data: d, error: e } = await db.from('intuitions').insert({ question_id: qid, statement: stmt, explanation: exp, example_link: exLink, example_explanation: exExp, author_id: me.id }).select('id').single();
+    const { data: d, error: e } = await db.from('intuitions').insert({ question_id: qid, statement: stmt, explanation: exp, example_link: exLink, example_explanation: exExp, author_id: me.id, image_url: imageUrl }).select('id').single();
     if (e) { failed++; continue; }
     posted++;
     if (gIntState.links.length && d) await db.from('links').insert(gIntState.links.map(url => ({ parent_id: d.id, parent_type: 'intuition', url })));
@@ -1158,6 +1213,16 @@ async function submitGlobalIntuition() {
 // ── SUBMIT TAKEAWAY (global) ──────────────────────────────
 async function submitGlobalTakeaway() {
   if (!me) { openAuthModal(); return; }
+  const file = document.getElementById('takImage')?.files[0];
+  let imageUrl = null;
+  
+  if(file){
+    try{
+      imageUrl = await uploadImage(file);
+    }catch(e){
+      showToast('Image upload failed','error');
+    }
+  }
   const content = document.getElementById('takContent').value.trim();
   if (!gTakState.selectedQIds.size) { document.getElementById('postTakError').innerHTML = '<div class="err-box">Please select at least one question.</div>'; return; }
   if (!content) { document.getElementById('postTakError').innerHTML = '<div class="err-box">Please write your takeaway.</div>'; return; }
@@ -1166,7 +1231,7 @@ async function submitGlobalTakeaway() {
   const qIds = [...gTakState.selectedQIds];
   let posted = 0, failed = 0;
   for (const qid of qIds) {
-    const { data: d, error: e } = await db.from('takeaways').insert({ question_id: qid, content, author_id: me.id }).select('id').single();
+    const { data: d, error: e } = await db.from('takeaways').insert({ question_id: qid, image_url: imageUrl, content, author_id: me.id }).select('id').single();
     if (e) { failed++; continue; }
     posted++;
     if (gTakState.links.length && d) await db.from('links').insert(gTakState.links.map(url => ({ parent_id: d.id, parent_type: 'takeaway', url })));
@@ -1638,6 +1703,7 @@ function intuitionCardHTML(item, idx=0) {
         <div class="i-statement kr">${processText(item.statement)}</div>
         <div class="i-label">Explanation</div>
         <div class="i-explanation kr" id="iexp-${item.id}">${processText(disp)}</div>
+        ${item.image_url ? `<img src="${item.image_url}" style="max-width:100%;border-radius:8px;margin-top:10px"/>` : ''}
         ${trunc?`<button class="btn-link" id="iexpbtn-${item.id}">Show more</button>`:''}
         ${linksHTML}${exHTML}
         <div class="i-footer">
@@ -1689,11 +1755,13 @@ function takeawayCardHTML(item, idx=0) {
       <div class="i-content">
         <div class="i-label">Takeaway by ${esc(item.author)}</div>
         <div class="i-explanation kr" id="texp-${item.id}">${processText(disp)}</div>
+        ${item.image_url ? `<img src="${item.image_url}" style="max-width:100%;border-radius:8px;margin-top:10px"/>` : ''}
         ${trunc?`<button class="btn-link" id="texpbtn-${item.id}">Show more</button>`:''}
         ${linksHTML}
         <div class="i-footer">
           <span>${item.createdAt}${item.edited?' <span style="color:var(--text3);font-size:11px">(edited)</span>':''}</span>
           <div style="display:flex;align-items:center;gap:6px">
+          <button class="btn-edit" data-reportid="${item.id}" data-reporttype="i">⚠ Report</button>
             ${editBtn}
             <button class="comment-btn" data-cid="${item.id}" data-ctype="t"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>${cc} comment${cc!==1?'s':''}</button>
           </div>
@@ -1721,7 +1789,34 @@ function takeawayCardHTML(item, idx=0) {
     <div class="comments-section" id="comments-t-${item.id}">${cHTML}<div class="comment-form"><textarea class="comment-input" id="ctext-t-${item.id}" placeholder="Add a comment…"></textarea><button class="btn btn-primary btn-sm" data-postid="${item.id}" data-posttype="t">Post</button></div></div>
   </div>`;
 }
+document.addEventListener('click', async e => {
+  const btn = e.target.closest('[data-reportid]');
+  if(!btn) return;
 
+  if(!me){
+    openAuthModal();
+    return;
+  }
+
+  const id = btn.dataset.reportid;
+  const type = btn.dataset.reporttype === 'i' ? 'intuition' : 'takeaway';
+
+  const reason = prompt("Why are you reporting this?");
+  if(!reason) return;
+
+  const { error } = await db.from('reports').insert({
+    target_id: id,
+    target_type: type,
+    reason,
+    user_id: me.id
+  });
+
+  if(error){
+    showToast('Report failed','error');
+  }else{
+    showToast('Reported successfully','success');
+  }
+});
 document.addEventListener('click', e => {
   // Expand/collapse
   const expBtn = e.target.closest('[id^="iexpbtn-"],[id^="texpbtn-"]');
