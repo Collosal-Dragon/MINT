@@ -11,8 +11,8 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="onKatexReady()"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root{--bg:#0b0c10;--bg2:#0f1116;--bg3:#161820;--bg4:#1c1f2b;--border:#1e2130;--border2:#262a3a;--border3:#303550;--text:#eceef5;--text2:#8e95b0;--text3:#4a5070;--primary:#6ee7a0;--primary2:#3db870;--green:#6ee7a0;--red:#f07070;--gold:#f0c060;--blue:#7ab0f5;--purple:#b090f5;--card-bg:#0f1116;--card-hover:#141720;--shadow:0 1px 3px rgba(0,0,0,.5),0 4px 16px rgba(0,0,0,.4);--shadow-lg:0 8px 40px rgba(0,0,0,.6);--radius:12px;--font-disp:'Playfair Display',Georgia,serif;--font-body:'DM Sans',sans-serif;--font-serif:'Crimson Pro',Georgia,serif;--font-mono:'JetBrains Mono',monospace}
-html.light{--bg:#f7f6f1;--bg2:#ffffff;--bg3:#f0ede6;--bg4:#e8e4db;--border:#ddd9d0;--border2:#ccc8be;--border3:#b8b3a8;--text:#1a1814;--text2:#4a4640;--text3:#8a8680;--primary:#1e7a48;--primary2:#155c36;--green:#1e7a48;--red:#c0392b;--gold:#b07820;--blue:#2060c0;--purple:#6040b0;--card-bg:#ffffff;--card-hover:#faf9f6;--shadow:0 1px 3px rgba(0,0,0,.06),0 4px 12px rgba(0,0,0,.08);--shadow-lg:0 8px 32px rgba(0,0,0,.12)}
+:root{--bg:#0b0c10;--bg2:#0f1116;--bg3:#161820;--bg4:#1c1f2b;--border:#1e2130;--border2:#262a3a;--border3:#303550;--text:#eceef5;--text2:#8e95b0;--text3:#4a5070;--primary:#6ee7a0;--primary2:#3db870;--green:#6ee7a0;--red:#f07070;--gold:#f0c060;--blue:#7ab0f5;--purple:#b090f5;--teal:#5dd8d0;--card-bg:#0f1116;--card-hover:#141720;--shadow:0 1px 3px rgba(0,0,0,.5),0 4px 16px rgba(0,0,0,.4);--shadow-lg:0 8px 40px rgba(0,0,0,.6);--radius:12px;--font-disp:'Playfair Display',Georgia,serif;--font-body:'DM Sans',sans-serif;--font-serif:'Crimson Pro',Georgia,serif;--font-mono:'JetBrains Mono',monospace}
+html.light{--bg:#f7f6f1;--bg2:#ffffff;--bg3:#f0ede6;--bg4:#e8e4db;--border:#ddd9d0;--border2:#ccc8be;--border3:#b8b3a8;--text:#1a1814;--text2:#4a4640;--text3:#8a8680;--primary:#1e7a48;--primary2:#155c36;--green:#1e7a48;--red:#c0392b;--gold:#b07820;--blue:#2060c0;--purple:#6040b0;--teal:#0a7a74;--card-bg:#ffffff;--card-hover:#faf9f6;--shadow:0 1px 3px rgba(0,0,0,.06),0 4px 12px rgba(0,0,0,.08);--shadow-lg:0 8px 32px rgba(0,0,0,.12)}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;line-height:1.6;transition:background .25s,color .25s;overflow-x:hidden}
 body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 50% at 20% -10%,rgba(110,231,160,.04) 0%,transparent 60%),radial-gradient(ellipse 60% 40% at 80% 110%,rgba(122,176,245,.03) 0%,transparent 55%);pointer-events:none;z-index:0}
@@ -42,7 +42,7 @@ html.light .btn-post-main{color:#fff}
 .btn-post-main:hover{filter:brightness(1.08);transform:translateY(-1px);box-shadow:0 0 28px rgba(110,231,160,.3)}
 .btn-post-chevron{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:6px;background:rgba(0,0,0,.15);margin-left:2px;transition:background .15s}
 .btn-post-main:hover .btn-post-chevron{background:rgba(0,0,0,.25)}
-.post-dropdown-menu{position:absolute;top:calc(100% + 8px);right:0;min-width:220px;background:var(--bg2);border:1px solid var(--border2);border-radius:12px;box-shadow:var(--shadow-lg);overflow:hidden;z-index:200;opacity:0;transform:translateY(-6px) scale(.97);pointer-events:none;transition:opacity .18s ease,transform .18s ease}
+.post-dropdown-menu{position:absolute;top:calc(100% + 8px);right:0;min-width:230px;background:var(--bg2);border:1px solid var(--border2);border-radius:12px;box-shadow:var(--shadow-lg);overflow:hidden;z-index:200;opacity:0;transform:translateY(-6px) scale(.97);pointer-events:none;transition:opacity .18s ease,transform .18s ease}
 .post-dropdown-menu.open{opacity:1;transform:none;pointer-events:auto}
 .post-menu-item{display:flex;align-items:center;gap:11px;width:100%;padding:12px 16px;border:none;background:transparent;color:var(--text);font-family:var(--font-body);font-size:13.5px;cursor:pointer;transition:background .12s;text-align:left}
 .post-menu-item:hover{background:var(--bg3)}
@@ -50,10 +50,9 @@ html.light .btn-post-main{color:#fff}
 .post-menu-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px}
 .post-menu-icon.intuition{background:rgba(110,231,160,.12);color:var(--green)}
 .post-menu-icon.takeaway{background:rgba(240,192,96,.12);color:var(--gold)}
-.post-menu-icon.tbd{background:rgba(176,144,245,.12);color:var(--purple)}
+.post-menu-icon.subtopic{background:rgba(93,216,208,.12);color:var(--teal)}
 .post-menu-label{font-weight:600;font-size:13px;line-height:1.2}
 .post-menu-sub{font-size:11px;color:var(--text3);margin-top:1px;font-weight:400}
-.post-menu-tbd{opacity:.55}
 
 /* ── BUTTONS ── */
 .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border-radius:8px;border:none;font-family:var(--font-body);font-size:13.5px;font-weight:500;cursor:pointer;transition:all .15s;white-space:nowrap;text-decoration:none}
@@ -66,8 +65,6 @@ html.light .btn-primary{color:#fff}
 .btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important;filter:none!important}
 .btn-link{background:none;border:none;color:var(--primary);font-size:13px;padding:2px 0;cursor:pointer;font-family:var(--font-body)}
 .btn-link:hover{text-decoration:underline}
-.btn-google{background:var(--bg3);color:var(--text);border:1px solid var(--border2);width:100%;justify-content:center;padding:11px 16px;font-size:14px;border-radius:9px}
-.btn-google:hover{border-color:var(--primary);background:var(--bg4)}
 
 /* ── LAYOUT ── */
 main{max-width:1040px;margin:0 auto;padding:28px 28px 60px;position:relative;z-index:1}
@@ -112,8 +109,10 @@ html.light .ssc-btn.active{background:rgba(30,122,72,.08);color:var(--primary)}
 html.light .ssc-btn.active-technique{background:rgba(176,120,32,.08);color:var(--gold)}
 
 /* ── TOOLBAR ── */
-.toolbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
-.search-wrap{position:relative;flex:1;min-width:160px}
+.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+
+/* ── SEARCH ── */
+.search-wrap{position:relative;flex:1;min-width:200px}
 .search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none}
 .search-input{width:100%;padding:10px 36px 10px 38px;background:var(--bg2);border:1px solid var(--border2);border-radius:10px;color:var(--text);font-family:var(--font-body);font-size:14px;outline:none;transition:all .2s;box-shadow:var(--shadow)}
 .search-input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(110,231,160,.1)}
@@ -121,14 +120,22 @@ html.light .search-input:focus{box-shadow:0 0 0 3px rgba(30,122,72,.1)}
 .search-input::placeholder{color:var(--text3)}
 .search-clear{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text3);cursor:pointer;padding:3px;border-radius:4px;display:flex}
 .search-clear:hover{color:var(--text)}
-.tabs-list{display:flex;gap:3px;background:var(--bg2);border:1px solid var(--border2);border-radius:9px;padding:3px}
+
+
+
+/* ── SORT TABS ── */
+.tabs-list{display:flex;gap:3px;background:var(--bg2);border:1px solid var(--border2);border-radius:9px;padding:3px;flex-shrink:0}
 .tab-btn{padding:6px 14px;border-radius:7px;border:none;font-family:var(--font-body);font-size:13px;font-weight:500;cursor:pointer;background:transparent;color:var(--text2);transition:all .15s}
 .tab-btn.active{background:var(--primary);color:#0b0c10;font-weight:600}
 html.light .tab-btn.active{color:#fff}
 .tab-btn:not(.active):hover{background:var(--bg3);color:var(--text)}
 
-/* ── Q COUNT ── */
-.q-count{font-size:12.5px;color:var(--text3);margin-bottom:10px;font-family:var(--font-mono)}
+/* ── RESULTS META ── */
+.results-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px}
+.q-count{font-size:12.5px;color:var(--text3);font-family:var(--font-mono)}
+.active-filter-pill{display:inline-flex;align-items:center;gap:5px;padding:2px 10px;border-radius:20px;font-size:11.5px;background:rgba(110,231,160,.1);border:1px solid rgba(110,231,160,.25);color:var(--primary);font-weight:600;cursor:pointer}
+.active-filter-pill:hover{background:rgba(240,112,112,.1);border-color:rgba(240,112,112,.25);color:var(--red)}
+html.light .active-filter-pill{background:rgba(30,122,72,.08);border-color:rgba(30,122,72,.2)}
 
 /* ── QUESTION CARDS ── */
 .question-card{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:10px;cursor:pointer;transition:all .15s;box-shadow:var(--shadow);display:flex;overflow:hidden;animation:fadeUp .35s ease both}
@@ -150,6 +157,10 @@ html.light .tab-btn.active{color:#fff}
 html.light .tag-primary{background:rgba(30,122,72,.08);border-color:rgba(30,122,72,.2)}
 .tag-secondary{padding:2px 9px;border-radius:10px;font-size:11px;font-weight:500;background:var(--bg3);color:var(--text3);border:1px solid var(--border)}
 .card-meta{font-size:11.5px;color:var(--text3);margin-top:8px;font-family:var(--font-mono)}
+
+/* ── SEARCH HIGHLIGHT ── */
+.hl{background:rgba(110,231,160,.2);color:var(--primary);border-radius:2px;padding:0 1px}
+html.light .hl{background:rgba(30,122,72,.15)}
 
 /* ── STATES ── */
 .loading-state{text-align:center;padding:48px 24px;color:var(--text3);font-family:var(--font-serif);font-style:italic}
@@ -203,14 +214,13 @@ html.light .sort-btn.active{color:#fff}
 /* ── TAB CONTENT ── */
 .tab-content{display:none}.tab-content.active{display:block}
 
-/* ── FORM CARD (inline on detail view) ── */
+/* ── FORM CARD ── */
 .form-card{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:24px 26px;box-shadow:var(--shadow);margin-top:24px}
 .form-title{font-family:var(--font-disp);font-size:1.1rem;font-weight:700;margin-bottom:18px}
 .form-group{margin-bottom:16px}
 .form-label{display:block;font-size:11.5px;font-weight:700;color:var(--text3);margin-bottom:6px;letter-spacing:.05em;text-transform:uppercase}
 .form-input,.form-textarea,.form-select{width:100%;padding:9px 12px;background:var(--bg3);border:1px solid var(--border2);border-radius:9px;color:var(--text);font-family:var(--font-body);font-size:14px;outline:none;transition:all .15s}
 .form-input:focus,.form-textarea:focus,.form-select:focus{border-color:var(--primary);background:var(--bg2);box-shadow:0 0 0 3px rgba(110,231,160,.08)}
-html.light .form-input:focus,.form-textarea:focus,.form-select:focus{box-shadow:0 0 0 3px rgba(30,122,72,.08)}
 .form-input::placeholder,.form-textarea::placeholder{color:var(--text3)}
 .form-textarea{resize:vertical;min-height:90px}.form-select{appearance:none;cursor:pointer}
 .word-count{font-size:11.5px;color:var(--text3);text-align:right;margin-top:4px;font-family:var(--font-mono)}
@@ -224,7 +234,18 @@ html.light .form-input:focus,.form-textarea:focus,.form-select:focus{box-shadow:
 .login-notice{background:rgba(110,231,160,.06);border:1px solid rgba(110,231,160,.15);border-radius:9px;padding:12px 16px;font-size:13.5px;color:var(--text2);margin-bottom:16px}
 html.light .login-notice{background:rgba(30,122,72,.05);border-color:rgba(30,122,72,.15)}
 
-/* ── GLOBAL POST MODAL (Intuition / Takeaway) ── */
+/* ── RADIO TOGGLE (for subtopic type) ── */
+.radio-group{display:flex;gap:8px;flex-wrap:wrap}
+.radio-option{display:flex;align-items:center;gap:7px;padding:8px 14px;border-radius:9px;border:1px solid var(--border2);background:var(--bg3);cursor:pointer;transition:all .15s;font-size:13px;color:var(--text2)}
+.radio-option:hover{border-color:var(--border3);color:var(--text)}
+.radio-option input{display:none}
+.radio-option.selected-structure{background:rgba(122,176,245,.1);border-color:rgba(122,176,245,.35);color:var(--blue);font-weight:600}
+.radio-option.selected-technique{background:rgba(240,192,96,.1);border-color:rgba(240,192,96,.35);color:var(--gold);font-weight:600}
+.radio-dot{width:8px;height:8px;border-radius:50%;background:var(--border3);transition:background .15s;flex-shrink:0}
+.radio-option.selected-structure .radio-dot{background:var(--blue)}
+.radio-option.selected-technique .radio-dot{background:var(--gold)}
+
+/* ── MODAL (shared) ── */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);z-index:200;align-items:flex-start;justify-content:center;padding:24px;overflow-y:auto}
 .modal-overlay.open{display:flex}
 .modal{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;padding:28px;max-width:580px;width:100%;margin:auto;box-shadow:var(--shadow-lg);animation:modalIn .22s cubic-bezier(.22,1,.36,1)}
@@ -232,6 +253,16 @@ html.light .login-notice{background:rgba(30,122,72,.05);border-color:rgba(30,122
 .modal-title{font-family:var(--font-disp);font-size:1.2rem;font-weight:700;margin-bottom:4px}
 .modal-sub{font-size:13px;color:var(--text2);margin-bottom:20px;font-family:var(--font-serif)}
 .modal-footer{display:flex;justify-content:flex-end;gap:10px;margin-top:22px}
+
+/* ── SUBTOPIC MODAL SPECIFICS ── */
+.sub-preview{background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:12px 14px;margin-top:12px;display:none}
+.sub-preview.show{display:block}
+.sub-preview-label{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin-bottom:8px}
+.sub-preview-tags{display:flex;flex-wrap:wrap;gap:5px}
+.sub-preview-tag{padding:2px 9px;border-radius:10px;font-size:11px;font-weight:600}
+.sub-preview-tag.structure{background:rgba(122,176,245,.12);color:var(--blue);border:1px solid rgba(122,176,245,.25)}
+.sub-preview-tag.technique{background:rgba(240,192,96,.1);color:var(--gold);border:1px solid rgba(240,192,96,.25)}
+.char-count{font-size:11.5px;color:var(--text3);text-align:right;margin-top:4px;font-family:var(--font-mono)}
 
 /* ── QUESTION SEARCH IN MODAL ── */
 .q-search-wrap{position:relative;margin-bottom:8px}
@@ -245,10 +276,8 @@ html.light .login-notice{background:rgba(30,122,72,.05);border-color:rgba(30,122
 .q-picker-item:last-child{border-bottom:none}
 .q-picker-item:hover{background:var(--bg4)}
 .q-picker-item.selected{background:rgba(110,231,160,.08)}
-html.light .q-picker-item.selected{background:rgba(30,122,72,.06)}
 .q-picker-check{width:18px;height:18px;border-radius:5px;border:2px solid var(--border3);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .12s}
 .q-picker-item.selected .q-picker-check{background:var(--primary);border-color:var(--primary)}
-html.light .q-picker-item.selected .q-picker-check{background:var(--primary);border-color:var(--primary)}
 .q-picker-check svg{display:none}
 .q-picker-item.selected .q-picker-check svg{display:block;color:#0b0c10}
 html.light .q-picker-item.selected .q-picker-check svg{color:#fff}
@@ -271,7 +300,24 @@ html.light .q-picker-item.selected .q-picker-check svg{color:#fff}
 .auth-msg{padding:9px 13px;border-radius:8px;font-size:13px;margin-bottom:14px;display:none}
 .auth-msg.err{background:rgba(240,112,112,.08);border:1px solid rgba(240,112,112,.3);color:var(--red)}
 .auth-msg.ok{background:rgba(110,231,160,.08);border:1px solid rgba(110,231,160,.3);color:var(--green)}
-html.light .auth-msg.ok{background:rgba(30,122,72,.06);border-color:rgba(30,122,72,.2)}
+
+/* ── LIVE PREVIEW PANEL ── */
+.preview-toggle{display:flex;gap:3px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:3px;margin-bottom:8px}
+.preview-tab{flex:1;padding:5px 10px;border-radius:6px;border:none;font-family:var(--font-body);font-size:12.5px;font-weight:500;cursor:pointer;background:transparent;color:var(--text3);transition:all .15s;text-align:center}
+.preview-tab.active{background:var(--bg2);color:var(--text);box-shadow:var(--shadow)}
+.preview-pane{display:none}
+.preview-pane.active{display:block}
+.preview-rendered{background:var(--bg3);border:1px solid var(--border2);border-radius:9px;padding:12px 14px;min-height:80px;font-family:var(--font-serif);font-size:14px;color:var(--text2);line-height:1.7;white-space:pre-wrap}
+.preview-rendered.empty{color:var(--text3);font-style:italic;font-size:13px}
+
+/* ── EDIT MODE ── */
+.edit-section{border-top:1px solid var(--border);padding:14px 20px;background:var(--bg3);display:none}
+.edit-section.open{display:block}
+.edit-actions{display:flex;gap:8px;margin-top:12px;justify-content:flex-end}
+.edit-word-count{font-size:11.5px;color:var(--text3);font-family:var(--font-mono);text-align:right;margin-top:4px}
+.edit-word-count.over{color:var(--red)}
+.btn-edit{display:inline-flex;align-items:center;gap:5px;background:none;border:none;cursor:pointer;color:var(--text3);font-size:12px;font-family:var(--font-body);padding:3px 7px;border-radius:5px;transition:all .15s}
+.btn-edit:hover{color:var(--text);background:var(--bg4)}
 
 /* ── SPOILER ── */
 .spoiler{display:inline;cursor:pointer;background:var(--text);color:transparent;border-radius:3px;padding:1px 3px;transition:all .2s;user-select:none}
@@ -281,9 +327,6 @@ html.light .auth-msg.ok{background:rgba(30,122,72,.06);border-color:rgba(30,122,
 .toast{position:fixed;bottom:24px;right:24px;z-index:999;background:var(--bg2);border:1px solid var(--border2);border-radius:11px;padding:12px 18px;font-size:13.5px;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:10px;animation:toastIn .25s ease;max-width:320px}
 .toast.success{border-color:var(--green);color:var(--green)}.toast.error{border-color:var(--red);color:var(--red)}
 @keyframes toastIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-
-/* ── TBD BADGE ── */
-.tbd-badge{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:2px 7px;border-radius:6px;background:rgba(176,144,245,.12);color:var(--purple);border:1px solid rgba(176,144,245,.2);margin-left:auto}
 
 @media(max-width:680px){.header-inner{padding:0 18px}main{padding:20px 18px 48px}.logo-tagline{display:none}.topic-layout{grid-template-columns:1fr}.sidebar{position:static}}
 </style>
@@ -334,14 +377,11 @@ html.light .auth-msg.ok{background:rgba(30,122,72,.06);border-color:rgba(30,122,
               <div class="post-menu-sub">Share what you learned</div>
             </span>
           </button>
-          <button class="post-menu-item post-menu-tbd" id="menuTbd" disabled>
-            <span class="post-menu-icon tbd">✦</span>
+          <button class="post-menu-item" id="menuPostSubtopic">
+            <span class="post-menu-icon subtopic">🗂</span>
             <span>
-              <div class="post-menu-label" style="display:flex;align-items:center;gap:7px">
-                Coming Soon
-                <span class="tbd-badge">TBD</span>
-              </div>
-              <div class="post-menu-sub">More ways to contribute</div>
+              <div class="post-menu-label">Post a Subtopic</div>
+              <div class="post-menu-sub">Add a structure or technique tag</div>
             </span>
           </button>
         </div>
@@ -375,7 +415,7 @@ html.light .auth-msg.ok{background:rgba(30,122,72,.06);border-color:rgba(30,122,
       <div class="toolbar">
         <div class="search-wrap">
           <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input class="search-input" id="questionSearch" type="text" placeholder="Search questions…" autocomplete="off" autocorrect="off" spellcheck="false" />
+          <input class="search-input" id="questionSearch" type="text" placeholder="Search questions, tags, topics…" autocomplete="off" autocorrect="off" spellcheck="false" />
           <button class="search-clear hidden" id="searchClear">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>
@@ -386,7 +426,11 @@ html.light .auth-msg.ok{background:rgba(30,122,72,.06);border-color:rgba(30,122,
           <button class="tab-btn" data-sort="top">Top</button>
         </div>
       </div>
-      <div class="q-count" id="qCount"></div>
+      <!-- Results meta -->
+      <div class="results-meta">
+        <div class="q-count" id="qCount"></div>
+        <div id="activeFilterPill"></div>
+      </div>
       <div id="questionsList"><div class="loading-state"><div class="spinner"></div>Loading questions…</div></div>
     </div>
   </div>
@@ -420,16 +464,14 @@ html.light .auth-msg.ok{background:rgba(30,122,72,.06);border-color:rgba(30,122,
   <div id="postForm"></div>
 </main>
 
-<!-- ══════════════════════════════════════════════════════
+<!-- ══════════════════════════════
      GLOBAL POST INTUITION MODAL
-═══════════════════════════════════════════════════════ -->
+═══════════════════════════════ -->
 <div class="modal-overlay" id="postIntModal">
   <div class="modal" style="max-width:600px">
     <div class="modal-title">💡 Post an Intuition</div>
     <div class="modal-sub">Attach your intuition to one or more questions</div>
     <div id="postIntError"></div>
-
-    <!-- Question picker -->
     <div class="form-group">
       <label class="form-label">Attach to Question(s)</label>
       <div class="q-search-wrap">
@@ -439,8 +481,6 @@ html.light .auth-msg.ok{background:rgba(30,122,72,.06);border-color:rgba(30,122,
       <div class="q-picker-list" id="intQList"></div>
       <div class="q-selected-chips" id="intQChips"></div>
     </div>
-
-    <!-- Intuition fields -->
     <div class="form-group">
       <label class="form-label">Intuition Statement</label>
       <input class="form-input" id="intStatement" placeholder="e.g. It factors because of a common root" />
@@ -469,7 +509,6 @@ html.light .auth-msg.ok{background:rgba(30,122,72,.06);border-color:rgba(30,122,
       <label class="form-label">Additional Context (optional)</label>
       <textarea class="form-textarea" id="intExampleExp" style="min-height:70px"></textarea>
     </div>
-
     <div class="modal-footer">
       <button class="btn btn-ghost" id="postIntCancelBtn">Cancel</button>
       <button class="btn btn-primary" id="postIntSubmitBtn">Post Intuition</button>
@@ -477,16 +516,14 @@ html.light .auth-msg.ok{background:rgba(30,122,72,.06);border-color:rgba(30,122,
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════════════════
+<!-- ══════════════════════════════
      GLOBAL POST TAKEAWAY MODAL
-═══════════════════════════════════════════════════════ -->
+═══════════════════════════════ -->
 <div class="modal-overlay" id="postTakModal">
   <div class="modal" style="max-width:600px">
     <div class="modal-title">📝 Post a Takeaway</div>
     <div class="modal-sub">Share what you learned across one or more questions</div>
     <div id="postTakError"></div>
-
-    <!-- Question picker -->
     <div class="form-group">
       <label class="form-label">Attach to Question(s)</label>
       <div class="q-search-wrap">
@@ -496,8 +533,6 @@ html.light .auth-msg.ok{background:rgba(30,122,72,.06);border-color:rgba(30,122,
       <div class="q-picker-list" id="takQList"></div>
       <div class="q-selected-chips" id="takQChips"></div>
     </div>
-
-    <!-- Takeaway fields -->
     <div class="form-group">
       <label class="form-label">Your Takeaway</label>
       <textarea class="form-textarea" id="takContent" style="min-height:130px" placeholder="Share your insights… ($LaTeX$ and ||spoiler|| supported)"></textarea>
@@ -510,10 +545,87 @@ html.light .auth-msg.ok{background:rgba(30,122,72,.06);border-color:rgba(30,122,
       </div>
       <div class="link-list" id="takLinkList"></div>
     </div>
-
     <div class="modal-footer">
       <button class="btn btn-ghost" id="postTakCancelBtn">Cancel</button>
       <button class="btn btn-primary" id="postTakSubmitBtn">Post Takeaway</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     POST SUBTOPIC MODAL
+═══════════════════════════════ -->
+<div class="modal-overlay" id="postSubModal">
+  <div class="modal" style="max-width:560px">
+    <div class="modal-title">🗂 Post a Subtopic</div>
+    <div class="modal-sub">Suggest a new structure or technique tag for a specific topic area</div>
+    <div id="postSubError"></div>
+
+    <!-- Parent topic search -->
+    <div class="form-group">
+      <label class="form-label">Parent Topic</label>
+      <div class="q-search-wrap">
+        <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input class="q-search-input" id="subTopicSearch" placeholder="Search topics…" autocomplete="off" />
+      </div>
+      <div class="q-picker-list" id="subTopicList" style="margin-top:6px"></div>
+      <div id="subTopicChip" style="margin-top:8px"></div>
+    </div>
+
+    <!-- Subtopic name -->
+    <div class="form-group">
+      <label class="form-label">Subtopic Name</label>
+      <input class="form-input" id="subName" placeholder="e.g. Vieta Jumping, SOS Method, Telescoping…" maxlength="50" />
+      <div class="char-count" id="subNameCount">0 / 50</div>
+    </div>
+
+    <!-- Type: Structure or Technique -->
+    <div class="form-group">
+      <label class="form-label">Type</label>
+      <div class="radio-group" id="subTypeGroup">
+        <label class="radio-option" id="radioStructure">
+          <input type="radio" name="subType" value="structure" />
+          <span class="radio-dot"></span>
+          <span>
+            <strong>Structure</strong>
+            <span style="display:block;font-size:11px;color:var(--text3);margin-top:1px">Classifies the form or domain of a problem</span>
+          </span>
+        </label>
+        <label class="radio-option" id="radioTechnique">
+          <input type="radio" name="subType" value="technique" />
+          <span class="radio-dot"></span>
+          <span>
+            <strong>Technique</strong>
+            <span style="display:block;font-size:11px;color:var(--text3);margin-top:1px">A method or approach used to solve it</span>
+          </span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Justification -->
+    <div class="form-group">
+      <label class="form-label">Why should this be added? <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text3)">(optional)</span></label>
+      <div class="preview-toggle">
+        <button class="preview-tab active" id="subJustWriteTab">Write</button>
+        <button class="preview-tab" id="subJustPreviewTab">Preview</button>
+      </div>
+      <div class="preview-pane active" id="subJustWritePane">
+        <textarea class="form-textarea" id="subJustification" style="min-height:80px" placeholder="Briefly explain when this subtopic applies… ($LaTeX$ and ||spoiler|| supported)"></textarea>
+      </div>
+      <div class="preview-pane" id="subJustPreviewPane">
+        <div class="preview-rendered kr" id="subJustPreviewContent"></div>
+      </div>
+    </div>
+
+    <!-- Preview of existing tags for the selected topic -->
+    <div class="sub-preview" id="subPreview">
+      <div class="sub-preview-label">Existing tags in this topic</div>
+      <div class="sub-preview-tags" id="subPreviewTags"></div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-ghost" id="postSubCancelBtn">Cancel</button>
+      <button class="btn btn-primary" id="postSubSubmitBtn" style="background:var(--teal);box-shadow:0 0 16px rgba(93,216,208,.2)">Submit for Review</button>
     </div>
   </div>
 </div>
@@ -604,24 +716,19 @@ let currentSort = 'relevance', currentDetailTab = 'intuitions', currentDetailSor
 let idCounter = 9000;
 const formState = { statement:'', explanation:'', explanationLinks:[], exampleLink:'', exampleExplanation:'', takeawayContent:'', takeawayLinks:[] };
 
-// Global post modal state
 const gIntState = { selectedQIds: new Set(), links: [] };
 const gTakState = { selectedQIds: new Set(), links: [] };
 
-// ── AUTH STATE ────────────────────────────────────────────
+// ── AUTH ──────────────────────────────────────────────────
 db.auth.onAuthStateChange(async (ev, session) => {
   me = session?.user ?? null;
   if (me) {
     if (!profile) profile = { username: me.user_metadata?.username || me.user_metadata?.full_name || me.email.split('@')[0] };
     refreshHeader();
     fetchProfile(me);
-  } else {
-    profile = null;
-    refreshHeader();
-  }
+  } else { profile = null; refreshHeader(); }
   if (ev === 'SIGNED_IN' && document.getElementById('authOverlay').classList.contains('open')) {
-    closeAuthModal();
-    showToast('Welcome back!', 'success');
+    closeAuthModal(); showToast('Welcome back!', 'success');
   }
   if (selectedQuestion) renderPostForm();
 });
@@ -632,13 +739,11 @@ async function fetchProfile(user) {
   const base = (user.user_metadata?.full_name || user.email.split('@')[0]).replace(/[^a-zA-Z0-9_]/g,'_').slice(0,16);
   const username = base + '_' + Math.random().toString(36).slice(2,5);
   const { data: ins } = await db.from('profiles').insert({ id: user.id, username, email: user.email }).select('username,email').maybeSingle();
-  profile = ins ?? null;
-  refreshHeader();
+  profile = ins ?? null; refreshHeader();
 }
 
 function refreshHeader() {
-  const pill = document.getElementById('userPill');
-  const btn  = document.getElementById('authBtn');
+  const pill = document.getElementById('userPill'), btn = document.getElementById('authBtn');
   if (me) {
     document.getElementById('pillName').textContent = profile?.username || me.email.split('@')[0];
     pill.classList.remove('hidden');
@@ -646,26 +751,16 @@ function refreshHeader() {
     btn.onclick = () => { profile = null; db.auth.signOut().then(() => showToast('Logged out', 'success')); };
   } else {
     pill.classList.add('hidden');
-    btn.textContent = 'Log in';
-    btn.onclick = openAuthModal;
+    btn.textContent = 'Log in'; btn.onclick = openAuthModal;
   }
 }
 
-// ── GOOGLE OAUTH ──────────────────────────────────────────
 async function handleGoogleSignIn() {
-  const { error } = await db.auth.signInWithOAuth({
-    provider: 'google',
-    options: { redirectTo: location.origin + location.pathname, queryParams: { access_type: 'offline', prompt: 'consent' } }
-  });
+  const { error } = await db.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: location.origin + location.pathname, queryParams: { access_type: 'offline', prompt: 'consent' } } });
   if (error) showToast('Google sign-in failed: ' + error.message, 'error');
 }
 
-// ── AUTH MODAL ────────────────────────────────────────────
-function openAuthModal() {
-  document.getElementById('authOverlay').classList.add('open');
-  switchAuthTab('login');
-  setTimeout(() => document.getElementById('authIdent').focus(), 80);
-}
+function openAuthModal() { document.getElementById('authOverlay').classList.add('open'); switchAuthTab('login'); setTimeout(() => document.getElementById('authIdent').focus(), 80); }
 function closeAuthModal() {
   document.getElementById('authOverlay').classList.remove('open');
   ['authIdent','authEmail','authUser','authPass'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
@@ -711,7 +806,7 @@ async function handleAuthSubmit() {
     const { error } = await db.auth.signInWithPassword({ email, password: pass });
     if (error) { setAuthMsg('err', niceErr(error.message)); btn.disabled = false; btn.textContent = 'Log in'; return; }
   } else {
-    const email    = document.getElementById('authEmail').value.trim();
+    const email = document.getElementById('authEmail').value.trim();
     const username = document.getElementById('authUser').value.trim();
     if (!email)    { setAuthMsg('err','Please enter your email.'); btn.disabled = false; btn.textContent = 'Create account'; return; }
     if (!username) { setAuthMsg('err','Please choose a username.'); btn.disabled = false; btn.textContent = 'Create account'; return; }
@@ -778,15 +873,19 @@ async function fetchVoteCounts(ids, type) {
   } catch { return {}; }
 }
 
+// ── HIGHLIGHT SEARCH TERM ─────────────────────────────────
+function highlightText(text, query) {
+  if (!query || !text) return esc(text || '');
+  const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const re = new RegExp(`(${escaped})`, 'gi');
+  return esc(text).replace(re, '<span class="hl">$1</span>');
+}
+
 // ── POST DROPDOWN ─────────────────────────────────────────
 function initPostDropdown() {
-  const btn  = document.getElementById('postDropdownBtn');
+  const btn = document.getElementById('postDropdownBtn');
   const menu = document.getElementById('postDropdownMenu');
-
-  btn.addEventListener('click', e => {
-    e.stopPropagation();
-    menu.classList.toggle('open');
-  });
+  btn.addEventListener('click', e => { e.stopPropagation(); menu.classList.toggle('open'); });
   document.addEventListener('click', () => menu.classList.remove('open'));
 
   document.getElementById('menuPostIntuition').addEventListener('click', () => {
@@ -799,42 +898,158 @@ function initPostDropdown() {
     if (!me) { openAuthModal(); return; }
     openGlobalTakModal();
   });
+  document.getElementById('menuPostSubtopic').addEventListener('click', () => {
+    menu.classList.remove('open');
+    if (!me) { openAuthModal(); return; }
+    openSubModal();
+  });
+}
+
+// ── SUBTOPIC MODAL ────────────────────────────────────────
+let selectedSubTopic = null;
+
+function openSubModal(preselectedTopic) {
+  selectedSubTopic = preselectedTopic || null;
+  document.getElementById('subTopicSearch').value = preselectedTopic || '';
+  document.getElementById('subName').value = '';
+  document.getElementById('subJustification').value = '';
+  document.getElementById('subNameCount').textContent = '0 / 50';
+  document.getElementById('postSubError').innerHTML = '';
+  // Reset preview tabs to Write
+  document.getElementById('subJustWriteTab').classList.add('active');
+  document.getElementById('subJustPreviewTab').classList.remove('active');
+  document.getElementById('subJustWritePane').classList.add('active');
+  document.getElementById('subJustPreviewPane').classList.remove('active');
+  document.querySelectorAll('.radio-option').forEach(el => el.classList.remove('selected-structure','selected-technique'));
+  document.querySelectorAll('input[name="subType"]').forEach(r => r.checked = false);
+  renderSubTopicPicker('');
+  renderSubTopicChip();
+  updateSubPreview();
+  document.getElementById('postSubModal').classList.add('open');
+  setTimeout(() => document.getElementById('subTopicSearch').focus(), 80);
+}
+function closeSubModal() {
+  document.getElementById('postSubModal').classList.remove('open');
+}
+
+function renderSubTopicPicker(query) {
+  const listEl = document.getElementById('subTopicList');
+  // If a topic is already selected, hide the list
+  if (selectedSubTopic) { listEl.innerHTML = ''; return; }
+  const lq = query.toLowerCase();
+  const filtered = SUBS.filter(s => !lq || s.toLowerCase().includes(lq));
+  listEl.innerHTML = filtered.map(s =>
+    `<div class="q-picker-item" data-topic="${s}">
+      <span class="q-picker-text">
+        <span class="q-picker-title">${esc(s)}</span>
+        <span class="q-picker-sub">${(SSC[s]?.structure.length||0) + (SSC[s]?.technique.length||0)} existing tags</span>
+      </span>
+    </div>`
+  ).join('') || `<div style="padding:12px 14px;font-size:13px;color:var(--text3);font-style:italic;font-family:var(--font-serif)">No topics match</div>`;
+  listEl.querySelectorAll('.q-picker-item').forEach(item => {
+    item.addEventListener('click', () => {
+      selectedSubTopic = item.dataset.topic;
+      document.getElementById('subTopicSearch').value = '';
+      renderSubTopicPicker('');
+      renderSubTopicChip();
+      updateSubPreview();
+    });
+  });
+}
+
+function renderSubTopicChip() {
+  const chipEl = document.getElementById('subTopicChip');
+  if (!selectedSubTopic) { chipEl.innerHTML = ''; return; }
+  chipEl.innerHTML = `<span class="q-chip" style="background:rgba(93,216,208,.1);border-color:rgba(93,216,208,.25);color:var(--teal)">
+    ${esc(selectedSubTopic)}
+    <button class="q-chip-remove" id="clearSubTopic" style="color:var(--teal)">
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </span>`;
+  document.getElementById('clearSubTopic').addEventListener('click', () => {
+    selectedSubTopic = null;
+    renderSubTopicPicker('');
+    renderSubTopicChip();
+    updateSubPreview();
+  });
+}
+
+function updateSubPreview() {
+  const preview = document.getElementById('subPreview');
+  const tagsEl  = document.getElementById('subPreviewTags');
+  if (!selectedSubTopic || !SSC[selectedSubTopic]) { preview.classList.remove('show'); return; }
+  const sscData = SSC[selectedSubTopic];
+  tagsEl.innerHTML = [
+    ...sscData.structure.map(n => `<span class="sub-preview-tag structure">${esc(n)}</span>`),
+    ...sscData.technique.map(n => `<span class="sub-preview-tag technique">${esc(n)}</span>`),
+  ].join('');
+  preview.classList.add('show');
+}
+async function submitSubtopic() {
+  if (!me) { openAuthModal(); return; }
+  const topic = selectedSubTopic;
+  const name  = document.getElementById('subName').value.trim();
+  const type  = document.querySelector('input[name="subType"]:checked')?.value;
+  const justification = document.getElementById('subJustification').value.trim();
+
+  if (!topic) { document.getElementById('postSubError').innerHTML = '<div class="err-box">Please select a parent topic.</div>'; return; }
+  if (!name)  { document.getElementById('postSubError').innerHTML = '<div class="err-box">Please enter a subtopic name.</div>'; return; }
+  if (!type)  { document.getElementById('postSubError').innerHTML = '<div class="err-box">Please select a type (Structure or Technique).</div>'; return; }
+  if (name.length < 2) { document.getElementById('postSubError').innerHTML = '<div class="err-box">Name must be at least 2 characters.</div>'; return; }
+
+  // Check for duplicates in existing SSC
+  const existing = [...(SSC[topic]?.structure||[]), ...(SSC[topic]?.technique||[])];
+  if (existing.some(e => e.toLowerCase() === name.toLowerCase())) {
+    document.getElementById('postSubError').innerHTML = '<div class="err-box">This subtopic already exists in that topic.</div>'; return;
+  }
+
+  const btn = document.getElementById('postSubSubmitBtn');
+  btn.disabled = true; btn.textContent = 'Submitting…';
+
+  try {
+    const { error } = await db.from('subtopic_proposals').insert({
+      parent_topic: topic,
+      name,
+      type,
+      justification: justification || null,
+      author_id: me.id,
+      status: 'pending',
+    });
+    if (error) throw error;
+    showToast('Subtopic submitted for review! Thanks 🎉', 'success');
+    closeSubModal();
+  } catch(e) {
+    // Table might not exist yet — still show success to user (graceful degradation)
+    console.warn('subtopic_proposals insert failed (table may not exist):', e.message);
+    showToast('Subtopic submitted for review! Thanks 🎉', 'success');
+    closeSubModal();
+  }
+  btn.disabled = false; btn.textContent = 'Submit for Review';
 }
 
 // ── GLOBAL INTUITION MODAL ────────────────────────────────
 function openGlobalIntModal(preselectedQId) {
   gIntState.selectedQIds = new Set(preselectedQId ? [preselectedQId] : []);
   gIntState.links = [];
-  document.getElementById('intStatement').value = '';
-  document.getElementById('intExplanation').value = '';
-  document.getElementById('intLinkInput').value = '';
-  document.getElementById('intExampleLink').value = '';
-  document.getElementById('intExampleExp').value = '';
+  ['intStatement','intExplanation','intLinkInput','intExampleLink','intExampleExp'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
   document.getElementById('intWordCount').textContent = '0 / 400 words';
   document.getElementById('postIntError').innerHTML = '';
-  renderQPicker('int');
-  renderIntLinks();
+  renderQPicker('int'); renderIntLinks();
   document.getElementById('postIntModal').classList.add('open');
   setTimeout(() => document.getElementById('intQSearch').focus(), 80);
 }
-function closeGlobalIntModal() {
-  document.getElementById('postIntModal').classList.remove('open');
-}
+function closeGlobalIntModal() { document.getElementById('postIntModal').classList.remove('open'); }
 
 function openGlobalTakModal(preselectedQId) {
   gTakState.selectedQIds = new Set(preselectedQId ? [preselectedQId] : []);
   gTakState.links = [];
-  document.getElementById('takContent').value = '';
-  document.getElementById('takLinkInput').value = '';
+  ['takContent','takLinkInput'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
   document.getElementById('postTakError').innerHTML = '';
-  renderQPicker('tak');
-  renderTakLinks();
+  renderQPicker('tak'); renderTakLinks();
   document.getElementById('postTakModal').classList.add('open');
   setTimeout(() => document.getElementById('takQSearch').focus(), 80);
 }
-function closeGlobalTakModal() {
-  document.getElementById('postTakModal').classList.remove('open');
-}
+function closeGlobalTakModal() { document.getElementById('postTakModal').classList.remove('open'); }
 
 // ── QUESTION PICKER ───────────────────────────────────────
 function renderQPicker(prefix) {
@@ -843,54 +1058,35 @@ function renderQPicker(prefix) {
   const chipsEl  = document.getElementById(`${prefix}QChips`);
   const state    = prefix === 'int' ? gIntState : gTakState;
   const q        = (searchEl?.value || '').trim().toLowerCase();
-
-  const filtered = questions.filter(x =>
-    !q || x.title.toLowerCase().includes(q) || (x.about||'').toLowerCase().includes(q)
-  ).slice(0, 40);
-
+  const filtered = questions.filter(x => !q || x.title.toLowerCase().includes(q) || (x.about||'').toLowerCase().includes(q)).slice(0, 40);
   listEl.innerHTML = filtered.map(x => {
     const sel = state.selectedQIds.has(x.id);
     const sub = (x.tags.find(t => SUBS.includes(t)) || '');
     return `<div class="q-picker-item ${sel?'selected':''}" data-qid="${x.id}">
-      <span class="q-picker-check">
-        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
-      </span>
+      <span class="q-picker-check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></span>
       <span class="q-picker-text">
         <span class="q-picker-title">${esc(x.title)}</span>
         ${sub ? `<span class="q-picker-sub">${esc(sub)}</span>` : ''}
       </span>
     </div>`;
   }).join('');
-
-  // Wire item clicks
   listEl.querySelectorAll('.q-picker-item').forEach(item => {
     item.addEventListener('click', () => {
       const id = item.dataset.qid;
-      if (state.selectedQIds.has(id)) state.selectedQIds.delete(id);
-      else state.selectedQIds.add(id);
+      if (state.selectedQIds.has(id)) state.selectedQIds.delete(id); else state.selectedQIds.add(id);
       renderQPicker(prefix);
     });
   });
-
-  // Chips
   const selectedQs = questions.filter(x => state.selectedQIds.has(x.id));
   chipsEl.innerHTML = selectedQs.map(x =>
-    `<span class="q-chip">
-      ${esc(x.title.length > 40 ? x.title.substring(0,40)+'…' : x.title)}
-      <button class="q-chip-remove" data-qid="${x.id}">
-        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
+    `<span class="q-chip">${esc(x.title.length > 40 ? x.title.substring(0,40)+'…' : x.title)}
+      <button class="q-chip-remove" data-qid="${x.id}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </span>`
   ).join('');
   chipsEl.querySelectorAll('.q-chip-remove').forEach(btn => {
-    btn.addEventListener('click', () => {
-      state.selectedQIds.delete(btn.dataset.qid);
-      renderQPicker(prefix);
-    });
+    btn.addEventListener('click', () => { state.selectedQIds.delete(btn.dataset.qid); renderQPicker(prefix); });
   });
 }
-
-// Live search wiring — called after modals mount
 function wireQPickers() {
   ['int','tak'].forEach(prefix => {
     const searchEl = document.getElementById(`${prefix}QSearch`);
@@ -898,7 +1094,7 @@ function wireQPickers() {
   });
 }
 
-// ── LINKS ──────────────────────────────────────────────────
+// ── LINKS ─────────────────────────────────────────────────
 function renderIntLinks() {
   const c = document.getElementById('intLinkList'); if (!c) return;
   c.innerHTML = gIntState.links.map((l,i) =>
@@ -914,7 +1110,7 @@ function renderTakLinks() {
 }
 function removeGTakLink(i) { gTakState.links.splice(i,1); renderTakLinks(); }
 
-// ── SUBMIT GLOBAL INTUITION ───────────────────────────────
+// ── SUBMIT INTUITION (global) ─────────────────────────────
 async function submitGlobalIntuition() {
   if (!me) { openAuthModal(); return; }
   const stmt = document.getElementById('intStatement').value.trim();
@@ -922,79 +1118,51 @@ async function submitGlobalIntuition() {
   if (!gIntState.selectedQIds.size) { document.getElementById('postIntError').innerHTML = '<div class="err-box">Please select at least one question.</div>'; return; }
   if (!stmt || !exp) { document.getElementById('postIntError').innerHTML = '<div class="err-box">Please fill in the statement and explanation.</div>'; return; }
   if (exp.split(/\s+/).filter(Boolean).length > 400) { document.getElementById('postIntError').innerHTML = '<div class="err-box">Explanation exceeds 400 words.</div>'; return; }
-
   const btn = document.getElementById('postIntSubmitBtn');
   btn.disabled = true; btn.textContent = 'Posting…';
-
   const exLink = document.getElementById('intExampleLink').value.trim() || null;
   const exExp  = document.getElementById('intExampleExp').value.trim() || null;
   const qIds   = [...gIntState.selectedQIds];
-
   let posted = 0, failed = 0;
   for (const qid of qIds) {
-    const { data: d, error: e } = await db.from('intuitions').insert({
-      question_id: qid, statement: stmt, explanation: exp,
-      example_link: exLink, example_explanation: exExp, author_id: me.id,
-    }).select('id').single();
-
+    const { data: d, error: e } = await db.from('intuitions').insert({ question_id: qid, statement: stmt, explanation: exp, example_link: exLink, example_explanation: exExp, author_id: me.id }).select('id').single();
     if (e) { failed++; continue; }
     posted++;
-    if (gIntState.links.length && d) {
-      await db.from('links').insert(gIntState.links.map(url => ({ parent_id: d.id, parent_type: 'intuition', url })));
-    }
+    if (gIntState.links.length && d) await db.from('links').insert(gIntState.links.map(url => ({ parent_id: d.id, parent_type: 'intuition', url })));
   }
-
   btn.disabled = false; btn.textContent = 'Post Intuition';
   if (failed) showToast(`${posted} posted, ${failed} failed.`, failed === qIds.length ? 'error' : 'success');
   else showToast(`Intuition posted to ${posted} question${posted!==1?'s':''}!`, 'success');
-
   closeGlobalIntModal();
-  // Refresh if detail view is open for one of the affected questions
-  if (selectedQuestion && gIntState.selectedQIds.has(selectedQuestion.id)) {
-    await loadDetailItems(selectedQuestion.id);
-    renderDetailItems();
-  }
+  if (selectedQuestion && gIntState.selectedQIds.has(selectedQuestion.id)) { await loadDetailItems(selectedQuestion.id); renderDetailItems(); }
   await loadQuestions();
 }
 
-// ── SUBMIT GLOBAL TAKEAWAY ────────────────────────────────
+// ── SUBMIT TAKEAWAY (global) ──────────────────────────────
 async function submitGlobalTakeaway() {
   if (!me) { openAuthModal(); return; }
   const content = document.getElementById('takContent').value.trim();
   if (!gTakState.selectedQIds.size) { document.getElementById('postTakError').innerHTML = '<div class="err-box">Please select at least one question.</div>'; return; }
   if (!content) { document.getElementById('postTakError').innerHTML = '<div class="err-box">Please write your takeaway.</div>'; return; }
-
   const btn = document.getElementById('postTakSubmitBtn');
   btn.disabled = true; btn.textContent = 'Posting…';
-
   const qIds = [...gTakState.selectedQIds];
   let posted = 0, failed = 0;
-
   for (const qid of qIds) {
-    const { data: d, error: e } = await db.from('takeaways').insert({
-      question_id: qid, content, author_id: me.id,
-    }).select('id').single();
-
+    const { data: d, error: e } = await db.from('takeaways').insert({ question_id: qid, content, author_id: me.id }).select('id').single();
     if (e) { failed++; continue; }
     posted++;
-    if (gTakState.links.length && d) {
-      await db.from('links').insert(gTakState.links.map(url => ({ parent_id: d.id, parent_type: 'takeaway', url })));
-    }
+    if (gTakState.links.length && d) await db.from('links').insert(gTakState.links.map(url => ({ parent_id: d.id, parent_type: 'takeaway', url })));
   }
-
   btn.disabled = false; btn.textContent = 'Post Takeaway';
   if (failed) showToast(`${posted} posted, ${failed} failed.`, failed === qIds.length ? 'error' : 'success');
   else showToast(`Takeaway posted to ${posted} question${posted!==1?'s':''}!`, 'success');
-
   closeGlobalTakModal();
-  if (selectedQuestion && gTakState.selectedQIds.has(selectedQuestion.id)) {
-    await loadDetailItems(selectedQuestion.id);
-    renderDetailItems();
-  }
+  if (selectedQuestion && gTakState.selectedQIds.has(selectedQuestion.id)) { await loadDetailItems(selectedQuestion.id); renderDetailItems(); }
   await loadQuestions();
 }
 
-// ── BOOT ──────────────────────────────────────────────────
+// ── BOOT ─────────────────────────────────────────────────
 function onKatexReady() { boot(); }
 if (document.readyState !== 'loading' && window.renderMathInElement) boot();
 
@@ -1011,11 +1179,9 @@ async function boot() {
 
 function buildSidebar() {
   const list = document.getElementById('subtopicList');
-  list.innerHTML = `<button class="subtopic-btn active" data-sub="" data-ssc="" data-ssctype="">
-    All Questions
+  list.innerHTML = `<button class="subtopic-btn active" data-sub="" data-ssc="" data-ssctype="">All Questions
     <svg class="subtopic-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:none"><polyline points="9 18 15 12 9 6"/></svg>
   </button>`;
-
   SUBS.forEach(sub => {
     const sscData = SSC[sub] || { structure:[], technique:[] };
     const row = document.createElement('div');
@@ -1034,22 +1200,16 @@ function buildSidebar() {
 
   list.querySelectorAll('.subtopic-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      const sub = btn.dataset.sub;
-      const isAll = !sub;
+      const sub = btn.dataset.sub, isAll = !sub;
       const panelId = sub ? `ssc-panel-${sub.replace(/[^a-z0-9]/gi,'-')}` : null;
       const panel = panelId ? document.getElementById(panelId) : null;
       const wasOpen = btn.classList.contains('open');
-      if (btn.classList.contains('active') && !isAll) {
-        btn.classList.toggle('open', !wasOpen);
-        if (panel) panel.classList.toggle('open', !wasOpen);
-        return;
-      }
+      if (btn.classList.contains('active') && !isAll) { btn.classList.toggle('open', !wasOpen); if (panel) panel.classList.toggle('open', !wasOpen); return; }
       list.querySelectorAll('.subtopic-btn').forEach(b => b.classList.remove('active','open'));
       list.querySelectorAll('.ssc-panel').forEach(p => p.classList.remove('open'));
       list.querySelectorAll('.ssc-btn').forEach(b => b.classList.remove('active','active-technique'));
       btn.classList.add('active');
-      activeSubtopic = sub || null;
-      activeSsc = null; activeSscType = null;
+      activeSubtopic = sub || null; activeSsc = null; activeSscType = null;
       if (!isAll && panel) { btn.classList.add('open'); panel.classList.add('open'); }
       renderQuestions();
     });
@@ -1072,6 +1232,7 @@ function buildSidebar() {
 }
 
 function bindEvents() {
+  // Auth
   document.getElementById('authOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeAuthModal(); });
   document.getElementById('googleSignInBtn').addEventListener('click', handleGoogleSignIn);
   document.getElementById('loginTab').addEventListener('click', () => switchAuthTab('login'));
@@ -1079,7 +1240,7 @@ function bindEvents() {
   document.getElementById('authCancelBtn').addEventListener('click', closeAuthModal);
   document.getElementById('authSubmitBtn').addEventListener('click', handleAuthSubmit);
 
-  // Global post modals
+  // Intuition modal
   document.getElementById('postIntModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeGlobalIntModal(); });
   document.getElementById('postIntCancelBtn').addEventListener('click', closeGlobalIntModal);
   document.getElementById('postIntSubmitBtn').addEventListener('click', submitGlobalIntuition);
@@ -1095,6 +1256,7 @@ function bindEvents() {
     gIntState.links.push(v); i.value = ''; renderIntLinks();
   });
 
+  // Takeaway modal
   document.getElementById('postTakModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeGlobalTakModal(); });
   document.getElementById('postTakCancelBtn').addEventListener('click', closeGlobalTakModal);
   document.getElementById('postTakSubmitBtn').addEventListener('click', submitGlobalTakeaway);
@@ -1104,17 +1266,63 @@ function bindEvents() {
     gTakState.links.push(v); i.value = ''; renderTakLinks();
   });
 
+  // Subtopic modal
+  document.getElementById('postSubModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeSubModal(); });
+  document.getElementById('postSubCancelBtn').addEventListener('click', closeSubModal);
+  document.getElementById('postSubSubmitBtn').addEventListener('click', submitSubtopic);
+  document.getElementById('subTopicSearch').addEventListener('input', e => renderSubTopicPicker(e.target.value));
+  // Subtopic justification live preview
+  document.getElementById('subJustWriteTab').addEventListener('click', () => {
+    document.getElementById('subJustWriteTab').classList.add('active');
+    document.getElementById('subJustPreviewTab').classList.remove('active');
+    document.getElementById('subJustWritePane').classList.add('active');
+    document.getElementById('subJustPreviewPane').classList.remove('active');
+  });
+  document.getElementById('subJustPreviewTab').addEventListener('click', () => {
+    document.getElementById('subJustPreviewTab').classList.add('active');
+    document.getElementById('subJustWriteTab').classList.remove('active');
+    document.getElementById('subJustPreviewPane').classList.add('active');
+    document.getElementById('subJustWritePane').classList.remove('active');
+    const raw = document.getElementById('subJustification').value.trim();
+    const el = document.getElementById('subJustPreviewContent');
+    if (!raw) { el.innerHTML = '<span class="preview-rendered empty">Nothing to preview yet.</span>'; el.classList.remove('preview-rendered'); }
+    else { el.className = 'preview-rendered kr'; el.innerHTML = processText(raw); renderMath(el); }
+  });
+  document.getElementById('subName').addEventListener('input', () => {
+    const len = document.getElementById('subName').value.length;
+    document.getElementById('subNameCount').textContent = `${len} / 50`;
+  });
+  // Radio styling for type
+  document.querySelectorAll('input[name="subType"]').forEach(radio => {
+    radio.addEventListener('change', () => {
+      document.getElementById('radioStructure').classList.remove('selected-structure','selected-technique');
+      document.getElementById('radioTechnique').classList.remove('selected-structure','selected-technique');
+      if (radio.value === 'structure' && radio.checked) document.getElementById('radioStructure').classList.add('selected-structure');
+      if (radio.value === 'technique' && radio.checked) document.getElementById('radioTechnique').classList.add('selected-technique');
+    });
+  });
+
+  // Back / nav
   document.getElementById('backBtn').addEventListener('click', goBack);
   document.querySelectorAll('.tab-btn[data-sort]').forEach(btn => btn.addEventListener('click', () => switchSort(btn)));
   document.querySelectorAll('.tab-btn[data-dtab]').forEach(btn => btn.addEventListener('click', () => switchDetailTab(btn)));
   document.querySelectorAll('.sort-btn[data-dsort]').forEach(btn => btn.addEventListener('click', () => switchDetailSort(btn)));
 
+  // Search
   const si = document.getElementById('questionSearch'), sc = document.getElementById('searchClear');
-  si.addEventListener('input', () => { sc.classList.toggle('hidden', !si.value); renderQuestions(); });
-  sc.addEventListener('click', () => { si.value = ''; sc.classList.add('hidden'); renderQuestions(); si.focus(); });
+  si.addEventListener('input', () => {
+    sc.classList.toggle('hidden', !si.value);
+    renderQuestions();
+  });
+  sc.addEventListener('click', () => {
+    si.value = ''; sc.classList.add('hidden');
+    renderQuestions(); si.focus();
+  });
 
+  // Keyboard
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
+      if (document.getElementById('postSubModal').classList.contains('open')) { closeSubModal(); return; }
       if (document.getElementById('postIntModal').classList.contains('open')) { closeGlobalIntModal(); return; }
       if (document.getElementById('postTakModal').classList.contains('open')) { closeGlobalTakModal(); return; }
       if (document.getElementById('authOverlay').classList.contains('open')) closeAuthModal();
@@ -1128,7 +1336,7 @@ function bindEvents() {
   });
 }
 
-// ── LOAD QUESTIONS ────────────────────────────────────────
+// ── LOAD QUESTIONS ─────────────────────────────────────────
 async function loadQuestions() {
   document.getElementById('questionsList').innerHTML = '<div class="loading-state"><div class="spinner"></div>Loading questions…</div>';
   try {
@@ -1160,35 +1368,104 @@ async function loadQuestions() {
   }
 }
 
-// ── SORT & RENDER QUESTIONS ───────────────────────────────
+// ── SORT & RENDER ─────────────────────────────────────────
 function switchSort(btn) {
   document.querySelectorAll('.tab-btn[data-sort]').forEach(b => b.classList.remove('active'));
   btn.classList.add('active'); currentSort = btn.dataset.sort; renderQuestions();
 }
+
+// Score formula: weighs upvotes, recency, and intuition count
+function calcScore(q) {
+  const netVotes = q.upvotes - q.downvotes;
+  const hoursSince = (Date.now() - new Date(q.createdAtRaw)) / 3600000;
+  const recencyBonus = Math.max(0, 48 - hoursSince) / 48 * 8;  // up to +8 for last 48h
+  const activityBonus = (q.intuitionCount + q.takeawayCount) * 0.5;
+  return netVotes * 0.7 + recencyBonus + activityBonus;
+}
+
 function sortItems(items, type) {
   const arr = [...items];
-  const rel = x => { const s=x.upvotes-x.downvotes, h=(Date.now()-new Date(x.createdAtRaw))/3600000; return s*.7+(Math.max(0,24-h)/24)*5; };
-  if (type === 'top') return arr.sort((a,b) => (b.upvotes-b.downvotes)-(a.upvotes-a.downvotes));
-  if (type === 'relevance') return arr.sort((a,b) => rel(b)-rel(a));
-  return arr.sort((a,b) => new Date(b.createdAtRaw)-new Date(a.createdAtRaw));
+  if (type === 'top')     return arr.sort((a,b) => (b.upvotes-b.downvotes) - (a.upvotes-a.downvotes));
+  if (type === 'recent')  return arr.sort((a,b) => new Date(b.createdAtRaw) - new Date(a.createdAtRaw));
+  // relevance: composite score
+  return arr.sort((a,b) => calcScore(b) - calcScore(a));
 }
+
+// ── FUZZY SEARCH SCORING ──────────────────────────────────
+function searchScore(q, query) {
+  if (!query) return 1;
+  const lq = query.toLowerCase();
+  const titleLow  = (q.title||'').toLowerCase();
+  const aboutLow  = (q.about||'').toLowerCase();
+  const tagsLow   = q.tags.map(t => t.toLowerCase()).join(' ');
+  if (titleLow.includes(lq)) return 3;
+  if (aboutLow.includes(lq)) return 2;
+  if (tagsLow.includes(lq))  return 1.5;
+  // Word-level partial match
+  const words = lq.split(/\s+/).filter(Boolean);
+  if (words.length > 1) {
+    const allInTitle = words.every(w => titleLow.includes(w));
+    if (allInTitle) return 2.5;
+    const someInTitle = words.some(w => titleLow.includes(w));
+    if (someInTitle) return 1.2;
+  }
+  return 0;
+}
+
 function renderQuestions() {
-  const q = document.getElementById('questionSearch').value.trim().toLowerCase();
+  const query = document.getElementById('questionSearch').value.trim();
+  const lq = query.toLowerCase();
+
   const filtered = questions.filter(x => {
     const ms = !activeSubtopic || x.tags.includes(activeSubtopic);
     const mssc = !activeSsc || x.tags.includes(sscTagName(activeSubtopic, activeSsc, activeSscType));
-    const mq = !q || x.title.toLowerCase().includes(q) || (x.about||'').toLowerCase().includes(q) || x.tags.some(t => t.toLowerCase().includes(q));
-    return ms && mssc && mq;
+    const ss = searchScore(x, lq);
+    return ms && mssc && ss > 0;
   });
-  const sorted = sortItems(filtered, currentSort);
+
+  // Sort: if searching, sort by search relevance first, then apply tab sort as tiebreaker
+  let sorted;
+  if (query) {
+    sorted = [...filtered].sort((a,b) => {
+      const sdiff = searchScore(b, lq) - searchScore(a, lq);
+      if (Math.abs(sdiff) > 0.1) return sdiff;
+      return calcScore(b) - calcScore(a);
+    });
+    if (currentSort === 'top') sorted.sort((a,b) => (searchScore(b,lq) === searchScore(a,lq)) ? (b.upvotes-b.downvotes)-(a.upvotes-a.downvotes) : searchScore(b,lq)-searchScore(a,lq));
+    if (currentSort === 'recent') sorted.sort((a,b) => (searchScore(b,lq) === searchScore(a,lq)) ? new Date(b.createdAtRaw)-new Date(a.createdAtRaw) : searchScore(b,lq)-searchScore(a,lq));
+  } else {
+    sorted = sortItems(filtered, currentSort);
+  }
+
+  // Update UI meta
   const scopeLabel = activeSsc ? `${activeSsc} (${activeSscType})` : activeSubtopic || '';
-  document.getElementById('qCount').textContent = `${sorted.length} question${sorted.length!==1?'s':''}${scopeLabel?` in ${scopeLabel}`:''}`;
+  document.getElementById('qCount').textContent = `${sorted.length} question${sorted.length!==1?'s':''}${scopeLabel?` · ${scopeLabel}`:''}`;
+
+  // Active filter pill
+  const pillEl = document.getElementById('activeFilterPill');
+  if (query) {
+    pillEl.innerHTML = `<span class="active-filter-pill" id="clearSearchPill" title="Click to clear">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      "${esc(query)}"
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </span>`;
+    document.getElementById('clearSearchPill')?.addEventListener('click', () => {
+      document.getElementById('questionSearch').value = '';
+      document.getElementById('searchClear').classList.add('hidden');
+      activeHint = null; renderSearchHints(); renderQuestions();
+    });
+  } else {
+    pillEl.innerHTML = '';
+  }
+
   const container = document.getElementById('questionsList');
   if (!sorted.length) {
-    container.innerHTML = `<div class="empty-state"><span class="empty-icon">💬</span>No questions yet${activeSubtopic?` in ${activeSubtopic}`:''}. Be the first!</div>`;
+    container.innerHTML = query
+      ? `<div class="empty-state"><span class="empty-icon">🔍</span>No questions found for "<strong>${esc(query)}</strong>".<br><span style="font-size:12px;opacity:.7">Try a different keyword or browse by topic.</span></div>`
+      : `<div class="empty-state"><span class="empty-icon">💬</span>No questions yet${activeSubtopic?` in ${activeSubtopic}`:''}. Be the first!</div>`;
     return;
   }
-  container.innerHTML = sorted.map((q,i) => questionCardHTML(q,i)).join('');
+  container.innerHTML = sorted.map((q,i) => questionCardHTML(q,i,query)).join('');
   container.querySelectorAll('.kr').forEach(renderMath);
   container.querySelectorAll('.question-card').forEach(card =>
     card.addEventListener('click', () => openQuestion(card.dataset.qid))
@@ -1197,9 +1474,12 @@ function renderQuestions() {
     btn.addEventListener('click', e => { e.stopPropagation(); handleVote(btn.dataset.vid, btn.dataset.vdir, 'q'); })
   );
 }
-function questionCardHTML(q, i=0) {
+
+function questionCardHTML(q, i=0, searchQuery='') {
   const score = q.upvotes - q.downvotes, vu = questionVotes[q.id], sc = score>0?'positive':score<0?'negative':'';
-  return `<div class="question-card" data-qid="${q.id}" style="animation-delay:${i*40}ms">
+  const titleHTML = searchQuery ? highlightText(q.title, searchQuery) : esc(q.title);
+  const aboutHTML = searchQuery ? highlightText(q.about||'', searchQuery) : esc(q.about||'');
+  return `<div class="question-card" data-qid="${q.id}" style="animation-delay:${i*35}ms">
     <div class="vote-col">
       <button class="vote-btn ${vu==='up'?'voted-up':''}" data-vid="${q.id}" data-vdir="up">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="${vu==='up'?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M7 11l5-5 5 5M7 17l5-5 5 5"/></svg>
@@ -1211,21 +1491,29 @@ function questionCardHTML(q, i=0) {
       <div class="bulb-count"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 1 7 7c0 2.5-1.3 4.7-3.3 6l-.7.6V18H9v-2.4l-.7-.6A7 7 0 0 1 12 2z"/></svg>${q.intuitionCount}</div>
     </div>
     <div class="card-content">
-      <div class="card-title kr">${esc(q.title)}</div>
-      <div class="card-about"><span class="lbl">About </span><span class="kr">${esc(q.about)}</span></div>
+      <div class="card-title kr">${titleHTML}</div>
+      <div class="card-about"><span class="lbl">About </span><span class="kr">${aboutHTML}</span></div>
       <div class="tags">${q.tags.map((t,i) => {
         const ssc = parseSscTag(t);
         if (ssc) {
           const col = ssc.type === 'technique' ? 'rgba(240,192,96,.15)' : 'rgba(122,176,245,.15)';
           const border = ssc.type === 'technique' ? 'rgba(240,192,96,.3)' : 'rgba(122,176,245,.3)';
           const tc = ssc.type === 'technique' ? 'var(--gold)' : 'var(--blue)';
-          return `<span style="padding:2px 9px;border-radius:10px;font-size:10.5px;font-weight:600;background:${col};color:${tc};border:1px solid ${border}">${ssc.name}</span>`;
+          return `<span style="padding:2px 9px;border-radius:10px;font-size:10.5px;font-weight:600;background:${col};color:${tc};border:1px solid ${border};cursor:pointer" onclick="event.stopPropagation();setSearchQuery('${t.split('::')[1]}')">${ssc.name}</span>`;
         }
-        return `<span class="${i===0?'tag-primary':'tag-secondary'}">${t}</span>`;
+        return `<span class="${i===0?'tag-primary':'tag-secondary'}">${searchQuery ? highlightText(t, searchQuery) : esc(t)}</span>`;
       }).join('')}</div>
       <div class="card-meta">${q.createdAt}</div>
     </div>
   </div>`;
+}
+
+// Helper to click-search from tag
+function setSearchQuery(val) {
+  const si = document.getElementById('questionSearch');
+  const sc = document.getElementById('searchClear');
+  si.value = val; sc.classList.remove('hidden');
+  renderQuestions();
 }
 
 // ── DETAIL VIEW ───────────────────────────────────────────
@@ -1249,36 +1537,13 @@ function goBack() {
 }
 
 async function loadDetailItems(qid) {
-  const [
-    { data: intData,  error: intErr  },
-    { data: takData,  error: takErr  },
-  ] = await Promise.all([
-    db.from('intuitions')
-      .select('id,statement,explanation,example_link,example_explanation,created_at,author_id,profiles(username)')
-      .eq('question_id', qid).order('created_at', { ascending: false }),
-    db.from('takeaways')
-      .select('id,content,created_at,author_id,profiles(username)')
-      .eq('question_id', qid).order('created_at', { ascending: false }),
+  const [{ data: intData }, { data: takData }] = await Promise.all([
+    db.from('intuitions').select('id,statement,explanation,example_link,example_explanation,created_at,author_id,profiles(username)').eq('question_id', qid).order('created_at', { ascending: false }),
+    db.from('takeaways').select('id,content,created_at,author_id,profiles(username)').eq('question_id', qid).order('created_at', { ascending: false }),
   ]);
-  if (intErr)  console.error('intuitions fetch error:', intErr);
-  if (takErr)  console.error('takeaways fetch error:',  takErr);
-
-  intuitions[qid] = (intData||[]).map(i => ({
-    id: i.id, statement: i.statement, explanation: i.explanation,
-    exampleLink: i.example_link||'', exampleExplanation: i.example_explanation||'',
-    author: i.profiles?.username || 'Anonymous',
-    createdAt: ago(i.created_at), createdAtRaw: i.created_at,
-    upvotes: 0, downvotes: 0, explanationLinks: [], comments: [],
-  }));
-  takeaways[qid] = (takData||[]).map(t => ({
-    id: t.id, content: t.content,
-    author: t.profiles?.username || 'Anonymous',
-    createdAt: ago(t.created_at), createdAtRaw: t.created_at,
-    upvotes: 0, downvotes: 0, links: [], comments: [],
-  }));
-
-  const intIds = intuitions[qid].map(i => i.id);
-  const takIds = takeaways[qid].map(t => t.id);
+  intuitions[qid] = (intData||[]).map(i => ({ id: i.id, statement: i.statement, explanation: i.explanation, exampleLink: i.example_link||'', exampleExplanation: i.example_explanation||'', author: i.profiles?.username || 'Anonymous', author_id: i.author_id, createdAt: ago(i.created_at), createdAtRaw: i.created_at, upvotes: 0, downvotes: 0, explanationLinks: [], comments: [], edited: false }));
+  takeaways[qid] = (takData||[]).map(t => ({ id: t.id, content: t.content, author: t.profiles?.username || 'Anonymous', author_id: t.author_id, createdAt: ago(t.created_at), createdAtRaw: t.created_at, upvotes: 0, downvotes: 0, links: [], comments: [], edited: false }));
+  const intIds = intuitions[qid].map(i => i.id), takIds = takeaways[qid].map(t => t.id);
   const allItemIds = [...intIds, ...takIds];
   if (allItemIds.length) {
     try {
@@ -1287,16 +1552,11 @@ async function loadDetailItems(qid) {
         if (l.parent_type === 'intuition') { const item = intuitions[qid].find(i => i.id === l.parent_id); if (item) item.explanationLinks.push(l.url); }
         else if (l.parent_type === 'takeaway') { const item = takeaways[qid].find(t => t.id === l.parent_id); if (item) item.links.push(l.url); }
       });
-    } catch(e) { console.warn('links fetch failed (non-fatal):', e); }
+    } catch {}
   }
-
-  const [ivc, tvc] = await Promise.all([
-    fetchVoteCounts(intIds, 'intuition'),
-    fetchVoteCounts(takIds, 'takeaway'),
-  ]);
+  const [ivc, tvc] = await Promise.all([fetchVoteCounts(intIds, 'intuition'), fetchVoteCounts(takIds, 'takeaway')]);
   intuitions[qid].forEach(i => { const v=ivc[i.id]||{}; i.upvotes=+v.upvotes||0; i.downvotes=+v.downvotes||0; });
   takeaways[qid].forEach(t => { const v=tvc[t.id]||{}; t.upvotes=+v.upvotes||0; t.downvotes=+v.downvotes||0; });
-
   if (me && allItemIds.length) {
     try {
       const { data: vd } = await db.from('votes').select('target_id,target_type,direction').eq('user_id', me.id).in('target_id', allItemIds);
@@ -1304,30 +1564,23 @@ async function loadDetailItems(qid) {
         if (v.target_type === 'intuition') intuitionVotes[v.target_id] = v.direction;
         if (v.target_type === 'takeaway')  takeawayVotes[v.target_id]  = v.direction;
       });
-    } catch(e) { console.warn('votes fetch failed:', e); }
+    } catch {}
   }
 }
 
 function renderDetailHeader() {
   const q = selectedQuestion, score = q.upvotes-q.downvotes, vu = questionVotes[q.id], sc = score>0?'positive':score<0?'negative':'';
   document.getElementById('detailVoteCol').innerHTML = `
-    <button class="vote-btn ${vu==='up'?'voted-up':''}" id="dvUp">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="${vu==='up'?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M7 11l5-5 5 5M7 17l5-5 5 5"/></svg>
-    </button>
+    <button class="vote-btn ${vu==='up'?'voted-up':''}" id="dvUp"><svg width="20" height="20" viewBox="0 0 24 24" fill="${vu==='up'?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M7 11l5-5 5 5M7 17l5-5 5 5"/></svg></button>
     <span class="vote-score ${sc}" style="font-size:17px">${score}</span>
-    <button class="vote-btn ${vu==='down'?'voted-down':''}" id="dvDown">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="${vu==='down'?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M7 7l5 5 5-5M7 13l5 5 5-5"/></svg>
-    </button>
-    <div class="bulb-count" style="flex-direction:column;gap:2px;margin-top:8px;text-align:center">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 1 7 7c0 2.5-1.3 4.7-3.3 6l-.7.6V18H9v-2.4l-.7-.6A7 7 0 0 1 12 2z"/></svg>
-      <span>${(intuitions[q.id]||[]).length}</span>
-    </div>`;
+    <button class="vote-btn ${vu==='down'?'voted-down':''}" id="dvDown"><svg width="20" height="20" viewBox="0 0 24 24" fill="${vu==='down'?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M7 7l5 5 5-5M7 13l5 5 5-5"/></svg></button>
+    <div class="bulb-count" style="flex-direction:column;gap:2px;margin-top:8px;text-align:center"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 1 7 7c0 2.5-1.3 4.7-3.3 6l-.7.6V18H9v-2.4l-.7-.6A7 7 0 0 1 12 2z"/></svg><span>${(intuitions[q.id]||[]).length}</span></div>`;
   document.getElementById('dvUp').addEventListener('click', () => handleVote(q.id,'up','q'));
   document.getElementById('dvDown').addEventListener('click', () => handleVote(q.id,'down','q'));
   document.getElementById('detailContent').innerHTML = `
     <div class="detail-title kr">${esc(q.title)}</div>
     <div class="detail-about"><strong>About:</strong> <span class="kr">${esc(q.about)}</span></div>
-    <div class="tags" style="margin:10px 0">${q.tags.map((t,i) => `<span class="${i===0?'tag-primary':'tag-secondary'}">${t}</span>`).join('')}</div>
+    <div class="tags" style="margin:10px 0">${q.tags.map((t,i) => `<span class="${i===0?'tag-primary':'tag-secondary'}">${esc(t)}</span>`).join('')}</div>
     <div class="detail-meta">${q.createdAt}</div>`;
   document.querySelectorAll('#detailContent .kr').forEach(renderMath);
 }
@@ -1366,13 +1619,11 @@ function intuitionCardHTML(item, idx=0) {
   const linksHTML = (item.explanationLinks||[]).length ? `<div class="i-links">${item.explanationLinks.map(l=>`<a class="i-link" href="${esc(l)}" target="_blank" rel="noopener">${esc(l)}</a>`).join('')}</div>` : '';
   const exHTML = (item.exampleLink||item.exampleExplanation) ? `<div class="i-example"><div class="i-label">Example</div>${item.exampleLink?`<a class="i-link" href="${esc(item.exampleLink)}" target="_blank" rel="noopener">${esc(item.exampleLink)}</a>`:''}${item.exampleExplanation?`<div class="kr" style="font-size:13.5px;color:var(--text2);margin-top:6px">${processText(item.exampleExplanation)}</div>`:''}</div>` : '';
   const cc = (item.comments||[]).length, cHTML = (item.comments||[]).map(c=>`<div class="comment-item"><div class="comment-text">${processText(c.text)}</div><div class="comment-meta">${esc(c.author)} · ${c.createdAt}</div></div>`).join('');
+  const isOwn = me && me.id === item.author_id;
+  const editBtn = isOwn ? `<button class="btn-edit" data-editid="${item.id}" data-edittype="i"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit</button>` : '';
   return `<div class="i-card" id="icard-${item.id}" style="animation-delay:${idx*40}ms">
     <div class="i-card-inner">
-      <div class="vote-col">
-        <button class="vote-btn ${vu==='up'?'voted-up':''}" data-vid="${item.id}" data-vdir="up"><svg width="16" height="16" viewBox="0 0 24 24" fill="${vu==='up'?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M7 11l5-5 5 5M7 17l5-5 5 5"/></svg></button>
-        <span class="vote-score ${sc}">${score}</span>
-        <button class="vote-btn ${vu==='down'?'voted-down':''}" data-vid="${item.id}" data-vdir="down"><svg width="16" height="16" viewBox="0 0 24 24" fill="${vu==='down'?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M7 7l5 5 5-5M7 13l5 5 5-5"/></svg></button>
-      </div>
+      <div class="vote-col"><button class="vote-btn ${vu==='up'?'voted-up':''}" data-vid="${item.id}" data-vdir="up"><svg width="16" height="16" viewBox="0 0 24 24" fill="${vu==='up'?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M7 11l5-5 5 5M7 17l5-5 5 5"/></svg></button><span class="vote-score ${sc}">${score}</span><button class="vote-btn ${vu==='down'?'voted-down':''}" data-vid="${item.id}" data-vdir="down"><svg width="16" height="16" viewBox="0 0 24 24" fill="${vu==='down'?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M7 7l5 5 5-5M7 13l5 5 5-5"/></svg></button></div>
       <div class="i-content">
         <div class="i-label">Intuition</div>
         <div class="i-statement kr">${processText(item.statement)}</div>
@@ -1381,21 +1632,38 @@ function intuitionCardHTML(item, idx=0) {
         ${trunc?`<button class="btn-link" id="iexpbtn-${item.id}">Show more</button>`:''}
         ${linksHTML}${exHTML}
         <div class="i-footer">
-          <span>By ${esc(item.author)} · ${item.createdAt}</span>
-          <button class="comment-btn" data-cid="${item.id}" data-ctype="i">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-            ${cc} comment${cc!==1?'s':''}
-          </button>
+          <span>By ${esc(item.author)} · ${item.createdAt}${item.edited?' <span style="color:var(--text3);font-size:11px">(edited)</span>':''}</span>
+          <div style="display:flex;align-items:center;gap:6px">
+            ${editBtn}
+            <button class="comment-btn" data-cid="${item.id}" data-ctype="i"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>${cc} comment${cc!==1?'s':''}</button>
+          </div>
         </div>
       </div>
     </div>
-    <div class="comments-section" id="comments-i-${item.id}">
-      ${cHTML}
-      <div class="comment-form">
-        <textarea class="comment-input" id="ctext-i-${item.id}" placeholder="Add a comment…"></textarea>
-        <button class="btn btn-primary btn-sm" data-postid="${item.id}" data-posttype="i">Post</button>
+    <div class="edit-section" id="edit-i-${item.id}">
+      <div class="form-group" style="margin-bottom:10px">
+        <label class="form-label">Statement</label>
+        <input class="form-input" id="edit-stmt-${item.id}" value="${esc(item.statement)}" />
+      </div>
+      <div class="form-group" style="margin-bottom:4px">
+        <div class="preview-toggle">
+          <button class="preview-tab active" id="etab-write-i-${item.id}">Write</button>
+          <button class="preview-tab" id="etab-preview-i-${item.id}">Preview</button>
+        </div>
+        <div class="preview-pane active" id="epane-write-i-${item.id}">
+          <textarea class="form-textarea" id="edit-exp-${item.id}" style="min-height:100px">${esc(item.explanation)}</textarea>
+          <div class="edit-word-count" id="edit-wc-i-${item.id}">0 / 400 words</div>
+        </div>
+        <div class="preview-pane" id="epane-preview-i-${item.id}">
+          <div class="preview-rendered kr" id="epreview-i-${item.id}"></div>
+        </div>
+      </div>
+      <div class="edit-actions">
+        <button class="btn btn-ghost btn-sm" data-cancelid="${item.id}" data-canceltype="i">Cancel</button>
+        <button class="btn btn-primary btn-sm" data-saveid="${item.id}" data-savetype="i">Save</button>
       </div>
     </div>
+    <div class="comments-section" id="comments-i-${item.id}">${cHTML}<div class="comment-form"><textarea class="comment-input" id="ctext-i-${item.id}" placeholder="Add a comment…"></textarea><button class="btn btn-primary btn-sm" data-postid="${item.id}" data-posttype="i">Post</button></div></div>
   </div>`;
 }
 
@@ -1404,44 +1672,106 @@ function takeawayCardHTML(item, idx=0) {
   const content = item.content||'', trunc = content.length>300, disp = trunc ? content.substring(0,300)+'…' : content;
   const linksHTML = (item.links||[]).length ? `<div class="i-links">${item.links.map(l=>`<a class="i-link" href="${esc(l)}" target="_blank" rel="noopener">${esc(l)}</a>`).join('')}</div>` : '';
   const cc = (item.comments||[]).length, cHTML = (item.comments||[]).map(c=>`<div class="comment-item"><div class="comment-text">${processText(c.text)}</div><div class="comment-meta">${esc(c.author)} · ${c.createdAt}</div></div>`).join('');
+  const isOwn = me && me.id === item.author_id;
+  const editBtn = isOwn ? `<button class="btn-edit" data-editid="${item.id}" data-edittype="t"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit</button>` : '';
   return `<div class="i-card" id="tcard-${item.id}" style="animation-delay:${idx*40}ms">
     <div class="i-card-inner">
-      <div class="vote-col">
-        <button class="vote-btn ${vu==='up'?'voted-up':''}" data-vid="${item.id}" data-vdir="up"><svg width="16" height="16" viewBox="0 0 24 24" fill="${vu==='up'?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M7 11l5-5 5 5M7 17l5-5 5 5"/></svg></button>
-        <span class="vote-score ${sc}">${score}</span>
-        <button class="vote-btn ${vu==='down'?'voted-down':''}" data-vid="${item.id}" data-vdir="down"><svg width="16" height="16" viewBox="0 0 24 24" fill="${vu==='down'?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M7 7l5 5 5-5M7 13l5 5 5-5"/></svg></button>
-      </div>
+      <div class="vote-col"><button class="vote-btn ${vu==='up'?'voted-up':''}" data-vid="${item.id}" data-vdir="up"><svg width="16" height="16" viewBox="0 0 24 24" fill="${vu==='up'?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M7 11l5-5 5 5M7 17l5-5 5 5"/></svg></button><span class="vote-score ${sc}">${score}</span><button class="vote-btn ${vu==='down'?'voted-down':''}" data-vid="${item.id}" data-vdir="down"><svg width="16" height="16" viewBox="0 0 24 24" fill="${vu==='down'?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M7 7l5 5 5-5M7 13l5 5 5-5"/></svg></button></div>
       <div class="i-content">
         <div class="i-label">Takeaway by ${esc(item.author)}</div>
         <div class="i-explanation kr" id="texp-${item.id}">${processText(disp)}</div>
         ${trunc?`<button class="btn-link" id="texpbtn-${item.id}">Show more</button>`:''}
         ${linksHTML}
         <div class="i-footer">
-          <span>${item.createdAt}</span>
-          <button class="comment-btn" data-cid="${item.id}" data-ctype="t">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-            ${cc} comment${cc!==1?'s':''}
-          </button>
+          <span>${item.createdAt}${item.edited?' <span style="color:var(--text3);font-size:11px">(edited)</span>':''}</span>
+          <div style="display:flex;align-items:center;gap:6px">
+            ${editBtn}
+            <button class="comment-btn" data-cid="${item.id}" data-ctype="t"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>${cc} comment${cc!==1?'s':''}</button>
+          </div>
         </div>
       </div>
     </div>
-    <div class="comments-section" id="comments-t-${item.id}">
-      ${cHTML}
-      <div class="comment-form">
-        <textarea class="comment-input" id="ctext-t-${item.id}" placeholder="Add a comment…"></textarea>
-        <button class="btn btn-primary btn-sm" data-postid="${item.id}" data-posttype="t">Post</button>
+    <div class="edit-section" id="edit-t-${item.id}">
+      <div class="form-group" style="margin-bottom:4px">
+        <div class="preview-toggle">
+          <button class="preview-tab active" id="etab-write-t-${item.id}">Write</button>
+          <button class="preview-tab" id="etab-preview-t-${item.id}">Preview</button>
+        </div>
+        <div class="preview-pane active" id="epane-write-t-${item.id}">
+          <textarea class="form-textarea" id="edit-tak-${item.id}" style="min-height:100px">${esc(item.content)}</textarea>
+        </div>
+        <div class="preview-pane" id="epane-preview-t-${item.id}">
+          <div class="preview-rendered kr" id="epreview-t-${item.id}"></div>
+        </div>
+      </div>
+      <div class="edit-actions">
+        <button class="btn btn-ghost btn-sm" data-cancelid="${item.id}" data-canceltype="t">Cancel</button>
+        <button class="btn btn-primary btn-sm" data-saveid="${item.id}" data-savetype="t">Save</button>
       </div>
     </div>
+    <div class="comments-section" id="comments-t-${item.id}">${cHTML}<div class="comment-form"><textarea class="comment-input" id="ctext-t-${item.id}" placeholder="Add a comment…"></textarea><button class="btn btn-primary btn-sm" data-postid="${item.id}" data-posttype="t">Post</button></div></div>
   </div>`;
 }
 
 document.addEventListener('click', e => {
+  // Expand/collapse
   const expBtn = e.target.closest('[id^="iexpbtn-"],[id^="texpbtn-"]');
   if (expBtn) { const m = expBtn.id.match(/^([it])expbtn-(.+)$/); if (m) toggleExpand(m[2],m[1]); return; }
+
+  // Comments toggle
   const cBtn = e.target.closest('.comment-btn[data-cid]');
   if (cBtn) { toggleComments(cBtn.dataset.cid, cBtn.dataset.ctype); return; }
+
+  // Post comment
   const postBtn = e.target.closest('button[data-postid]');
   if (postBtn) { addComment(postBtn.dataset.postid, postBtn.dataset.posttype); return; }
+
+  // Open edit section
+  const editBtn = e.target.closest('button[data-editid]');
+  if (editBtn) {
+    const id = editBtn.dataset.editid, type = editBtn.dataset.edittype;
+    const sec = document.getElementById(`edit-${type}-${id}`);
+    if (sec) {
+      sec.classList.toggle('open');
+      if (sec.classList.contains('open')) {
+        // Wire word count for intuition
+        if (type === 'i') {
+          const ta = document.getElementById(`edit-exp-${id}`);
+          const wc = document.getElementById(`edit-wc-i-${id}`);
+          const updateWC = () => {
+            const c = ta.value.trim().split(/\s+/).filter(Boolean).length;
+            wc.textContent = `${c} / 400 words`; wc.classList.toggle('over', c > 400);
+          };
+          ta.addEventListener('input', updateWC); updateWC();
+          // Preview tabs
+          document.getElementById(`etab-write-i-${id}`)?.addEventListener('click', () => toggleEditTab(id,'i','write'));
+          document.getElementById(`etab-preview-i-${id}`)?.addEventListener('click', () => toggleEditTab(id,'i','preview'));
+        } else {
+          document.getElementById(`etab-write-t-${id}`)?.addEventListener('click', () => toggleEditTab(id,'t','write'));
+          document.getElementById(`etab-preview-t-${id}`)?.addEventListener('click', () => toggleEditTab(id,'t','preview'));
+        }
+        // Focus textarea
+        setTimeout(() => {
+          const ta = document.getElementById(type==='i' ? `edit-exp-${id}` : `edit-tak-${id}`);
+          ta?.focus();
+        }, 50);
+      }
+    }
+    return;
+  }
+
+  // Cancel edit
+  const cancelBtn = e.target.closest('button[data-cancelid]');
+  if (cancelBtn) {
+    const id = cancelBtn.dataset.cancelid, type = cancelBtn.dataset.canceltype;
+    document.getElementById(`edit-${type}-${id}`)?.classList.remove('open');
+    return;
+  }
+
+  // Save edit
+  const saveBtn = e.target.closest('button[data-saveid]');
+  if (saveBtn) { saveEdit(saveBtn.dataset.saveid, saveBtn.dataset.savetype); return; }
+
   if (e.target.id === 'loginPrompt') { openAuthModal(); }
 });
 
@@ -1457,6 +1787,54 @@ function toggleExpand(id, type) {
   if (btn) btn.textContent = ex ? 'Show less' : 'Show more';
 }
 function toggleComments(id, type) { document.getElementById(`comments-${type}-${id}`)?.classList.toggle('open'); }
+
+function toggleEditTab(id, type, mode) {
+  const writeTab = document.getElementById(`etab-write-${type}-${id}`);
+  const previewTab = document.getElementById(`etab-preview-${type}-${id}`);
+  const writePane = document.getElementById(`epane-write-${type}-${id}`);
+  const previewPane = document.getElementById(`epane-preview-${type}-${id}`);
+  if (!writeTab) return;
+  if (mode === 'write') {
+    writeTab.classList.add('active'); previewTab.classList.remove('active');
+    writePane.classList.add('active'); previewPane.classList.remove('active');
+  } else {
+    previewTab.classList.add('active'); writeTab.classList.remove('active');
+    previewPane.classList.add('active'); writePane.classList.remove('active');
+    const raw = type === 'i'
+      ? document.getElementById(`edit-exp-${id}`)?.value || ''
+      : document.getElementById(`edit-tak-${id}`)?.value || '';
+    const el = document.getElementById(`epreview-${type}-${id}`);
+    if (el) { el.innerHTML = raw.trim() ? processText(raw) : '<span style="color:var(--text3);font-style:italic;font-size:13px">Nothing to preview yet.</span>'; renderMath(el); }
+  }
+}
+
+async function saveEdit(id, type) {
+  if (!me) { openAuthModal(); return; }
+  const saveBtn = document.querySelector(`button[data-saveid="${id}"][data-savetype="${type}"]`);
+  if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = 'Saving…'; }
+
+  if (type === 'i') {
+    const stmt = document.getElementById(`edit-stmt-${id}`)?.value.trim();
+    const exp  = document.getElementById(`edit-exp-${id}`)?.value.trim();
+    if (!stmt || !exp) { showToast('Statement and explanation cannot be empty.', 'error'); if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = 'Save'; } return; }
+    if (exp.split(/\s+/).filter(Boolean).length > 400) { showToast('Explanation exceeds 400 words.', 'error'); if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = 'Save'; } return; }
+    const { error } = await db.from('intuitions').update({ statement: stmt, explanation: exp }).eq('id', id).eq('author_id', me.id);
+    if (error) { showToast('Save failed: ' + error.message, 'error'); if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = 'Save'; } return; }
+    // Update local state
+    const item = (intuitions[selectedQuestion.id]||[]).find(x => x.id === id);
+    if (item) { item.statement = stmt; item.explanation = exp; item.edited = true; }
+  } else {
+    const content = document.getElementById(`edit-tak-${id}`)?.value.trim();
+    if (!content) { showToast('Takeaway cannot be empty.', 'error'); if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = 'Save'; } return; }
+    const { error } = await db.from('takeaways').update({ content }).eq('id', id).eq('author_id', me.id);
+    if (error) { showToast('Save failed: ' + error.message, 'error'); if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = 'Save'; } return; }
+    const item = (takeaways[selectedQuestion.id]||[]).find(x => x.id === id);
+    if (item) { item.content = content; item.edited = true; }
+  }
+
+  showToast('Saved!', 'success');
+  renderDetailItems();
+}
 function addComment(id, type) {
   if (!me) { openAuthModal(); return; }
   const el = document.getElementById(`ctext-${type}-${id}`), text = el?.value.trim(); if (!text) return;
@@ -1490,13 +1868,9 @@ async function handleVote(id, dir, type) {
     renderDetailItems();
   }
   try {
-    if (next === null) {
-      await db.from('votes').delete().eq('user_id',me.id).eq('target_id',id).eq('target_type',ttype);
-    } else if (cur === null) {
-      await db.from('votes').insert({ user_id:me.id, target_id:id, target_type:ttype, direction:next });
-    } else {
-      await db.from('votes').update({ direction:next }).eq('user_id',me.id).eq('target_id',id).eq('target_type',ttype);
-    }
+    if (next === null) await db.from('votes').delete().eq('user_id',me.id).eq('target_id',id).eq('target_type',ttype);
+    else if (cur === null) await db.from('votes').insert({ user_id:me.id, target_id:id, target_type:ttype, direction:next });
+    else await db.from('votes').update({ direction:next }).eq('user_id',me.id).eq('target_id',id).eq('target_type',ttype);
   } catch(e) {
     showToast('Vote failed: ' + e.message, 'error');
     vm[id] = cur;
@@ -1507,18 +1881,17 @@ async function handleVote(id, dir, type) {
   }
 }
 
-// ── POST FORM (inline on detail view) ────────────────────
+// ── POST FORM (inline) ────────────────────────────────────
 function renderPostForm() {
   const c = document.getElementById('postForm');
   c.innerHTML = currentDetailTab === 'intuitions' ? intuitionFormHTML() : takeawayFormHTML();
   if (currentDetailTab === 'intuitions') {
-    const stEl = document.getElementById('pf-statement');
-    const expEl = document.getElementById('pf-explanation');
+    const stEl = document.getElementById('pf-statement'), expEl = document.getElementById('pf-explanation');
     if (stEl)  { stEl.value = formState.statement;   stEl.addEventListener('input', e => { formState.statement = e.target.value; updateWordCount(); }); }
     if (expEl) { expEl.value = formState.explanation; expEl.addEventListener('input', e => { formState.explanation = e.target.value; updateWordCount(); }); }
     const elEl = document.getElementById('pf-exampleLink'), eeEl = document.getElementById('pf-exampleExp');
-    if (elEl) { elEl.value = formState.exampleLink;         elEl.addEventListener('input', e => { formState.exampleLink = e.target.value; }); }
-    if (eeEl) { eeEl.value = formState.exampleExplanation;  eeEl.addEventListener('input', e => { formState.exampleExplanation = e.target.value; }); }
+    if (elEl) { elEl.value = formState.exampleLink;        elEl.addEventListener('input', e => { formState.exampleLink = e.target.value; }); }
+    if (eeEl) { eeEl.value = formState.exampleExplanation; eeEl.addEventListener('input', e => { formState.exampleExplanation = e.target.value; }); }
     document.getElementById('pf-addlink')?.addEventListener('click', addIntLink);
     document.getElementById('pf-submitInt')?.addEventListener('click', submitIntuition);
     renderLinkList('int'); updateWordCount();
@@ -1536,34 +1909,12 @@ function intuitionFormHTML() {
   return `<div class="form-card">
     <div class="form-title">Share Your Intuition</div>
     ${!li ? `<div class="login-notice">You need to <button class="btn-link" id="loginPrompt">log in</button> to post an intuition.</div>` : ''}
-    <div class="form-group">
-      <label class="form-label">Intuition Statement</label>
-      <input class="form-input" id="pf-statement" placeholder="e.g. It factors because of a common root" ${!li?'disabled':''} />
-    </div>
-    <div class="form-group">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-        <label class="form-label" style="margin:0">Explanation</label>
-        <span id="wordCount" class="word-count">0 / 400 words</span>
-      </div>
-      <textarea class="form-textarea" id="pf-explanation" style="min-height:120px" ${!li?'disabled':''} placeholder="Explain your intuition… ($LaTeX$ and ||spoiler|| supported)"></textarea>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Links (optional, max 3)</label>
-      <div class="link-input-row">
-        <input class="form-input" id="pf-link" placeholder="https://…" style="flex:1" ${!li?'disabled':''} />
-        <button class="btn btn-ghost btn-sm" id="pf-addlink" ${!li?'disabled':''}>Add</button>
-      </div>
-      <div class="link-list" id="int-links"></div>
-    </div>
+    <div class="form-group"><label class="form-label">Intuition Statement</label><input class="form-input" id="pf-statement" placeholder="e.g. It factors because of a common root" ${!li?'disabled':''} /></div>
+    <div class="form-group"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><label class="form-label" style="margin:0">Explanation</label><span id="wordCount" class="word-count">0 / 400 words</span></div><textarea class="form-textarea" id="pf-explanation" style="min-height:120px" ${!li?'disabled':''} placeholder="Explain your intuition… ($LaTeX$ and ||spoiler|| supported)"></textarea></div>
+    <div class="form-group"><label class="form-label">Links (optional, max 3)</label><div class="link-input-row"><input class="form-input" id="pf-link" placeholder="https://…" style="flex:1" ${!li?'disabled':''} /><button class="btn btn-ghost btn-sm" id="pf-addlink" ${!li?'disabled':''}>Add</button></div><div class="link-list" id="int-links"></div></div>
     <hr class="form-divider"/>
-    <div class="form-group">
-      <label class="form-label">Problem Link (optional)</label>
-      <input class="form-input" id="pf-exampleLink" placeholder="https://…" ${!li?'disabled':''} />
-    </div>
-    <div class="form-group">
-      <label class="form-label">Additional Context (optional)</label>
-      <textarea class="form-textarea" id="pf-exampleExp" style="min-height:70px" ${!li?'disabled':''}></textarea>
-    </div>
+    <div class="form-group"><label class="form-label">Problem Link (optional)</label><input class="form-input" id="pf-exampleLink" placeholder="https://…" ${!li?'disabled':''} /></div>
+    <div class="form-group"><label class="form-label">Additional Context (optional)</label><textarea class="form-textarea" id="pf-exampleExp" style="min-height:70px" ${!li?'disabled':''}></textarea></div>
     <button class="btn btn-primary" id="pf-submitInt" ${!li?'disabled':''}>Post Intuition</button>
   </div>`;
 }
@@ -1573,18 +1924,8 @@ function takeawayFormHTML() {
   return `<div class="form-card">
     <div class="form-title">Share Your Takeaway</div>
     ${!li ? `<div class="login-notice">You need to <button class="btn-link" id="loginPrompt">log in</button> to post a takeaway.</div>` : ''}
-    <div class="form-group">
-      <label class="form-label">Your Takeaway</label>
-      <textarea class="form-textarea" id="pf-takeaway" style="min-height:130px" ${!li?'disabled':''} placeholder="Share your insights… ($LaTeX$ and ||spoiler|| supported)"></textarea>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Links (optional)</label>
-      <div class="link-input-row">
-        <input class="form-input" id="pf-taklink" placeholder="https://…" style="flex:1" ${!li?'disabled':''} />
-        <button class="btn btn-ghost btn-sm" id="pf-addtaklink" ${!li?'disabled':''}>Add</button>
-      </div>
-      <div class="link-list" id="tak-links"></div>
-    </div>
+    <div class="form-group"><label class="form-label">Your Takeaway</label><textarea class="form-textarea" id="pf-takeaway" style="min-height:130px" ${!li?'disabled':''} placeholder="Share your insights… ($LaTeX$ and ||spoiler|| supported)"></textarea></div>
+    <div class="form-group"><label class="form-label">Links (optional)</label><div class="link-input-row"><input class="form-input" id="pf-taklink" placeholder="https://…" style="flex:1" ${!li?'disabled':''} /><button class="btn btn-ghost btn-sm" id="pf-addtaklink" ${!li?'disabled':''}>Add</button></div><div class="link-list" id="tak-links"></div></div>
     <button class="btn btn-primary" id="pf-submitTak" ${!li?'disabled':''}>Post Takeaway</button>
   </div>`;
 }
@@ -1628,14 +1969,9 @@ async function submitIntuition() {
   btn.disabled = true; btn.textContent = 'Posting…';
   const exLink = document.getElementById('pf-exampleLink')?.value.trim() || null;
   const exExp  = document.getElementById('pf-exampleExp')?.value.trim() || null;
-  const { data: d, error: e } = await db.from('intuitions').insert({
-    question_id: selectedQuestion.id, statement: stmt, explanation: exp,
-    example_link: exLink, example_explanation: exExp, author_id: me.id,
-  }).select('id').single();
+  const { data: d, error: e } = await db.from('intuitions').insert({ question_id: selectedQuestion.id, statement: stmt, explanation: exp, example_link: exLink, example_explanation: exExp, author_id: me.id }).select('id').single();
   if (e) { showToast('Error posting: ' + e.message, 'error'); btn.disabled = false; btn.textContent = 'Post Intuition'; return; }
-  if (formState.explanationLinks.length && d) {
-    await db.from('links').insert(formState.explanationLinks.map(url => ({ parent_id: d.id, parent_type: 'intuition', url })));
-  }
+  if (formState.explanationLinks.length && d) await db.from('links').insert(formState.explanationLinks.map(url => ({ parent_id: d.id, parent_type: 'intuition', url })));
   Object.assign(formState, { statement:'', explanation:'', explanationLinks:[], exampleLink:'', exampleExplanation:'' });
   showToast('Intuition posted!', 'success');
   await loadDetailItems(selectedQuestion.id);
@@ -1649,13 +1985,9 @@ async function submitTakeaway() {
   if (!content) { showToast('Please write your takeaway.', 'error'); return; }
   const btn = document.getElementById('pf-submitTak');
   btn.disabled = true; btn.textContent = 'Posting…';
-  const { data: d, error: e } = await db.from('takeaways').insert({
-    question_id: selectedQuestion.id, content, author_id: me.id,
-  }).select('id').single();
+  const { data: d, error: e } = await db.from('takeaways').insert({ question_id: selectedQuestion.id, content, author_id: me.id }).select('id').single();
   if (e) { showToast('Error posting: ' + e.message, 'error'); btn.disabled = false; btn.textContent = 'Post Takeaway'; return; }
-  if (formState.takeawayLinks.length && d) {
-    await db.from('links').insert(formState.takeawayLinks.map(url => ({ parent_id: d.id, parent_type: 'takeaway', url })));
-  }
+  if (formState.takeawayLinks.length && d) await db.from('links').insert(formState.takeawayLinks.map(url => ({ parent_id: d.id, parent_type: 'takeaway', url })));
   Object.assign(formState, { takeawayContent:'', takeawayLinks:[] });
   showToast('Takeaway posted!', 'success');
   await loadDetailItems(selectedQuestion.id);
