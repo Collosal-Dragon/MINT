@@ -613,16 +613,13 @@ html.light .login-notice{background:rgba(30,122,72,.05);border-color:rgba(30,122
 
     <!-- FIX: Added missing subTopicSearch, subTopicList, subTopicChip elements -->
     <div class="form-group">
-      <div class="form-group">
-        <label class="form-label">Topics</label>
-      
-        <div class="q-search-wrap">
-          <input class="q-search-input" id="topicSearch" placeholder="Select topics…" />
-          <div class="q-picker-list" id="topicList"></div>
-        </div>
-      
-        <div class="q-selected-chips" id="topicChips"></div>
+      <label class="form-label">Topic</label>
+      <div class="q-search-wrap" style="position:relative;margin-bottom:0">
+        <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input class="q-search-input" id="subTopicSearch" placeholder="Search topics…" autocomplete="off" />
+        <div class="q-picker-list" id="subTopicList" style="position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:50;max-height:200px;overflow-y:auto"></div>
       </div>
+      <div id="subTopicChip" style="margin-top:8px"></div>
     </div>
 
     <div class="form-group">
@@ -716,21 +713,10 @@ html.light .login-notice{background:rgba(30,122,72,.05);border-color:rgba(30,122
 const SUPABASE_URL = 'https://idlrmpecdvsofaykphfe.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlkbHJtcGVjZHZzb2ZheWtwaGZlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMzk5NTAsImV4cCI6MjA4OTgxNTk1MH0.FWSllmspL4twQ1aF2q20---HmoLxBM1NqFnQ2OPOoUg';
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-const postSubSubmitBtn = document.getElementById('postSubSubmitBtn');
-const newQTitle = document.getElementById('newQTitle');
-const newQAbout = document.getElementById('newQAbout');
+
 const TOPIC_NAME = 'Combinatorics';
 const SUBS = ['Counting', 'Local techniques', 'Global techniques', 'Graph Theory', 'Grids', 'Processes', 'Constructive processes', 'Others'];
-const ALL_TOPICS = [
-  'Algebra',
-  'Combinatorics',
-  'Geometry',
-  'Number Theory',
-  'Problem Solving'
-];
 
-let selectedTopics = [];
-selectedTopics = [TOPIC_NAME];
 const SSC = {
   'Counting': { structure: [], technique: ['Double Counting', 'Bijections'] },
   'Local techniques': { structure: [], technique: ['Induction', 'Extremal principle', 'Pigeonhole Principle'] },
@@ -2226,88 +2212,6 @@ async function submitTakeaway() {
   renderDetailItems(); renderPostForm();
   window.scrollTo({ top: document.getElementById('dtab-takeaways').offsetTop - 80, behavior: 'smooth' });
 }
-  function renderTopicList(filter = '') {
-  const list = document.getElementById('topicList');
-  list.innerHTML = '';
-
-  ALL_TOPICS
-    .filter(t => t.toLowerCase().includes(filter.toLowerCase()))
-    .forEach(topic => {
-      const div = document.createElement('div');
-      div.className = 'q-picker-item';
-      div.textContent = topic;
-
-      div.onclick = () => {
-        if (!selectedTopics.includes(topic)) {
-          selectedTopics.push(topic);
-          renderTopicChips();
-        }
-      };
-
-      list.appendChild(div);
-    });
-}
-
-function renderTopicChips() {
-  const wrap = document.getElementById('topicChips');
-  wrap.innerHTML = '';
-
-  selectedTopics.forEach(topic => {
-    const chip = document.createElement('div');
-    chip.className = 'q-chip';
-
-    chip.innerHTML = `
-      ${topic}
-      <button class="q-chip-remove">×</button>
-    `;
-
-    chip.querySelector('button').onclick = () => {
-      selectedTopics = selectedTopics.filter(t => t !== topic);
-      renderTopicChips();
-    };
-
-    wrap.appendChild(chip);
-  });
-}
-
-document.getElementById('topicSearch').addEventListener('input', e => {
-  renderTopicList(e.target.value);
-});
-postSubSubmitBtn.onclick = async () => {
-  if (!newQTitle.value.trim()) {
-    alert('Title required');
-    return;
-  }
-
-  if (selectedTopics.length === 0) {
-    alert('Select at least one topic');
-    return;
-  }
-
-  const { data: newQ, error } = await db.from('questions').insert({
-    title: newQTitle.value,
-    about: newQAbout.value
-  }).select().single();
-
-  if (error) {
-    console.error(error);
-    alert('Error creating question');
-    return;
-  }
-
-  for (const topic of selectedTopics) {
-    await db.from('question_topics').insert({
-      question_id: newQ.id,
-      topic: topic
-    });
-  }
-
-  alert('Posted successfully');
-};
-
-// initial load
-renderTopicList();
-renderTopicChips();
 </script>
 </body>
 </html>
