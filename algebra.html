@@ -39,7 +39,7 @@ html.light header{background:rgba(247,246,241,.9)}
 .header-inner{max-width:1040px;margin:0 auto;padding:0 28px;height:62px;display:flex;align-items:center;justify-content:space-between;gap:16px}
 .logo{display:flex;align-items:center;gap:12px;text-decoration:none;flex-shrink:0}
 .logo-mark{width:38px;height:38px;background:linear-gradient(135deg,var(--primary) 0%,var(--primary2) 100%);border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:var(--font-disp);font-size:20px;font-weight:900;color:#0b0c10;box-shadow:0 0 20px rgba(110,231,160,.25);flex-shrink:0}
-.logo-mark-img{width:38px;height:38px;object-fit:contain;border-radius:10px;box-shadow:0 0 20px rgba(110,231,160,.25);}
+.logo-mark-svg{width:38px;height:38px;flex-shrink:0;filter:drop-shadow(0 0 10px rgba(110,231,160,.35));}
 html.light .logo-mark{color:#fff;box-shadow:0 0 20px rgba(30,122,72,.2)}
 .logo-text{display:flex;flex-direction:column;line-height:1.1}
 .logo-name{font-family:var(--font-disp);font-size:1.15rem;font-weight:700;color:var(--text);letter-spacing:.02em}
@@ -358,11 +358,35 @@ html.light .q-picker-item.selected .q-picker-check svg{color:#fff}
 
 <header>
   <div class="header-inner">
-    <img src="logo.png" class="logo-mark-img" />
-      <div class="logo-text">
-        <span class="logo-name">MINT</span>
-        <span class="logo-tagline">Math Olympiad Intuition</span>
-      </div>
+    <!-- FIX: Inline SVG logo matching the uploaded triangle/cube design -->
+    <svg class="logo-mark-svg" width="38" height="38" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="lgOuter" x1="50%" y1="0%" x2="50%" y2="100%">
+          <stop offset="0%" style="stop-color:#a8f0d4"/>
+          <stop offset="100%" style="stop-color:#3a9e72"/>
+        </linearGradient>
+        <linearGradient id="lgLeft" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" style="stop-color:#7dd9b4"/>
+          <stop offset="100%" style="stop-color:#5cca9a"/>
+        </linearGradient>
+        <linearGradient id="lgRight" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" style="stop-color:#3db87a"/>
+          <stop offset="100%" style="stop-color:#2a8a58"/>
+        </linearGradient>
+      </defs>
+      <!-- Outer triangle -->
+      <polygon points="50,2 98,95 2,95" fill="url(#lgOuter)" opacity="0.88"/>
+      <!-- Cube top face -->
+      <polygon points="50,33 70,45 50,57 30,45" fill="#dffcf0"/>
+      <!-- Cube left face -->
+      <polygon points="30,45 50,57 50,80 30,68" fill="url(#lgLeft)" opacity="0.95"/>
+      <!-- Cube right face -->
+      <polygon points="70,45 50,57 50,80 70,68" fill="url(#lgRight)" opacity="0.95"/>
+    </svg>
+    <div class="logo-text">
+      <span class="logo-name">MINT</span>
+      <span class="logo-tagline">Math Olympiad Intuition</span>
+    </div>
     <div class="header-right">
       <button class="theme-btn" id="themeBtn" title="Toggle theme">
         <svg id="iconDark" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -509,7 +533,7 @@ html.light .q-picker-item.selected .q-picker-check svg{color:#fff}
     <div class="form-group">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
         <label class="form-label" style="margin:0">Explanation</label>
-        <span id="intWordCount" class="word-count">0 / 400 words</span>
+        <span id="intWordCount" class="word-count">0 / 1500 words</span>
       </div>
       <textarea class="form-textarea" id="intExplanation" style="min-height:120px" placeholder="Explain your intuition… ($LaTeX$ and ||spoiler|| supported)"></textarea>
     </div>
@@ -903,8 +927,8 @@ async function fetchVoteCounts(ids, type) {
   } catch { return {}; }
 }
 async function uploadImage(file){
-  const fileName = `${Date.now()}_${file.name}`;
-  const { data, error } = await db.storage.from('post-images').upload(fileName, file);
+  const fileName = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g,'_')}`;
+  const { data, error } = await db.storage.from('post-images').upload(fileName, file, { cacheControl: '3600', upsert: false });
   if(error) throw error;
   const { data: urlData } = db.storage.from('post-images').getPublicUrl(fileName);
   return urlData.publicUrl;
@@ -1126,7 +1150,7 @@ function openGlobalIntModal(preselectedQId) {
   if (intImgInput) intImgInput.value = '';
   const intImgBox = document.getElementById('intImagePreviewBox');
   if (intImgBox) intImgBox.style.display = 'none';
-  document.getElementById('intWordCount').textContent = '0 / 400 words';
+  document.getElementById('intWordCount').textContent = '0 / 1500 words';
   document.getElementById('postIntError').innerHTML = '';
   renderQPicker('int'); renderIntLinks();
   document.getElementById('postIntModal').classList.add('open');
@@ -1221,7 +1245,7 @@ async function submitGlobalIntuition() {
   const exp  = document.getElementById('intExplanation').value.trim();
   if (!gIntState.selectedQIds.size) { document.getElementById('postIntError').innerHTML = '<div class="err-box">Please select at least one question.</div>'; return; }
   if (!stmt || !exp) { document.getElementById('postIntError').innerHTML = '<div class="err-box">Please fill in the statement and explanation.</div>'; return; }
-  if (exp.split(/\s+/).filter(Boolean).length > 400) { document.getElementById('postIntError').innerHTML = '<div class="err-box">Explanation exceeds 400 words.</div>'; return; }
+  if (exp.split(/\s+/).filter(Boolean).length > 1500) { document.getElementById('postIntError').innerHTML = '<div class="err-box">Explanation exceeds 1500 words.</div>'; return; }
   const btn = document.getElementById('postIntSubmitBtn');
   btn.disabled = true; btn.textContent = 'Posting…';
   const exLink = document.getElementById('intExampleLink').value.trim() || null;
@@ -1356,7 +1380,7 @@ function bindEvents() {
   document.getElementById('intExplanation').addEventListener('input', () => {
     const c = document.getElementById('intExplanation').value.trim().split(/\s+/).filter(Boolean).length;
     const wc = document.getElementById('intWordCount');
-    wc.textContent = `${c} / 400 words`; wc.classList.toggle('over', c > 400);
+    wc.textContent = `${c} / 1500 words`; wc.classList.toggle('over', c > 1500);
   });
   document.getElementById('intAddLink').addEventListener('click', () => {
     const i = document.getElementById('intLinkInput'), v = i?.value.trim(); if (!v) return;
@@ -1567,6 +1591,10 @@ function renderQuestions() {
   container.querySelectorAll('.vote-btn[data-vid]').forEach(btn =>
     btn.addEventListener('click', e => { e.stopPropagation(); handleVote(btn.dataset.vid, btn.dataset.vdir, 'q'); })
   );
+  // FIX: Wire report buttons on question cards
+  container.querySelectorAll('.btn-report[data-reportid]').forEach(btn =>
+    btn.addEventListener('click', e => { e.stopPropagation(); handleReport(btn.dataset.reportid, btn.dataset.reporttype); })
+  );
 }
 
 function questionCardHTML(q, i=0, searchQuery='') {
@@ -1597,7 +1625,13 @@ function questionCardHTML(q, i=0, searchQuery='') {
         }
         return `<span class="${i===0?'tag-primary':'tag-secondary'}">${searchQuery ? highlightText(t, searchQuery) : esc(t)}</span>`;
       }).join('')}</div>
-      <div class="card-meta">${q.createdAt}</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px">
+        <div class="card-meta">${q.createdAt}</div>
+        <button class="btn-report" data-reportid="${q.id}" data-reporttype="question" title="Report this question">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          Report
+        </button>
+      </div>
     </div>
   </div>`;
 }
@@ -1607,6 +1641,17 @@ function setSearchQuery(val) {
   const sc = document.getElementById('searchClear');
   si.value = val; sc.classList.remove('hidden');
   renderQuestions();
+}
+
+// ── REPORT HANDLER (unified) ──────────────────────────────
+async function handleReport(id, type) {
+  if (!me) { openAuthModal(); return; }
+  const label = type === 'question' ? 'question' : type === 'intuition' ? 'intuition' : 'takeaway';
+  const reason = prompt(`Why are you reporting this ${label}?`);
+  if (!reason || !reason.trim()) return;
+  const { error } = await db.from('reports').insert({ target_id: id, target_type: type, reason: reason.trim(), user_id: me.id });
+  if (error) showToast('Report failed: ' + error.message, 'error');
+  else showToast('Reported — thanks for keeping MINT clean.', 'success');
 }
 
 // ── DETAIL VIEW ───────────────────────────────────────────
@@ -1674,7 +1719,13 @@ function renderDetailHeader() {
     <div class="detail-title kr">${esc(q.title)}</div>
     <div class="detail-about"><strong>About:</strong> <span class="kr">${esc(q.about)}</span></div>
     <div class="tags" style="margin:10px 0">${q.tags.map((t,i) => `<span class="${i===0?'tag-primary':'tag-secondary'}">${esc(t)}</span>`).join('')}</div>
-    <div class="detail-meta">${q.createdAt}</div>`;
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div class="detail-meta">${q.createdAt}</div>
+      <button class="btn-report" data-reportid="${q.id}" data-reporttype="question" onclick="handleReport('${q.id}','question')">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        Report
+      </button>
+    </div>`;
   document.querySelectorAll('#detailContent .kr').forEach(renderMath);
 }
 
@@ -1699,10 +1750,12 @@ function renderDetailItems() {
   ic.innerHTML = si.length ? si.map((i,idx) => intuitionCardHTML(i,idx)).join('') : '<div class="empty-state"><span class="empty-icon">💡</span>No intuitions yet. Be the first!</div>';
   ic.querySelectorAll('.kr').forEach(renderMath);
   ic.querySelectorAll('.vote-btn[data-vid]').forEach(btn => btn.addEventListener('click', () => handleVote(btn.dataset.vid, btn.dataset.vdir, 'i')));
+  ic.querySelectorAll('.btn-report[data-reportid]').forEach(btn => btn.addEventListener('click', () => handleReport(btn.dataset.reportid, btn.dataset.reporttype)));
   const tc = document.getElementById('dtab-takeaways'), st = sortItems(tl, currentDetailSort);
   tc.innerHTML = st.length ? st.map((t,idx) => takeawayCardHTML(t,idx)).join('') : '<div class="empty-state"><span class="empty-icon">📝</span>No takeaways yet. Share what you learned!</div>';
   tc.querySelectorAll('.kr').forEach(renderMath);
   tc.querySelectorAll('.vote-btn[data-vid]').forEach(btn => btn.addEventListener('click', () => handleVote(btn.dataset.vid, btn.dataset.vdir, 't')));
+  tc.querySelectorAll('.btn-report[data-reportid]').forEach(btn => btn.addEventListener('click', () => handleReport(btn.dataset.reportid, btn.dataset.reporttype)));
   renderDetailHeader();
 }
 
@@ -1729,7 +1782,7 @@ function intuitionCardHTML(item, idx=0) {
         <div class="i-footer">
           <span>By ${esc(item.author)} · ${item.createdAt}${item.edited?' <span style="color:var(--text3);font-size:11px">(edited)</span>':''}</span>
           <div style="display:flex;align-items:center;gap:6px">
-            <button class="btn-report" data-reportid="${item.id}" data-reporttype="i" title="Report this intuition">
+            <button class="btn-report" data-reportid="${item.id}" data-reporttype="intuition" title="Report this intuition">
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
               Report
             </button>
@@ -1751,7 +1804,7 @@ function intuitionCardHTML(item, idx=0) {
         </div>
         <div class="preview-pane active" id="epane-write-i-${item.id}">
           <textarea class="form-textarea" id="edit-exp-${item.id}" style="min-height:100px">${esc(item.explanation)}</textarea>
-          <div class="edit-word-count" id="edit-wc-i-${item.id}">0 / 400 words</div>
+          <div class="edit-word-count" id="edit-wc-i-${item.id}">0 / 1500 words</div>
         </div>
         <div class="preview-pane" id="epane-preview-i-${item.id}">
           <div class="preview-rendered kr" id="epreview-i-${item.id}"></div>
@@ -1786,7 +1839,7 @@ function takeawayCardHTML(item, idx=0) {
         <div class="i-footer">
           <span>${item.createdAt}${item.edited?' <span style="color:var(--text3);font-size:11px">(edited)</span>':''}</span>
           <div style="display:flex;align-items:center;gap:6px">
-            <button class="btn-report" data-reportid="${item.id}" data-reporttype="t" title="Report this takeaway">
+            <button class="btn-report" data-reportid="${item.id}" data-reporttype="takeaway" title="Report this takeaway">
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
               Report
             </button>
@@ -1818,20 +1871,6 @@ function takeawayCardHTML(item, idx=0) {
   </div>`;
 }
 
-// ── REPORT HANDLER ────────────────────────────────────────
-document.addEventListener('click', async e => {
-  const btn = e.target.closest('[data-reportid]');
-  if (!btn) return;
-  if (!me) { openAuthModal(); return; }
-  const id = btn.dataset.reportid;
-  const type = btn.dataset.reporttype === 'i' ? 'intuition' : 'takeaway';
-  const reason = prompt(`Why are you reporting this ${type}?`);
-  if (!reason) return;
-  const { error } = await db.from('reports').insert({ target_id: id, target_type: type, reason, user_id: me.id });
-  if (error) showToast('Report failed', 'error');
-  else showToast('Reported — thanks for keeping MINT clean.', 'success');
-});
-
 document.addEventListener('click', e => {
   const expBtn = e.target.closest('[id^="iexpbtn-"],[id^="texpbtn-"]');
   if (expBtn) { const m = expBtn.id.match(/^([it])expbtn-(.+)$/); if (m) toggleExpand(m[2],m[1]); return; }
@@ -1854,7 +1893,7 @@ document.addEventListener('click', e => {
           const wc = document.getElementById(`edit-wc-i-${id}`);
           const updateWC = () => {
             const c = ta.value.trim().split(/\s+/).filter(Boolean).length;
-            wc.textContent = `${c} / 400 words`; wc.classList.toggle('over', c > 400);
+            wc.textContent = `${c} / 1500 words`; wc.classList.toggle('over', c > 1500);
           };
           ta.addEventListener('input', updateWC); updateWC();
           document.getElementById(`etab-write-i-${id}`)?.addEventListener('click', () => toggleEditTab(id,'i','write'));
@@ -1927,7 +1966,7 @@ async function saveEdit(id, type) {
     const stmt = document.getElementById(`edit-stmt-${id}`)?.value.trim();
     const exp  = document.getElementById(`edit-exp-${id}`)?.value.trim();
     if (!stmt || !exp) { showToast('Statement and explanation cannot be empty.', 'error'); if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = 'Save'; } return; }
-    if (exp.split(/\s+/).filter(Boolean).length > 400) { showToast('Explanation exceeds 400 words.', 'error'); if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = 'Save'; } return; }
+    if (exp.split(/\s+/).filter(Boolean).length > 1500) { showToast('Explanation exceeds 1500 words.', 'error'); if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = 'Save'; } return; }
     const { error } = await db.from('intuitions').update({ statement: stmt, explanation: exp }).eq('id', id).eq('author_id', me.id);
     if (error) { showToast('Save failed: ' + error.message, 'error'); if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = 'Save'; } return; }
     const item = (intuitions[selectedQuestion.id]||[]).find(x => x.id === id);
@@ -2022,7 +2061,7 @@ function intuitionFormHTML() {
     <div class="form-title">Share Your Intuition</div>
     ${!li ? `<div class="login-notice">You need to <button class="btn-link" id="loginPrompt">log in</button> to post an intuition.</div>` : ''}
     <div class="form-group"><label class="form-label">Intuition Statement</label><input class="form-input" id="pf-statement" placeholder="e.g. It factors because of a common root" ${!li?'disabled':''} /></div>
-    <div class="form-group"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><label class="form-label" style="margin:0">Explanation</label><span id="wordCount" class="word-count">0 / 400 words</span></div><textarea class="form-textarea" id="pf-explanation" style="min-height:120px" ${!li?'disabled':''} placeholder="Explain your intuition… ($LaTeX$ and ||spoiler|| supported)"></textarea></div>
+    <div class="form-group"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><label class="form-label" style="margin:0">Explanation</label><span id="wordCount" class="word-count">0 / 1500 words</span></div><textarea class="form-textarea" id="pf-explanation" style="min-height:120px" ${!li?'disabled':''} placeholder="Explain your intuition… ($LaTeX$ and ||spoiler|| supported)"></textarea></div>
     <div class="form-group"><label class="form-label">Add Image (optional)</label>
       <input type="file" id="pf-intImage" accept="image/*" style="color:var(--text2);font-size:13px" ${!li?'disabled':''} />
       <div class="img-preview-box" id="pf-intImagePreviewBox" style="display:none"><img id="pf-intImagePreview" src="" alt="Preview" /><button class="img-preview-remove" id="pf-intImageRemove"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
@@ -2054,9 +2093,9 @@ function updateWordCount() {
   const el = document.getElementById('pf-explanation'), wc = document.getElementById('wordCount');
   if (!el || !wc) return;
   const c = el.value.trim().split(/\s+/).filter(Boolean).length;
-  wc.textContent = `${c} / 400 words`; wc.classList.toggle('over', c > 400);
+  wc.textContent = `${c} / 1500 words`; wc.classList.toggle('over', c > 1500);
   const btn = document.getElementById('pf-submitInt');
-  if (btn) btn.disabled = c > 400 || !formState.statement.trim() || !formState.explanation.trim();
+  if (btn) btn.disabled = c > 1500 || !formState.statement.trim() || !formState.explanation.trim();
 }
 
 function addIntLink() {
@@ -2089,7 +2128,7 @@ async function submitIntuition() {
   const stmt = document.getElementById('pf-statement')?.value.trim();
   const exp  = document.getElementById('pf-explanation')?.value.trim();
   if (!stmt || !exp) { showToast('Please fill in both the statement and explanation.', 'error'); return; }
-  if (exp.split(/\s+/).filter(Boolean).length > 400) { showToast('Explanation exceeds 400 words.', 'error'); return; }
+  if (exp.split(/\s+/).filter(Boolean).length > 1500) { showToast('Explanation exceeds 1500 words.', 'error'); return; }
   const btn = document.getElementById('pf-submitInt');
   btn.disabled = true; btn.textContent = 'Posting…';
   const exLink = document.getElementById('pf-exampleLink')?.value.trim() || null;
