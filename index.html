@@ -461,7 +461,7 @@ function buildGrid() {
       <div class="t-name" style="color:${c.color}">${name}</div>
       <div class="t-desc">${c.desc}</div>
       <div class="t-tags">
-        ${c.subs.slice(0,3).map(s => `<span class="t-tag">${s}</span>`).join('')}
+        ${(c.subs || []).slice(0,3).map(s => `<span class="t-tag">${s}</span>`).join('')}
         ${c.subs.length > 3 ? `<span class="t-tag">+${c.subs.length - 3}</span>` : ''}
       </div>
     </a>`).join('');
