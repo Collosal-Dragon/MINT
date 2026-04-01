@@ -248,11 +248,11 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const CATS = {
-  'Algebra':         { glyph:'𝑥²', color:'#7ab0f5', desc:'Expressions, equations, polynomials and algebraic structures.',        subs:['Exponents','Polynomials','Inequalities','AM-GM','Cauchy-Schwarz'],   page:'algebra.html' },
-  'Combinatorics':   { glyph:'⊕', color:'#b090f5', desc:'Counting, graphs, permutations and discrete mathematics.',              subs:["Euler's Identity",'Graph Theory','Pigeonhole','Enumeration'],       page:'combinatorics.html' },
-  'Geometry':        { glyph:'△',color:'#6ee7a0', desc:'Shapes, angles, circles and spatial reasoning.',                        subs:['Angle Chasing','Cyclic Quads','Inversion','Circles'],               page:'geometry.html' },
-  'Number Theory':   { glyph:'ℕ',  color:'#f0c060', desc:'Primes, divisibility, modular arithmetic and number systems.',          subs:['Divisibility','GCD/LCM','Modular Arithmetic','Primes'],             page:'number-theory.html' },
-  'Problem Solving': { glyph:'✦',  color:'#f09060', desc:'General strategies, heuristics and meta-techniques for hard problems.',  subs:['Proof Techniques','Pattern Finding','Heuristics','Meta-strategies'],page:'problem-solving.html' },
+  'Algebra':         { glyph:'𝑥²', color:'#7ab0f5', page:'algebra.html' },
+  'Combinatorics':   { glyph:'⊕', color:'#b090f5', page:'combinatorics.html' },
+  'Geometry':        { glyph:'△',color:'#6ee7a0', page:'geometry.html' },
+  'Number Theory':   { glyph:'ℕ',  color:'#f0c060', page:'number-theory.html' },
+  'Problem Solving': { glyph:'✦',  color:'#f09060', page:'problem-solving.html' },
 };
 
 let me = null, profile = null, authMode = 'login', searchCtrl = null, searchTimer = null;
