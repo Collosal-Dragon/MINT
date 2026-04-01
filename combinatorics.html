@@ -36,15 +36,15 @@ html.light .tri{border-left:solid transparent;border-right:solid transparent;bor
 /* ── HEADER ── */
 header{position:sticky;top:0;z-index:100;background:rgba(11,12,16,.85);border-bottom:1px solid var(--border);backdrop-filter:blur(0.3px) saturate(1.2);-webkit-backdrop-filter:blur(0.3px) saturate(1.2)}
 html.light header{background:rgba(247,246,241,.9)}
-.header-inner{max-width:1040px;margin:0 auto;padding:0 28px;height:62px;display:flex;align-items:center;justify-content:space-between;gap:16px}
-.logo{display:flex;align-items:center;gap:12px;text-decoration:none;flex-shrink:0}
-.logo-mark{width:38px;height:38px;background:linear-gradient(135deg,var(--primary) 0%,var(--primary2) 100%);border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:var(--font-disp);font-size:20px;font-weight:900;color:#0b0c10;box-shadow:0 0 20px rgba(110,231,160,.25);flex-shrink:0}
-.logo-mark-svg{width:38px;height:38px;flex-shrink:0;filter:drop-shadow(0 0 10px rgba(110,231,160,.35));}
-html.light .logo-mark{color:#fff;box-shadow:0 0 20px rgba(30,122,72,.2)}
-.logo-text{display:flex;flex-direction:column;line-height:1.1}
+
+/* THREE-COLUMN GRID: logo left | title center | buttons right */
+.header-inner{max-width:1040px;margin:0 auto;padding:0 28px;height:62px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center}
+
+.logo-mark-svg{width:38px;height:38px;flex-shrink:0;filter:drop-shadow(0 0 10px rgba(110,231,160,.35));justify-self:start}
+.logo-text{display:flex;flex-direction:column;line-height:1.1;text-align:center;justify-self:center}
 .logo-name{font-family:var(--font-disp);font-size:1.15rem;font-weight:700;color:var(--text);letter-spacing:.02em}
 .logo-tagline{font-size:10.5px;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;font-weight:500}
-.header-right{display:flex;align-items:center;gap:14px}
+.header-right{display:flex;align-items:center;gap:14px;justify-self:end}
 .theme-btn{width:34px;height:34px;border-radius:8px;border:1px solid var(--border2);background:var(--bg3);color:var(--text2);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;flex-shrink:0}
 .theme-btn:hover{border-color:var(--border3);color:var(--text);background:var(--bg4)}
 .user-pill{display:flex;align-items:center;gap:7px;padding:5px 12px 5px 7px;background:var(--bg3);border:1px solid var(--border2);border-radius:20px;font-size:12.5px;color:var(--text2);font-weight:500}
@@ -336,7 +336,7 @@ html.light .login-notice{background:rgba(30,122,72,.05);border-color:rgba(30,122
 .toast.success{border-color:var(--green);color:var(--green)}.toast.error{border-color:var(--red);color:var(--red)}
 @keyframes toastIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 
-@media(max-width:680px){.header-inner{padding:0 18px}main{padding:20px 18px 48px}.logo-tagline{display:none}.topic-layout{grid-template-columns:1fr}.sidebar{position:static}}
+@media(max-width:680px){.header-inner{padding:0 18px;grid-template-columns:auto 1fr auto}main{padding:20px 18px 48px}.logo-tagline{display:none}.topic-layout{grid-template-columns:1fr}.sidebar{position:static}}
 </style>
 </head>
 <body>
@@ -352,6 +352,7 @@ html.light .login-notice{background:rgba(30,122,72,.05);border-color:rgba(30,122
 
 <header>
   <div class="header-inner">
+    <!-- LEFT: logo mark only -->
     <svg class="logo-mark-svg" width="38" height="38" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <clipPath id="clipTriangle">
@@ -370,10 +371,14 @@ html.light .login-notice{background:rgba(30,122,72,.05);border-color:rgba(30,122
         <polygon points="96,96 70,86 50,96" fill="#4f9186"/>
       </g>
     </svg>
+
+    <!-- CENTER: title -->
     <div class="logo-text">
       <span class="logo-name">MINT</span>
       <span class="logo-tagline">Math Olympiad Intuition</span>
     </div>
+
+    <!-- RIGHT: buttons -->
     <div class="header-right">
       <button class="theme-btn" id="themeBtn" title="Toggle theme">
         <svg id="iconDark" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -611,7 +616,6 @@ html.light .login-notice{background:rgba(30,122,72,.05);border-color:rgba(30,122
     <div class="modal-sub">Add a new topic that others can post intuitions and takeaways under</div>
     <div id="postSubError"></div>
 
-    <!-- FIX: Added missing subTopicSearch, subTopicList, subTopicChip elements -->
     <div class="form-group">
       <label class="form-label">Topic</label>
       <div class="q-search-wrap" style="position:relative;margin-bottom:0">
@@ -1318,7 +1322,6 @@ async function submitGlobalTakeaway() {
 }
 
 // ── BOOT ─────────────────────────────────────────────────
-// FIX: Robust dual-gate boot — waits for BOTH KaTeX and DOM to be ready
 let katexReady = false, domReady = false;
 function tryBoot() { if (katexReady && domReady) boot(); }
 function onKatexReady() { katexReady = true; tryBoot(); }
