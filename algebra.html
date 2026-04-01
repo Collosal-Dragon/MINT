@@ -360,28 +360,33 @@ html.light .q-picker-item.selected .q-picker-check svg{color:#fff}
   <div class="header-inner">
     <!-- FIX: Inline SVG logo matching the uploaded triangle/cube design -->
     <svg class="logo-mark-svg" width="38" height="38" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+
       <defs>
-        <linearGradient id="lgOuter" x1="50%" y1="0%" x2="50%" y2="100%">
-          <stop offset="0%" style="stop-color:#a8f0d4"/>
-          <stop offset="100%" style="stop-color:#3a9e72"/>
-        </linearGradient>
-        <linearGradient id="lgLeft" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" style="stop-color:#7dd9b4"/>
-          <stop offset="100%" style="stop-color:#5cca9a"/>
-        </linearGradient>
-        <linearGradient id="lgRight" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" style="stop-color:#3db87a"/>
-          <stop offset="100%" style="stop-color:#2a8a58"/>
-        </linearGradient>
+        <clipPath id="clipTriangle">
+          <polygon points="50,4 96,96 4,96"/>
+        </clipPath>
       </defs>
-      <!-- Outer triangle -->
-      <polygon points="50,2 98,95 2,95" fill="url(#lgOuter)" opacity="0.88"/>
-      <!-- Cube top face -->
-      <polygon points="50,33 70,45 50,57 30,45" fill="#dffcf0"/>
-      <!-- Cube left face -->
-      <polygon points="30,45 50,57 50,80 30,68" fill="url(#lgLeft)" opacity="0.95"/>
-      <!-- Cube right face -->
-      <polygon points="70,45 50,57 50,80 70,68" fill="url(#lgRight)" opacity="0.95"/>
+    
+      <g clip-path="url(#clipTriangle)">
+    
+        <!-- Outer triangle -->
+        <polygon points="50,4 96,96 4,96" fill="#7ec7b4"/>
+    
+        <!-- Pyramid -->
+        <polygon points="50,4 73,48 50,60" fill="#9fd8c8"/>
+        <polygon points="4,96 50,60 50,4" fill="#8ccbb9"/>
+        <polygon points="96,96 50,60 50,4" fill="#6fb3a3"/>
+    
+        <!-- Cube -->
+        <polygon points="50,48 70,58 50,68 30,58" fill="#c9efe3"/>
+        <polygon points="30,58 50,68 50,96 30,86" fill="#8fd0b6"/>
+        <polygon points="70,58 50,68 50,96 70,86" fill="#76bca8"/>
+    
+        <!-- Bottom faces -->
+        <polygon points="4,96 30,86 50,96" fill="#5aa094"/>
+        <polygon points="96,96 70,86 50,96" fill="#4f9186"/>
+    
+      </g>
     </svg>
     <div class="logo-text">
       <span class="logo-name">MINT</span>
