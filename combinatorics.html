@@ -504,7 +504,6 @@ html.light .login-notice{background:rgba(30,122,72,.05);border-color:rgba(30,122
     <div id="postIntError"></div>
     <div class="form-group">
       <label class="form-label">Attach to Question(s)</label>
-      <!-- CHANGED: picker list is now absolutely positioned under the input, hidden until typing -->
       <div class="q-search-wrap" style="position:relative;margin-bottom:0">
         <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <input class="q-search-input" id="intQSearch" placeholder="Type to search questions…" autocomplete="off" />
@@ -567,7 +566,6 @@ html.light .login-notice{background:rgba(30,122,72,.05);border-color:rgba(30,122
     <div id="postTakError"></div>
     <div class="form-group">
       <label class="form-label">Attach to Question(s)</label>
-      <!-- CHANGED: picker list is now absolutely positioned under the input, hidden until typing -->
       <div class="q-search-wrap" style="position:relative;margin-bottom:0">
         <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <input class="q-search-input" id="takQSearch" placeholder="Type to search questions…" autocomplete="off" />
@@ -613,8 +611,19 @@ html.light .login-notice{background:rgba(30,122,72,.05);border-color:rgba(30,122
     <div class="modal-sub">Add a new topic that others can post intuitions and takeaways under</div>
     <div id="postSubError"></div>
 
+    <!-- FIX: Added missing subTopicSearch, subTopicList, subTopicChip elements -->
     <div class="form-group">
-      <label class="form-label">Topic   Title</label>
+      <label class="form-label">Topic</label>
+      <div class="q-search-wrap" style="position:relative;margin-bottom:0">
+        <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input class="q-search-input" id="subTopicSearch" placeholder="Search topics…" autocomplete="off" />
+        <div class="q-picker-list" id="subTopicList" style="position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:50;max-height:200px;overflow-y:auto"></div>
+      </div>
+      <div id="subTopicChip" style="margin-top:8px"></div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Topic Title</label>
       <div class="preview-toggle">
         <button class="preview-tab active" id="qTitleWriteTab">Write</button>
         <button class="preview-tab" id="qTitlePreviewTab">Preview</button>
@@ -709,34 +718,13 @@ const TOPIC_NAME = 'Combinatorics';
 const SUBS = ['Counting', 'Local techniques', 'Global techniques', 'Graph Theory', 'Grids', 'Processes', 'Constructive processes', 'Others'];
 
 const SSC = {
-  'Counting': {
-    structure: [],
-    technique: ['Double Counting', 'Bijections'],
-  },
-  'Local techniques': {
-    structure: [],
-    technique: ['Induction', 'Extremal principle', 'Pigeonhole Principle'],
-  },
-  'Graph Theory': {
-    structure: ['Trees', 'Directed Graphs', 'Cycles'],
-    technique: [],
-  },
-  'Grids': {
-    structure: [],
-    technique: ['Factorisation', 'Inequalities', 'Symmetry'],
-  },
-  'Processes': {
-    structure: ['Algorithms'],
-    technique: [],
-  },
-  'Constructive processes': {
-    structure: [],
-    technique: [],
-  },
-  'Others': {
-    structure: ['Probabilistic methods'],
-    technique: [],
-  }
+  'Counting': { structure: [], technique: ['Double Counting', 'Bijections'] },
+  'Local techniques': { structure: [], technique: ['Induction', 'Extremal principle', 'Pigeonhole Principle'] },
+  'Graph Theory': { structure: ['Trees', 'Directed Graphs', 'Cycles'], technique: [] },
+  'Grids': { structure: [], technique: ['Factorisation', 'Inequalities', 'Symmetry'] },
+  'Processes': { structure: ['Algorithms'], technique: [] },
+  'Constructive processes': { structure: [], technique: [] },
+  'Others': { structure: ['Probabilistic methods'], technique: [] }
 };
 
 function sscTagName(sub, sscName, type) { return `${sub}::${sscName}::${type}`; }
@@ -981,7 +969,8 @@ let selectedNewQTags = new Set();
 function openSubModal(preselectedTopic) {
   selectedSubTopic = preselectedTopic || null;
   selectedNewQTags = new Set();
-  document.getElementById('subTopicSearch').value = '';
+  const searchEl = document.getElementById('subTopicSearch');
+  if (searchEl) searchEl.value = '';
   document.getElementById('newQTitle').value = '';
   document.getElementById('newQAbout').value = '';
   document.getElementById('postSubError').innerHTML = '';
@@ -1003,9 +992,11 @@ function closeSubModal() {
 
 function renderSubTopicPicker(query) {
   const listEl = document.getElementById('subTopicList');
-  if (selectedSubTopic) { listEl.innerHTML = ''; return; }
+  if (!listEl) return;
+  if (selectedSubTopic) { listEl.innerHTML = ''; listEl.style.display = 'none'; return; }
   const lq = query.toLowerCase();
   const filtered = SUBS.filter(s => !lq || s.toLowerCase().includes(lq));
+  listEl.style.display = 'block';
   listEl.innerHTML = filtered.map(s =>
     `<div class="q-picker-item" data-topic="${s}">
       <span class="q-picker-text">
@@ -1015,11 +1006,14 @@ function renderSubTopicPicker(query) {
     </div>`
   ).join('') || `<div style="padding:12px 14px;font-size:13px;color:var(--text3);font-style:italic;font-family:var(--font-serif)">No topics match</div>`;
   listEl.querySelectorAll('.q-picker-item').forEach(item => {
-    item.addEventListener('click', () => {
+    item.addEventListener('mousedown', e => {
+      e.preventDefault();
       selectedSubTopic = item.dataset.topic;
       selectedNewQTags = new Set();
-      document.getElementById('subTopicSearch').value = '';
-      renderSubTopicPicker('');
+      const searchEl = document.getElementById('subTopicSearch');
+      if (searchEl) searchEl.value = '';
+      listEl.style.display = 'none';
+      listEl.innerHTML = '';
       renderSubTopicChip();
       renderNewQSscTags();
     });
@@ -1028,6 +1022,7 @@ function renderSubTopicPicker(query) {
 
 function renderSubTopicChip() {
   const chipEl = document.getElementById('subTopicChip');
+  if (!chipEl) return;
   if (!selectedSubTopic) { chipEl.innerHTML = ''; return; }
   chipEl.innerHTML = `<span class="q-chip" style="background:rgba(93,216,208,.1);border-color:rgba(93,216,208,.25);color:var(--teal)">
     ${esc(selectedSubTopic)}
@@ -1167,7 +1162,7 @@ function openGlobalTakModal(preselectedQId) {
 }
 function closeGlobalTakModal() { document.getElementById('postTakModal').classList.remove('open'); }
 
-// ── QUESTION PICKER (search-as-you-type, no persistent list) ─────────────
+// ── QUESTION PICKER ───────────────────────────────────────
 function renderQPicker(prefix) {
   const searchEl = document.getElementById(`${prefix}QSearch`);
   const listEl   = document.getElementById(`${prefix}QList`);
@@ -1200,7 +1195,7 @@ function renderQPicker(prefix) {
       }).join('');
       listEl.querySelectorAll('.q-picker-item').forEach(item => {
         item.addEventListener('mousedown', e => {
-          e.preventDefault(); // prevent blur before click registers
+          e.preventDefault();
           state.selectedQIds.add(item.dataset.qid);
           searchEl.value = '';
           listEl.style.display = 'none';
@@ -1235,7 +1230,6 @@ function wireQPickers() {
     if (searchEl) {
       searchEl.addEventListener('input', () => renderQPicker(prefix));
       searchEl.addEventListener('blur', () => {
-        // Delay so mousedown on an item fires first
         setTimeout(() => { if (listEl) listEl.style.display = 'none'; }, 150);
       });
       searchEl.addEventListener('focus', () => {
@@ -1324,8 +1318,17 @@ async function submitGlobalTakeaway() {
 }
 
 // ── BOOT ─────────────────────────────────────────────────
-function onKatexReady() { boot(); }
-if (document.readyState !== 'loading' && window.renderMathInElement) boot();
+// FIX: Robust dual-gate boot — waits for BOTH KaTeX and DOM to be ready
+let katexReady = false, domReady = false;
+function tryBoot() { if (katexReady && domReady) boot(); }
+function onKatexReady() { katexReady = true; tryBoot(); }
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => { domReady = true; tryBoot(); });
+} else {
+  domReady = true;
+  if (window.renderMathInElement) katexReady = true;
+  tryBoot();
+}
 
 async function boot() {
   applyTheme(localStorage.getItem('theme') || 'dark');
@@ -1431,7 +1434,17 @@ function bindEvents() {
   document.getElementById('postSubModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeSubModal(); });
   document.getElementById('postSubCancelBtn').addEventListener('click', closeSubModal);
   document.getElementById('postSubSubmitBtn').addEventListener('click', submitSubtopic);
-  document.getElementById('subTopicSearch').addEventListener('input', e => renderSubTopicPicker(e.target.value));
+  const subTopicSearchEl = document.getElementById('subTopicSearch');
+  if (subTopicSearchEl) {
+    subTopicSearchEl.addEventListener('input', e => renderSubTopicPicker(e.target.value));
+    subTopicSearchEl.addEventListener('blur', () => {
+      setTimeout(() => {
+        const listEl = document.getElementById('subTopicList');
+        if (listEl && !selectedSubTopic) listEl.style.display = 'none';
+      }, 150);
+    });
+    subTopicSearchEl.addEventListener('focus', () => renderSubTopicPicker(subTopicSearchEl.value));
+  }
 
   // Post-question modal: title + about live previews
   const makePreviewToggle = (key, getVal) => {
