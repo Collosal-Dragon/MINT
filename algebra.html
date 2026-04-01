@@ -284,17 +284,11 @@ html.light .login-notice{background:rgba(30,122,72,.05);border-color:rgba(30,122
 .q-search-input{width:100%;padding:9px 12px 9px 36px;background:var(--bg3);border:1px solid var(--border2);border-radius:9px;color:var(--text);font-family:var(--font-body);font-size:13.5px;outline:none;transition:all .15s}
 .q-search-input:focus{border-color:var(--primary);background:var(--bg2);box-shadow:0 0 0 3px rgba(110,231,160,.08)}
 .q-search-input::placeholder{color:var(--text3)}
-.q-picker-list{max-height:220px;overflow-y:auto;border:1px solid var(--border2);border-radius:9px;background:var(--bg3)}
+.q-picker-list{max-height:220px;overflow-y:auto;border:1px solid var(--border2);border-radius:9px;background:var(--bg3);box-shadow:var(--shadow-lg)}
 .q-picker-list:empty::after{content:'No questions found';display:block;padding:14px 16px;font-size:13px;color:var(--text3);font-style:italic;font-family:var(--font-serif)}
 .q-picker-item{display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .1s;user-select:none}
 .q-picker-item:last-child{border-bottom:none}
 .q-picker-item:hover{background:var(--bg4)}
-.q-picker-item.selected{background:rgba(110,231,160,.08)}
-.q-picker-check{width:18px;height:18px;border-radius:5px;border:2px solid var(--border3);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .12s}
-.q-picker-item.selected .q-picker-check{background:var(--primary);border-color:var(--primary)}
-.q-picker-check svg{display:none}
-.q-picker-item.selected .q-picker-check svg{display:block;color:#0b0c10}
-html.light .q-picker-item.selected .q-picker-check svg{color:#fff}
 .q-picker-text{flex:1;min-width:0}
 .q-picker-title{font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:var(--font-disp)}
 .q-picker-sub{font-size:11px;color:var(--text3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -358,34 +352,22 @@ html.light .q-picker-item.selected .q-picker-check svg{color:#fff}
 
 <header>
   <div class="header-inner">
-    <!-- FIX: Inline SVG logo matching the uploaded triangle/cube design -->
     <svg class="logo-mark-svg" width="38" height="38" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-
       <defs>
         <clipPath id="clipTriangle">
           <polygon points="50,4 96,96 4,96"/>
         </clipPath>
       </defs>
-    
       <g clip-path="url(#clipTriangle)">
-    
-        <!-- Outer triangle -->
         <polygon points="50,4 96,96 4,96" fill="#7ec7b4"/>
-    
-        <!-- Pyramid -->
         <polygon points="50,4 73,48 50,60" fill="#9fd8c8"/>
         <polygon points="4,96 50,60 50,4" fill="#8ccbb9"/>
         <polygon points="96,96 50,60 50,4" fill="#6fb3a3"/>
-    
-        <!-- Cube -->
         <polygon points="50,48 70,58 50,68 30,58" fill="#c9efe3"/>
         <polygon points="30,58 50,68 50,96 30,86" fill="#8fd0b6"/>
         <polygon points="70,58 50,68 50,96 70,86" fill="#76bca8"/>
-    
-        <!-- Bottom faces -->
         <polygon points="4,96 30,86 50,96" fill="#5aa094"/>
         <polygon points="96,96 70,86 50,96" fill="#4f9186"/>
-    
       </g>
     </svg>
     <div class="logo-text">
@@ -403,7 +385,6 @@ html.light .q-picker-item.selected .q-picker-check svg{color:#fff}
       </div>
       <button class="btn btn-ghost btn-sm" id="authBtn">Log in</button>
 
-      <!-- Post dropdown -->
       <div class="post-dropdown-wrap" id="postDropdownWrap">
         <button class="btn-post-main" id="postDropdownBtn">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -476,7 +457,6 @@ html.light .q-picker-item.selected .q-picker-check svg{color:#fff}
           <button class="tab-btn" data-sort="top">Top</button>
         </div>
       </div>
-      <!-- Results meta -->
       <div class="results-meta">
         <div class="q-count" id="qCount"></div>
         <div id="activeFilterPill"></div>
@@ -524,12 +504,13 @@ html.light .q-picker-item.selected .q-picker-check svg{color:#fff}
     <div id="postIntError"></div>
     <div class="form-group">
       <label class="form-label">Attach to Question(s)</label>
-      <div class="q-search-wrap">
+      <!-- CHANGED: picker list is now absolutely positioned under the input, hidden until typing -->
+      <div class="q-search-wrap" style="position:relative;margin-bottom:0">
         <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input class="q-search-input" id="intQSearch" placeholder="Search questions…" autocomplete="off" />
+        <input class="q-search-input" id="intQSearch" placeholder="Type to search questions…" autocomplete="off" />
+        <div class="q-picker-list" id="intQList" style="position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:50;display:none;max-height:200px;overflow-y:auto"></div>
       </div>
-      <div class="q-picker-list" id="intQList"></div>
-      <div class="q-selected-chips" id="intQChips"></div>
+      <div class="q-selected-chips" id="intQChips" style="margin-top:8px"></div>
     </div>
     <div class="form-group">
       <label class="form-label">Intuition Statement</label>
@@ -586,12 +567,13 @@ html.light .q-picker-item.selected .q-picker-check svg{color:#fff}
     <div id="postTakError"></div>
     <div class="form-group">
       <label class="form-label">Attach to Question(s)</label>
-      <div class="q-search-wrap">
+      <!-- CHANGED: picker list is now absolutely positioned under the input, hidden until typing -->
+      <div class="q-search-wrap" style="position:relative;margin-bottom:0">
         <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input class="q-search-input" id="takQSearch" placeholder="Search questions…" autocomplete="off" />
+        <input class="q-search-input" id="takQSearch" placeholder="Type to search questions…" autocomplete="off" />
+        <div class="q-picker-list" id="takQList" style="position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:50;display:none;max-height:200px;overflow-y:auto"></div>
       </div>
-      <div class="q-picker-list" id="takQList"></div>
-      <div class="q-selected-chips" id="takQChips"></div>
+      <div class="q-selected-chips" id="takQChips" style="margin-top:8px"></div>
     </div>
     <div class="form-group">
       <label class="form-label">Your Takeaway</label>
@@ -1157,7 +1139,11 @@ function openGlobalIntModal(preselectedQId) {
   if (intImgBox) intImgBox.style.display = 'none';
   document.getElementById('intWordCount').textContent = '0 / 1500 words';
   document.getElementById('postIntError').innerHTML = '';
-  renderQPicker('int'); renderIntLinks();
+  document.getElementById('intQSearch').value = '';
+  const intList = document.getElementById('intQList');
+  if (intList) intList.style.display = 'none';
+  renderQChips('int');
+  renderIntLinks();
   document.getElementById('postIntModal').classList.add('open');
   setTimeout(() => { document.getElementById('intQSearch').focus(); wireImagePreview('intImage','intImagePreviewBox','intImagePreview','intImageRemove',gIntState,'imageFile'); }, 80);
 }
@@ -1173,38 +1159,66 @@ function openGlobalTakModal(preselectedQId) {
   const takImgBox = document.getElementById('takImagePreviewBox');
   if (takImgBox) takImgBox.style.display = 'none';
   document.getElementById('postTakError').innerHTML = '';
-  renderQPicker('tak'); renderTakLinks();
+  document.getElementById('takQSearch').value = '';
+  const takList = document.getElementById('takQList');
+  if (takList) takList.style.display = 'none';
+  renderQChips('tak');
+  renderTakLinks();
   document.getElementById('postTakModal').classList.add('open');
   setTimeout(() => { document.getElementById('takQSearch').focus(); wireImagePreview('takImage','takImagePreviewBox','takImagePreview','takImageRemove',gTakState,'imageFile'); }, 80);
 }
 function closeGlobalTakModal() { document.getElementById('postTakModal').classList.remove('open'); }
 
-// ── QUESTION PICKER ───────────────────────────────────────
+// ── QUESTION PICKER (search-as-you-type, no persistent list) ─────────────
 function renderQPicker(prefix) {
   const searchEl = document.getElementById(`${prefix}QSearch`);
   const listEl   = document.getElementById(`${prefix}QList`);
+  const state    = prefix === 'int' ? gIntState : gTakState;
+
+  const q = (searchEl?.value || '').trim().toLowerCase();
+
+  if (!q) {
+    listEl.style.display = 'none';
+    listEl.innerHTML = '';
+  } else {
+    const filtered = questions.filter(x =>
+      !state.selectedQIds.has(x.id) &&
+      (x.title.toLowerCase().includes(q) || (x.about||'').toLowerCase().includes(q))
+    ).slice(0, 8);
+
+    if (!filtered.length) {
+      listEl.style.display = 'none';
+      listEl.innerHTML = '';
+    } else {
+      listEl.style.display = 'block';
+      listEl.innerHTML = filtered.map(x => {
+        const sub = (x.tags.find(t => SUBS.includes(t)) || '');
+        return `<div class="q-picker-item" data-qid="${x.id}">
+          <span class="q-picker-text">
+            <span class="q-picker-title">${esc(x.title)}</span>
+            ${sub ? `<span class="q-picker-sub">${esc(sub)}</span>` : ''}
+          </span>
+        </div>`;
+      }).join('');
+      listEl.querySelectorAll('.q-picker-item').forEach(item => {
+        item.addEventListener('mousedown', e => {
+          e.preventDefault(); // prevent blur before click registers
+          state.selectedQIds.add(item.dataset.qid);
+          searchEl.value = '';
+          listEl.style.display = 'none';
+          listEl.innerHTML = '';
+          renderQChips(prefix);
+        });
+      });
+    }
+  }
+
+  renderQChips(prefix);
+}
+
+function renderQChips(prefix) {
   const chipsEl  = document.getElementById(`${prefix}QChips`);
   const state    = prefix === 'int' ? gIntState : gTakState;
-  const q        = (searchEl?.value || '').trim().toLowerCase();
-  const filtered = questions.filter(x => !q || x.title.toLowerCase().includes(q) || (x.about||'').toLowerCase().includes(q)).slice(0, 40);
-  listEl.innerHTML = filtered.map(x => {
-    const sel = state.selectedQIds.has(x.id);
-    const sub = (x.tags.find(t => SUBS.includes(t)) || '');
-    return `<div class="q-picker-item ${sel?'selected':''}" data-qid="${x.id}">
-      <span class="q-picker-check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></span>
-      <span class="q-picker-text">
-        <span class="q-picker-title">${esc(x.title)}</span>
-        ${sub ? `<span class="q-picker-sub">${esc(sub)}</span>` : ''}
-      </span>
-    </div>`;
-  }).join('');
-  listEl.querySelectorAll('.q-picker-item').forEach(item => {
-    item.addEventListener('click', () => {
-      const id = item.dataset.qid;
-      if (state.selectedQIds.has(id)) state.selectedQIds.delete(id); else state.selectedQIds.add(id);
-      renderQPicker(prefix);
-    });
-  });
   const selectedQs = questions.filter(x => state.selectedQIds.has(x.id));
   chipsEl.innerHTML = selectedQs.map(x =>
     `<span class="q-chip">${esc(x.title.length > 40 ? x.title.substring(0,40)+'…' : x.title)}
@@ -1212,13 +1226,24 @@ function renderQPicker(prefix) {
     </span>`
   ).join('');
   chipsEl.querySelectorAll('.q-chip-remove').forEach(btn => {
-    btn.addEventListener('click', () => { state.selectedQIds.delete(btn.dataset.qid); renderQPicker(prefix); });
+    btn.addEventListener('click', () => { state.selectedQIds.delete(btn.dataset.qid); renderQChips(prefix); });
   });
 }
+
 function wireQPickers() {
   ['int','tak'].forEach(prefix => {
     const searchEl = document.getElementById(`${prefix}QSearch`);
-    if (searchEl) searchEl.addEventListener('input', () => renderQPicker(prefix));
+    const listEl   = document.getElementById(`${prefix}QList`);
+    if (searchEl) {
+      searchEl.addEventListener('input', () => renderQPicker(prefix));
+      searchEl.addEventListener('blur', () => {
+        // Delay so mousedown on an item fires first
+        setTimeout(() => { if (listEl) listEl.style.display = 'none'; }, 150);
+      });
+      searchEl.addEventListener('focus', () => {
+        if (searchEl.value.trim()) renderQPicker(prefix);
+      });
+    }
   });
 }
 
@@ -1596,7 +1621,6 @@ function renderQuestions() {
   container.querySelectorAll('.vote-btn[data-vid]').forEach(btn =>
     btn.addEventListener('click', e => { e.stopPropagation(); handleVote(btn.dataset.vid, btn.dataset.vdir, 'q'); })
   );
-  // FIX: Wire report buttons on question cards
   container.querySelectorAll('.btn-report[data-reportid]').forEach(btn =>
     btn.addEventListener('click', e => { e.stopPropagation(); handleReport(btn.dataset.reportid, btn.dataset.reporttype); })
   );
@@ -1648,7 +1672,7 @@ function setSearchQuery(val) {
   renderQuestions();
 }
 
-// ── REPORT HANDLER (unified) ──────────────────────────────
+// ── REPORT HANDLER ────────────────────────────────────────
 async function handleReport(id, type) {
   if (!me) { openAuthModal(); return; }
   const label = type === 'question' ? 'question' : type === 'intuition' ? 'intuition' : 'takeaway';
@@ -1723,7 +1747,16 @@ function renderDetailHeader() {
   document.getElementById('detailContent').innerHTML = `
     <div class="detail-title kr">${esc(q.title)}</div>
     <div class="detail-about"><strong>About:</strong> <span class="kr">${esc(q.about)}</span></div>
-    <div class="tags" style="margin:10px 0">${q.tags.map((t,i) => `<span class="${i===0?'tag-primary':'tag-secondary'}">${esc(t)}</span>`).join('')}</div>
+    <div class="tags" style="margin:10px 0">${q.tags.map((t,i) => {
+      const ssc = parseSscTag(t);
+      if (ssc) {
+        const col = ssc.type === 'technique' ? 'rgba(240,192,96,.15)' : 'rgba(122,176,245,.15)';
+        const border = ssc.type === 'technique' ? 'rgba(240,192,96,.3)' : 'rgba(122,176,245,.3)';
+        const tc = ssc.type === 'technique' ? 'var(--gold)' : 'var(--blue)';
+        return `<span style="padding:2px 9px;border-radius:10px;font-size:10.5px;font-weight:600;background:${col};color:${tc};border:1px solid ${border}">${ssc.name}</span>`;
+      }
+      return `<span class="${i===0?'tag-primary':'tag-secondary'}">${esc(t)}</span>`;
+    }).join('')}</div>
     <div style="display:flex;align-items:center;justify-content:space-between">
       <div class="detail-meta">${q.createdAt}</div>
       <button class="btn-report" data-reportid="${q.id}" data-reporttype="question" onclick="handleReport('${q.id}','question')">
