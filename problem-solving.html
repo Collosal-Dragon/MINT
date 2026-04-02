@@ -279,6 +279,21 @@ html.light .login-notice{background:rgba(30,122,72,.05);border-color:rgba(30,122
 .sub-preview-tag.technique{background:rgba(240,192,96,.1);color:var(--gold);border:1px solid rgba(240,192,96,.25)}
 .char-count{font-size:11.5px;color:var(--text3);text-align:right;margin-top:4px;font-family:var(--font-mono)}
 
+/* ── TOPIC PICKER (multi-select) ── */
+.topic-picker-grid{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.topic-pill-option{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;font-size:12.5px;font-weight:600;cursor:pointer;border:1px solid var(--border2);background:var(--bg3);color:var(--text2);transition:all .15s;user-select:none}
+.topic-pill-option:hover{border-color:rgba(93,216,208,.4);color:var(--teal);background:rgba(93,216,208,.06)}
+.topic-pill-option.selected{background:rgba(93,216,208,.12);border-color:rgba(93,216,208,.4);color:var(--teal)}
+.topic-pill-option .check-icon{opacity:0;transition:opacity .1s;color:var(--teal)}
+.topic-pill-option.selected .check-icon{opacity:1}
+.topic-pill-option .topic-count{font-size:10px;font-weight:400;opacity:.6;margin-left:2px}
+
+/* ── SSC ACCORDION (multi-topic) ── */
+.ssc-accordion{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+.ssc-accordion-item{background:var(--bg3);border:1px solid var(--border);border-radius:9px;overflow:hidden}
+.ssc-accordion-header{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;font-size:12.5px;font-weight:600;color:var(--teal);background:rgba(93,216,208,.06)}
+.ssc-accordion-body{padding:10px 12px}
+
 /* ── QUESTION SEARCH IN MODAL ── */
 .q-search-wrap{position:relative;margin-bottom:8px}
 .q-search-wrap .search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none}
@@ -612,15 +627,20 @@ html.light .login-notice{background:rgba(30,122,72,.05);border-color:rgba(30,122
     <div class="modal-sub">Add a new topic that others can post intuitions and takeaways under</div>
     <div id="postSubError"></div>
 
-    <!-- FIX: Added missing subTopicSearch, subTopicList, subTopicChip elements -->
+    <!-- MULTI-SELECT TOPIC PICKER -->
     <div class="form-group">
-      <label class="form-label">Topic</label>
-      <div class="q-search-wrap" style="position:relative;margin-bottom:0">
-        <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input class="q-search-input" id="subTopicSearch" placeholder="Search topics…" autocomplete="off" />
-        <div class="q-picker-list" id="subTopicList" style="position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:50;max-height:200px;overflow-y:auto"></div>
+      <label class="form-label">Topics <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text3)">(select one or more)</span></label>
+      <div class="topic-picker-grid" id="topicPickerGrid"></div>
+      <div id="subTopicChips" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px"></div>
+    </div>
+
+    <!-- SSC TAGS — shown per selected topic -->
+    <div id="newQSscWrap" style="display:none">
+      <div class="form-group">
+        <label class="form-label">Tags <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text3)">(optional — grouped by topic)</span></label>
+        <div class="ssc-accordion" id="sscAccordion"></div>
+        <div id="newQSelectedTags" style="display:flex;flex-wrap:wrap;gap:5px;margin-top:8px"></div>
       </div>
-      <div id="subTopicChip" style="margin-top:8px"></div>
     </div>
 
     <div class="form-group">
@@ -648,19 +668,6 @@ html.light .login-notice{background:rgba(30,122,72,.05);border-color:rgba(30,122
       </div>
       <div class="preview-pane" id="qAboutPreviewPane">
         <div class="preview-rendered kr" id="qAboutPreviewContent"></div>
-      </div>
-    </div>
-
-    <div id="newQSscWrap" style="display:none">
-      <div class="form-group">
-        <label class="form-label">Tags <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text3)">(optional)</span></label>
-        <div class="sub-preview show" style="margin-top:0">
-          <div class="sub-preview-label" style="margin-bottom:6px">Structure</div>
-          <div class="sub-preview-tags" id="newQStructureTags"></div>
-          <div class="sub-preview-label" style="margin-top:10px;margin-bottom:6px">Technique</div>
-          <div class="sub-preview-tags" id="newQTechniqueTags"></div>
-        </div>
-        <div id="newQSelectedTags" style="display:flex;flex-wrap:wrap;gap:5px;margin-top:8px"></div>
       </div>
     </div>
 
@@ -748,7 +755,6 @@ const SSC = {
     technique: [],
   }
 };
-
 function sscTagName(sub, sscName, type) { return `${sub}::${sscName}::${type}`; }
 function parseSscTag(tag) {
   const p = tag.split('::');
@@ -984,15 +990,14 @@ function initPostDropdown() {
   });
 }
 
-// ── SUBTOPIC MODAL ────────────────────────────────────────
-let selectedSubTopic = null;
+// ── SUBTOPIC MODAL (MULTI-SELECT) ─────────────────────────
+// Now uses a Set of selected subtopics instead of a single value
+let selectedSubTopics = new Set();
 let selectedNewQTags = new Set();
 
 function openSubModal(preselectedTopic) {
-  selectedSubTopic = preselectedTopic || null;
+  selectedSubTopics = new Set(preselectedTopic ? [preselectedTopic] : []);
   selectedNewQTags = new Set();
-  const searchEl = document.getElementById('subTopicSearch');
-  if (searchEl) searchEl.value = '';
   document.getElementById('newQTitle').value = '';
   document.getElementById('newQAbout').value = '';
   document.getElementById('postSubError').innerHTML = '';
@@ -1002,86 +1007,88 @@ function openSubModal(preselectedTopic) {
     document.getElementById(`${k}WritePane`).classList.add('active');
     document.getElementById(`${k}PreviewPane`).classList.remove('active');
   });
-  renderSubTopicPicker('');
-  renderSubTopicChip();
+  renderTopicPickerGrid();
   renderNewQSscTags();
   document.getElementById('postSubModal').classList.add('open');
   setTimeout(() => document.getElementById('newQTitle').focus(), 80);
 }
+
 function closeSubModal() {
   document.getElementById('postSubModal').classList.remove('open');
 }
 
-function renderSubTopicPicker(query) {
-  const listEl = document.getElementById('subTopicList');
-  if (!listEl) return;
-  if (selectedSubTopic) { listEl.innerHTML = ''; listEl.style.display = 'none'; return; }
-  const lq = query.toLowerCase();
-  const filtered = SUBS.filter(s => !lq || s.toLowerCase().includes(lq));
-  listEl.style.display = 'block';
-  listEl.innerHTML = filtered.map(s =>
-    `<div class="q-picker-item" data-topic="${s}">
-      <span class="q-picker-text">
-        <span class="q-picker-title">${esc(s)}</span>
-        <span class="q-picker-sub">${questions.filter(q => q.tags.includes(s)).length} existing questions</span>
+function renderTopicPickerGrid() {
+  const grid = document.getElementById('topicPickerGrid');
+  if (!grid) return;
+  grid.innerHTML = SUBS.map(sub => {
+    const count = questions.filter(q => q.tags.includes(sub)).length;
+    const sel = selectedSubTopics.has(sub);
+    return `<button class="topic-pill-option${sel ? ' selected' : ''}" data-subtopic="${esc(sub)}">
+      <span class="check-icon">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
       </span>
-    </div>`
-  ).join('') || `<div style="padding:12px 14px;font-size:13px;color:var(--text3);font-style:italic;font-family:var(--font-serif)">No topics match</div>`;
-  listEl.querySelectorAll('.q-picker-item').forEach(item => {
-    item.addEventListener('mousedown', e => {
-      e.preventDefault();
-      selectedSubTopic = item.dataset.topic;
-      selectedNewQTags = new Set();
-      const searchEl = document.getElementById('subTopicSearch');
-      if (searchEl) searchEl.value = '';
-      listEl.style.display = 'none';
-      listEl.innerHTML = '';
-      renderSubTopicChip();
+      ${esc(sub)}
+      <span class="topic-count">${count}</span>
+    </button>`;
+  }).join('');
+
+  grid.querySelectorAll('.topic-pill-option').forEach(pill => {
+    pill.addEventListener('click', () => {
+      const sub = pill.dataset.subtopic;
+      if (selectedSubTopics.has(sub)) {
+        selectedSubTopics.delete(sub);
+        // Remove any SSC tags belonging to this subtopic
+        for (const tag of [...selectedNewQTags]) {
+          const p = parseSscTag(tag);
+          if (p && p.sub === sub) selectedNewQTags.delete(tag);
+        }
+      } else {
+        selectedSubTopics.add(sub);
+      }
+      renderTopicPickerGrid();
       renderNewQSscTags();
     });
   });
 }
 
-function renderSubTopicChip() {
-  const chipEl = document.getElementById('subTopicChip');
-  if (!chipEl) return;
-  if (!selectedSubTopic) { chipEl.innerHTML = ''; return; }
-  chipEl.innerHTML = `<span class="q-chip" style="background:rgba(93,216,208,.1);border-color:rgba(93,216,208,.25);color:var(--teal)">
-    ${esc(selectedSubTopic)}
-    <button class="q-chip-remove" id="clearSubTopic" style="color:var(--teal)">
-      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-    </button>
-  </span>`;
-  document.getElementById('clearSubTopic').addEventListener('click', () => {
-    selectedSubTopic = null;
-    selectedNewQTags = new Set();
-    renderSubTopicPicker('');
-    renderSubTopicChip();
-    renderNewQSscTags();
-  });
-}
-
 function renderNewQSscTags() {
   const wrap = document.getElementById('newQSscWrap');
-  if (!selectedSubTopic || !SSC[selectedSubTopic]) { wrap.style.display = 'none'; return; }
-  wrap.style.display = 'block';
-  const sscData = SSC[selectedSubTopic];
+  const accordion = document.getElementById('sscAccordion');
 
-  const makeTagBtn = (name, type) => {
-    const tagKey = sscTagName(selectedSubTopic, name, type);
+  if (selectedSubTopics.size === 0) {
+    wrap.style.display = 'none';
+    accordion.innerHTML = '';
+    return;
+  }
+
+  wrap.style.display = 'block';
+
+  const makeTagBtn = (sub, name, type) => {
+    const tagKey = sscTagName(sub, name, type);
     const sel = selectedNewQTags.has(tagKey);
-    const col = type === 'technique' ? 'rgba(240,192,96,.15)' : 'rgba(122,176,245,.15)';
-    const colSel = type === 'technique' ? 'rgba(240,192,96,.35)' : 'rgba(122,176,245,.35)';
     const tc = type === 'technique' ? 'var(--gold)' : 'var(--blue)';
-    const border = sel ? colSel : (type === 'technique' ? 'rgba(240,192,96,.2)' : 'rgba(122,176,245,.2)');
-    const bg = sel ? (type === 'technique' ? 'rgba(240,192,96,.25)' : 'rgba(122,176,245,.25)') : col;
+    const bg = sel ? (type === 'technique' ? 'rgba(240,192,96,.25)' : 'rgba(122,176,245,.25)') : (type === 'technique' ? 'rgba(240,192,96,.1)' : 'rgba(122,176,245,.1)');
+    const border = sel ? (type === 'technique' ? 'rgba(240,192,96,.5)' : 'rgba(122,176,245,.5)') : (type === 'technique' ? 'rgba(240,192,96,.2)' : 'rgba(122,176,245,.2)');
     return `<span class="sub-preview-tag ${type}" style="cursor:pointer;background:${bg};border-color:${border};color:${tc};outline:${sel?`2px solid ${tc}`:'none'};outline-offset:1px" data-tagkey="${tagKey}">${esc(name)}</span>`;
   };
 
-  document.getElementById('newQStructureTags').innerHTML = sscData.structure.map(n => makeTagBtn(n,'structure')).join('');
-  document.getElementById('newQTechniqueTags').innerHTML = sscData.technique.map(n => makeTagBtn(n,'technique')).join('');
+  accordion.innerHTML = [...selectedSubTopics].map(sub => {
+    const sscData = SSC[sub];
+    if (!sscData) return '';
+    return `<div class="ssc-accordion-item">
+      <div class="ssc-accordion-header">
+        <span>${esc(sub)}</span>
+      </div>
+      <div class="ssc-accordion-body">
+        <div class="sub-preview-label">Structure</div>
+        <div class="sub-preview-tags" id="ssc-structure-${sub.replace(/[^a-z0-9]/gi,'-')}">${sscData.structure.map(n => makeTagBtn(sub,n,'structure')).join('')}</div>
+        <div class="sub-preview-label" style="margin-top:8px">Technique</div>
+        <div class="sub-preview-tags" id="ssc-technique-${sub.replace(/[^a-z0-9]/gi,'-')}">${sscData.technique.map(n => makeTagBtn(sub,n,'technique')).join('')}</div>
+      </div>
+    </div>`;
+  }).join('');
 
-  document.querySelectorAll('#newQStructureTags [data-tagkey], #newQTechniqueTags [data-tagkey]').forEach(el => {
+  accordion.querySelectorAll('[data-tagkey]').forEach(el => {
     el.addEventListener('click', () => {
       const key = el.dataset.tagkey;
       if (selectedNewQTags.has(key)) selectedNewQTags.delete(key); else selectedNewQTags.add(key);
@@ -1089,6 +1096,7 @@ function renderNewQSscTags() {
     });
   });
 
+  // Render selected tags summary
   const selectedEl = document.getElementById('newQSelectedTags');
   if (selectedNewQTags.size === 0) { selectedEl.innerHTML = ''; return; }
   selectedEl.innerHTML = [...selectedNewQTags].map(key => {
@@ -1111,7 +1119,7 @@ async function submitSubtopic() {
 
   if (!title) { document.getElementById('postSubError').innerHTML = '<div class="err-box">Please enter a question title.</div>'; return; }
   if (!about) { document.getElementById('postSubError').innerHTML = '<div class="err-box">Please add a brief description.</div>'; return; }
-  if (!selectedSubTopic) { document.getElementById('postSubError').innerHTML = '<div class="err-box">Please select a topic.</div>'; return; }
+  if (selectedSubTopics.size === 0) { document.getElementById('postSubError').innerHTML = '<div class="err-box">Please select at least one topic.</div>'; return; }
 
   const btn = document.getElementById('postSubSubmitBtn');
   btn.disabled = true; btn.textContent = 'Posting…';
@@ -1121,7 +1129,8 @@ async function submitSubtopic() {
     if (qErr) throw qErr;
     const qid = qData.id;
 
-    const tagNames = [selectedSubTopic, ...selectedNewQTags];
+    // All selected subtopics + SSC tags
+    const tagNames = [...selectedSubTopics, ...selectedNewQTags];
     for (const tagName of tagNames) {
       let { data: tagRow } = await db.from('tags').select('id').eq('name', tagName).eq('category', TOPIC_NAME).maybeSingle();
       if (!tagRow) {
@@ -1139,7 +1148,7 @@ async function submitSubtopic() {
   } catch(e) {
     document.getElementById('postSubError').innerHTML = `<div class="err-box">Error: ${e.message}</div>`;
   }
-  btn.disabled = false; btn.textContent = 'Post Question';
+  btn.disabled = false; btn.textContent = 'Post Topic';
 }
 
 // ── GLOBAL INTUITION MODAL ────────────────────────────────
@@ -1340,7 +1349,6 @@ async function submitGlobalTakeaway() {
 }
 
 // ── BOOT ─────────────────────────────────────────────────
-// FIX: Robust dual-gate boot — waits for BOTH KaTeX and DOM to be ready
 let katexReady = false, domReady = false;
 function tryBoot() { if (katexReady && domReady) boot(); }
 function onKatexReady() { katexReady = true; tryBoot(); }
@@ -1456,17 +1464,6 @@ function bindEvents() {
   document.getElementById('postSubModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeSubModal(); });
   document.getElementById('postSubCancelBtn').addEventListener('click', closeSubModal);
   document.getElementById('postSubSubmitBtn').addEventListener('click', submitSubtopic);
-  const subTopicSearchEl = document.getElementById('subTopicSearch');
-  if (subTopicSearchEl) {
-    subTopicSearchEl.addEventListener('input', e => renderSubTopicPicker(e.target.value));
-    subTopicSearchEl.addEventListener('blur', () => {
-      setTimeout(() => {
-        const listEl = document.getElementById('subTopicList');
-        if (listEl && !selectedSubTopic) listEl.style.display = 'none';
-      }, 150);
-    });
-    subTopicSearchEl.addEventListener('focus', () => renderSubTopicPicker(subTopicSearchEl.value));
-  }
 
   // Post-question modal: title + about live previews
   const makePreviewToggle = (key, getVal) => {
