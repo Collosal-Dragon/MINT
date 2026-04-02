@@ -278,6 +278,21 @@ html.light .login-notice{background:rgba(30,122,72,.05);border-color:rgba(30,122
 .sub-preview-tag.technique{background:rgba(240,192,96,.1);color:var(--gold);border:1px solid rgba(240,192,96,.25)}
 .char-count{font-size:11.5px;color:var(--text3);text-align:right;margin-top:4px;font-family:var(--font-mono)}
 
+/* ── TOPIC PICKER (multi-select) ── */
+.topic-picker-grid{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.topic-pill-option{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;font-size:12.5px;font-weight:600;cursor:pointer;border:1px solid var(--border2);background:var(--bg3);color:var(--text2);transition:all .15s;user-select:none}
+.topic-pill-option:hover{border-color:rgba(93,216,208,.4);color:var(--teal);background:rgba(93,216,208,.06)}
+.topic-pill-option.selected{background:rgba(93,216,208,.12);border-color:rgba(93,216,208,.4);color:var(--teal)}
+.topic-pill-option .check-icon{opacity:0;transition:opacity .1s;color:var(--teal)}
+.topic-pill-option.selected .check-icon{opacity:1}
+.topic-pill-option .topic-count{font-size:10px;font-weight:400;opacity:.6;margin-left:2px}
+
+/* ── SSC ACCORDION (multi-topic) ── */
+.ssc-accordion{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+.ssc-accordion-item{background:var(--bg3);border:1px solid var(--border);border-radius:9px;overflow:hidden}
+.ssc-accordion-header{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;font-size:12.5px;font-weight:600;color:var(--teal);background:rgba(93,216,208,.06)}
+.ssc-accordion-body{padding:10px 12px}
+
 /* ── QUESTION SEARCH IN MODAL ── */
 .q-search-wrap{position:relative;margin-bottom:8px}
 .q-search-wrap .search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none}
@@ -335,13 +350,6 @@ html.light .login-notice{background:rgba(30,122,72,.05);border-color:rgba(30,122
 .toast{position:fixed;bottom:24px;right:24px;z-index:999;background:var(--bg2);border:1px solid var(--border2);border-radius:11px;padding:12px 18px;font-size:13.5px;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:10px;animation:toastIn .25s ease;max-width:320px}
 .toast.success{border-color:var(--green);color:var(--green)}.toast.error{border-color:var(--red);color:var(--red)}
 @keyframes toastIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-
-/* ── CROSS-SUBJECT SSC SECTION ── */
-.cross-sub-ssc-section{margin-top:4px}
-.cross-sub-ssc-header{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:7px;background:var(--bg3);border:1px solid var(--border);margin-bottom:6px}
-.cross-sub-ssc-dot{width:8px;height:8px;border-radius:50%;background:var(--teal);flex-shrink:0}
-.cross-sub-ssc-name{font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.07em}
-.cross-sub-ssc-divider{border:none;border-top:1px solid var(--border);margin:10px 0 8px}
 
 @media(max-width:680px){.header-inner{padding:0 18px}main{padding:20px 18px 48px}.logo-tagline{display:none}.topic-layout{grid-template-columns:1fr}.sidebar{position:static}}
 </style>
@@ -618,18 +626,20 @@ html.light .login-notice{background:rgba(30,122,72,.05);border-color:rgba(30,122
     <div class="modal-sub">Add a new topic that others can post intuitions and takeaways under</div>
     <div id="postSubError"></div>
 
+    <!-- MULTI-SELECT TOPIC PICKER -->
     <div class="form-group">
-      <label class="form-label">
-        Subject Tags
-        <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text3);margin-left:4px">— select one or more</span>
-      </label>
-      <div class="q-search-wrap" style="position:relative;margin-bottom:0">
-        <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input class="q-search-input" id="subTopicSearch" placeholder="Search subjects… (e.g. Counting, Graph Theory)" autocomplete="off" />
-        <div class="q-picker-list" id="subTopicList" style="position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:50;max-height:200px;overflow-y:auto"></div>
+      <label class="form-label">Topics <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text3)">(select one or more)</span></label>
+      <div class="topic-picker-grid" id="topicPickerGrid"></div>
+      <div id="subTopicChips" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px"></div>
+    </div>
+
+    <!-- SSC TAGS — shown per selected topic -->
+    <div id="newQSscWrap" style="display:none">
+      <div class="form-group">
+        <label class="form-label">Tags <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text3)">(optional — grouped by topic)</span></label>
+        <div class="ssc-accordion" id="sscAccordion"></div>
+        <div id="newQSelectedTags" style="display:flex;flex-wrap:wrap;gap:5px;margin-top:8px"></div>
       </div>
-      <!-- Multi-select chips for selected subtopics -->
-      <div id="subTopicChips" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;min-height:0"></div>
     </div>
 
     <div class="form-group">
@@ -660,15 +670,6 @@ html.light .login-notice{background:rgba(30,122,72,.05);border-color:rgba(30,122
       </div>
     </div>
 
-    <!-- SSC tags — shown when at least one subject is selected, grouped by subject -->
-    <div id="newQSscWrap" style="display:none">
-      <div class="form-group">
-        <label class="form-label">Technique & Structure Tags <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text3)">(optional)</span></label>
-        <div id="newQSscGroups"></div>
-        <div id="newQSelectedTags" style="display:flex;flex-wrap:wrap;gap:5px;margin-top:8px"></div>
-      </div>
-    </div>
-
     <div class="modal-footer">
       <button class="btn btn-ghost" id="postSubCancelBtn">Cancel</button>
       <button class="btn btn-primary" id="postSubSubmitBtn">Post Topic</button>
@@ -682,7 +683,7 @@ html.light .login-notice{background:rgba(30,122,72,.05);border-color:rgba(30,122
     <div class="modal-title">Welcome to MINT</div>
     <div class="modal-sub">Sign in to post questions, share intuitions, and vote</div>
     <button class="btn-google-modal" id="googleSignInBtn">
-      <svg width="18" height="18" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.47 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+      <svg width="18" height="18" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
       Continue with Google
     </button>
     <div class="divider">or continue with email</div>
@@ -732,7 +733,6 @@ const SSC = {
   'Constructive processes': { structure: [], technique: [] },
   'Others': { structure: ['Probabilistic methods'], technique: [] }
 };
-
 function sscTagName(sub, sscName, type) { return `${sub}::${sscName}::${type}`; }
 function parseSscTag(tag) {
   const p = tag.split('::');
@@ -968,19 +968,14 @@ function initPostDropdown() {
   });
 }
 
-// ══════════════════════════════════════════════════════════
-// ── SUBTOPIC MODAL — MULTI-SELECT REWRITE ─────────────────
-// ══════════════════════════════════════════════════════════
-
-// selectedSubTopics is now a SET of subject strings
+// ── SUBTOPIC MODAL (MULTI-SELECT) ─────────────────────────
+// Now uses a Set of selected subtopics instead of a single value
 let selectedSubTopics = new Set();
 let selectedNewQTags = new Set();
 
 function openSubModal(preselectedTopic) {
   selectedSubTopics = new Set(preselectedTopic ? [preselectedTopic] : []);
   selectedNewQTags = new Set();
-  const searchEl = document.getElementById('subTopicSearch');
-  if (searchEl) searchEl.value = '';
   document.getElementById('newQTitle').value = '';
   document.getElementById('newQAbout').value = '';
   document.getElementById('postSubError').innerHTML = '';
@@ -990,8 +985,7 @@ function openSubModal(preselectedTopic) {
     document.getElementById(`${k}WritePane`).classList.add('active');
     document.getElementById(`${k}PreviewPane`).classList.remove('active');
   });
-  renderSubTopicPicker('');
-  renderSubTopicChips();
+  renderTopicPickerGrid();
   renderNewQSscTags();
   document.getElementById('postSubModal').classList.add('open');
   setTimeout(() => document.getElementById('newQTitle').focus(), 80);
@@ -1001,74 +995,35 @@ function closeSubModal() {
   document.getElementById('postSubModal').classList.remove('open');
 }
 
-function renderSubTopicPicker(query) {
-  const listEl = document.getElementById('subTopicList');
-  if (!listEl) return;
-
-  const lq = query.toLowerCase();
-  // Show subjects NOT yet selected
-  const filtered = SUBS.filter(s =>
-    !selectedSubTopics.has(s) && (!lq || s.toLowerCase().includes(lq))
-  );
-
-  if (!filtered.length) {
-    listEl.innerHTML = filtered.length === 0 && selectedSubTopics.size === SUBS.length
-      ? `<div style="padding:12px 14px;font-size:13px;color:var(--text3);font-style:italic;font-family:var(--font-serif)">All subjects selected</div>`
-      : `<div style="padding:12px 14px;font-size:13px;color:var(--text3);font-style:italic;font-family:var(--font-serif)">No subjects match</div>`;
-    listEl.style.display = 'block';
-    return;
-  }
-
-  listEl.style.display = 'block';
-  listEl.innerHTML = filtered.map(s =>
-    `<div class="q-picker-item" data-topic="${esc(s)}">
-      <span class="q-picker-text">
-        <span class="q-picker-title">${esc(s)}</span>
-        <span class="q-picker-sub">${questions.filter(q => q.tags.includes(s)).length} existing questions</span>
+function renderTopicPickerGrid() {
+  const grid = document.getElementById('topicPickerGrid');
+  if (!grid) return;
+  grid.innerHTML = SUBS.map(sub => {
+    const count = questions.filter(q => q.tags.includes(sub)).length;
+    const sel = selectedSubTopics.has(sub);
+    return `<button class="topic-pill-option${sel ? ' selected' : ''}" data-subtopic="${esc(sub)}">
+      <span class="check-icon">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
       </span>
-    </div>`
-  ).join('');
-
-  listEl.querySelectorAll('.q-picker-item').forEach(item => {
-    item.addEventListener('mousedown', e => {
-      e.preventDefault();
-      const topic = item.dataset.topic;
-      selectedSubTopics.add(topic);
-      const searchEl = document.getElementById('subTopicSearch');
-      if (searchEl) searchEl.value = '';
-      listEl.style.display = 'none';
-      listEl.innerHTML = '';
-      renderSubTopicChips();
-      renderNewQSscTags();
-    });
-  });
-}
-
-function renderSubTopicChips() {
-  const chipsEl = document.getElementById('subTopicChips');
-  if (!chipsEl) return;
-
-  if (!selectedSubTopics.size) { chipsEl.innerHTML = ''; return; }
-
-  chipsEl.innerHTML = [...selectedSubTopics].map(sub =>
-    `<span class="q-chip" style="background:rgba(93,216,208,.1);border-color:rgba(93,216,208,.25);color:var(--teal)">
       ${esc(sub)}
-      <button class="q-chip-remove" data-subtopic="${esc(sub)}" style="color:var(--teal)">
-        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
-    </span>`
-  ).join('');
+      <span class="topic-count">${count}</span>
+    </button>`;
+  }).join('');
 
-  chipsEl.querySelectorAll('.q-chip-remove').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const sub = btn.dataset.subtopic;
-      selectedSubTopics.delete(sub);
-      // Also remove any SSC tags belonging to this subject
-      for (const key of [...selectedNewQTags]) {
-        const p = parseSscTag(key);
-        if (p && p.sub === sub) selectedNewQTags.delete(key);
+  grid.querySelectorAll('.topic-pill-option').forEach(pill => {
+    pill.addEventListener('click', () => {
+      const sub = pill.dataset.subtopic;
+      if (selectedSubTopics.has(sub)) {
+        selectedSubTopics.delete(sub);
+        // Remove any SSC tags belonging to this subtopic
+        for (const tag of [...selectedNewQTags]) {
+          const p = parseSscTag(tag);
+          if (p && p.sub === sub) selectedNewQTags.delete(tag);
+        }
+      } else {
+        selectedSubTopics.add(sub);
       }
-      renderSubTopicChips();
+      renderTopicPickerGrid();
       renderNewQSscTags();
     });
   });
@@ -1076,93 +1031,60 @@ function renderSubTopicChips() {
 
 function renderNewQSscTags() {
   const wrap = document.getElementById('newQSscWrap');
-  const groupsEl = document.getElementById('newQSscGroups');
+  const accordion = document.getElementById('sscAccordion');
 
-  if (!selectedSubTopics.size) {
+  if (selectedSubTopics.size === 0) {
     wrap.style.display = 'none';
+    accordion.innerHTML = '';
     return;
   }
 
-  // Collect subjects that actually have SSC tags
-  const subsWithTags = [...selectedSubTopics].filter(sub => {
-    const d = SSC[sub];
-    return d && (d.structure.length > 0 || d.technique.length > 0);
-  });
+  wrap.style.display = 'block';
 
-  if (!subsWithTags.length) {
-    wrap.style.display = 'none';
-  } else {
-    wrap.style.display = 'block';
-  }
+  const makeTagBtn = (sub, name, type) => {
+    const tagKey = sscTagName(sub, name, type);
+    const sel = selectedNewQTags.has(tagKey);
+    const tc = type === 'technique' ? 'var(--gold)' : 'var(--blue)';
+    const bg = sel ? (type === 'technique' ? 'rgba(240,192,96,.25)' : 'rgba(122,176,245,.25)') : (type === 'technique' ? 'rgba(240,192,96,.1)' : 'rgba(122,176,245,.1)');
+    const border = sel ? (type === 'technique' ? 'rgba(240,192,96,.5)' : 'rgba(122,176,245,.5)') : (type === 'technique' ? 'rgba(240,192,96,.2)' : 'rgba(122,176,245,.2)');
+    return `<span class="sub-preview-tag ${type}" style="cursor:pointer;background:${bg};border-color:${border};color:${tc};outline:${sel?`2px solid ${tc}`:'none'};outline-offset:1px" data-tagkey="${tagKey}">${esc(name)}</span>`;
+  };
 
-  // Build grouped SSC tag pickers — one group per selected subject
-  groupsEl.innerHTML = subsWithTags.map((sub, idx) => {
+  accordion.innerHTML = [...selectedSubTopics].map(sub => {
     const sscData = SSC[sub];
-    const makeTagBtn = (name, type) => {
-      const tagKey = sscTagName(sub, name, type);
-      const sel = selectedNewQTags.has(tagKey);
-      const bg     = type === 'technique'
-        ? (sel ? 'rgba(240,192,96,.3)' : 'rgba(240,192,96,.1)')
-        : (sel ? 'rgba(122,176,245,.3)' : 'rgba(122,176,245,.1)');
-      const border = type === 'technique'
-        ? (sel ? 'rgba(240,192,96,.55)' : 'rgba(240,192,96,.2)')
-        : (sel ? 'rgba(122,176,245,.55)' : 'rgba(122,176,245,.2)');
-      const tc     = type === 'technique' ? 'var(--gold)' : 'var(--blue)';
-      const outline = sel ? `2px solid ${tc}` : 'none';
-      return `<span class="sub-preview-tag ${type}" style="cursor:pointer;background:${bg};border-color:${border};color:${tc};outline:${outline};outline-offset:1px;transition:all .12s" data-tagkey="${tagKey}">${esc(name)}</span>`;
-    };
-
-    const structureHTML = sscData.structure.length
-      ? `<div class="sub-preview-label" style="margin-bottom:5px">Structure</div>
-         <div class="sub-preview-tags" style="margin-bottom:6px">${sscData.structure.map(n => makeTagBtn(n,'structure')).join('')}</div>`
-      : '';
-    const techniqueHTML = sscData.technique.length
-      ? `<div class="sub-preview-label" style="margin-bottom:5px">Technique</div>
-         <div class="sub-preview-tags">${sscData.technique.map(n => makeTagBtn(n,'technique')).join('')}</div>`
-      : '';
-
-    const divider = idx < subsWithTags.length - 1
-      ? `<div class="cross-sub-ssc-divider"></div>`
-      : '';
-
-    return `<div class="cross-sub-ssc-section" data-ssc-sub="${esc(sub)}">
-      <div class="cross-sub-ssc-header">
-        <span class="cross-sub-ssc-dot"></span>
-        <span class="cross-sub-ssc-name">${esc(sub)}</span>
+    if (!sscData) return '';
+    return `<div class="ssc-accordion-item">
+      <div class="ssc-accordion-header">
+        <span>${esc(sub)}</span>
       </div>
-      ${structureHTML}${techniqueHTML}
-      ${divider}
+      <div class="ssc-accordion-body">
+        <div class="sub-preview-label">Structure</div>
+        <div class="sub-preview-tags" id="ssc-structure-${sub.replace(/[^a-z0-9]/gi,'-')}">${sscData.structure.map(n => makeTagBtn(sub,n,'structure')).join('')}</div>
+        <div class="sub-preview-label" style="margin-top:8px">Technique</div>
+        <div class="sub-preview-tags" id="ssc-technique-${sub.replace(/[^a-z0-9]/gi,'-')}">${sscData.technique.map(n => makeTagBtn(sub,n,'technique')).join('')}</div>
+      </div>
     </div>`;
   }).join('');
 
-  // Wire click handlers for all tag buttons
-  groupsEl.querySelectorAll('[data-tagkey]').forEach(el => {
+  accordion.querySelectorAll('[data-tagkey]').forEach(el => {
     el.addEventListener('click', () => {
       const key = el.dataset.tagkey;
-      if (selectedNewQTags.has(key)) selectedNewQTags.delete(key);
-      else selectedNewQTags.add(key);
+      if (selectedNewQTags.has(key)) selectedNewQTags.delete(key); else selectedNewQTags.add(key);
       renderNewQSscTags();
     });
   });
 
-  // Render selected tags summary chips below the groups
+  // Render selected tags summary
   const selectedEl = document.getElementById('newQSelectedTags');
-  if (!selectedNewQTags.size) { selectedEl.innerHTML = ''; return; }
-
+  if (selectedNewQTags.size === 0) { selectedEl.innerHTML = ''; return; }
   selectedEl.innerHTML = [...selectedNewQTags].map(key => {
     const p = parseSscTag(key); if (!p) return '';
     const tc = p.type === 'technique' ? 'var(--gold)' : 'var(--blue)';
-    const bg = p.type === 'technique' ? 'rgba(240,192,96,.12)' : 'rgba(122,176,245,.12)';
-    const brd = p.type === 'technique' ? 'rgba(240,192,96,.25)' : 'rgba(122,176,245,.25)';
-    return `<span style="display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:10px;font-size:11px;font-weight:600;background:${bg};color:${tc};border:1px solid ${brd}">
-      <span style="font-size:9px;opacity:.6">${esc(p.sub)}</span>
+    return `<span style="display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:10px;font-size:11px;font-weight:600;background:${p.type==='technique'?'rgba(240,192,96,.12)':'rgba(122,176,245,.12)'};color:${tc};border:1px solid ${p.type==='technique'?'rgba(240,192,96,.25)':'rgba(122,176,245,.25)'}">
       ${esc(p.name)}
-      <button style="background:none;border:none;cursor:pointer;color:${tc};opacity:.7;padding:0;display:flex;align-items:center" data-rmtag="${key}">
-        <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
+      <button style="background:none;border:none;cursor:pointer;color:${tc};opacity:.7;padding:0;display:flex;align-items:center" data-rmtag="${key}"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </span>`;
   }).join('');
-
   selectedEl.querySelectorAll('[data-rmtag]').forEach(btn => {
     btn.addEventListener('click', () => { selectedNewQTags.delete(btn.dataset.rmtag); renderNewQSscTags(); });
   });
@@ -1173,9 +1095,9 @@ async function submitSubtopic() {
   const title = document.getElementById('newQTitle').value.trim();
   const about = document.getElementById('newQAbout').value.trim();
 
-  if (!title) { document.getElementById('postSubError').innerHTML = '<div class="err-box">Please enter a topic title.</div>'; return; }
+  if (!title) { document.getElementById('postSubError').innerHTML = '<div class="err-box">Please enter a question title.</div>'; return; }
   if (!about) { document.getElementById('postSubError').innerHTML = '<div class="err-box">Please add a brief description.</div>'; return; }
-  if (!selectedSubTopics.size) { document.getElementById('postSubError').innerHTML = '<div class="err-box">Please select at least one subject tag.</div>'; return; }
+  if (selectedSubTopics.size === 0) { document.getElementById('postSubError').innerHTML = '<div class="err-box">Please select at least one topic.</div>'; return; }
 
   const btn = document.getElementById('postSubSubmitBtn');
   btn.disabled = true; btn.textContent = 'Posting…';
@@ -1185,9 +1107,8 @@ async function submitSubtopic() {
     if (qErr) throw qErr;
     const qid = qData.id;
 
-    // All selected subject tags + all selected SSC tags
+    // All selected subtopics + SSC tags
     const tagNames = [...selectedSubTopics, ...selectedNewQTags];
-
     for (const tagName of tagNames) {
       let { data: tagRow } = await db.from('tags').select('id').eq('name', tagName).eq('category', TOPIC_NAME).maybeSingle();
       if (!tagRow) {
@@ -1197,7 +1118,7 @@ async function submitSubtopic() {
       if (tagRow?.id) await db.from('question_tags').insert({ question_id: qid, tag_id: tagRow.id });
     }
 
-    showToast('Topic posted!', 'success');
+    showToast('Question posted!', 'success');
     closeSubModal();
     await loadQuestions();
     const newQ = questions.find(q => q.id === qid);
@@ -1521,17 +1442,6 @@ function bindEvents() {
   document.getElementById('postSubModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeSubModal(); });
   document.getElementById('postSubCancelBtn').addEventListener('click', closeSubModal);
   document.getElementById('postSubSubmitBtn').addEventListener('click', submitSubtopic);
-  const subTopicSearchEl = document.getElementById('subTopicSearch');
-  if (subTopicSearchEl) {
-    subTopicSearchEl.addEventListener('input', e => renderSubTopicPicker(e.target.value));
-    subTopicSearchEl.addEventListener('blur', () => {
-      setTimeout(() => {
-        const listEl = document.getElementById('subTopicList');
-        if (listEl) listEl.style.display = 'none';
-      }, 150);
-    });
-    subTopicSearchEl.addEventListener('focus', () => renderSubTopicPicker(subTopicSearchEl.value));
-  }
 
   // Post-question modal: title + about live previews
   const makePreviewToggle = (key, getVal) => {
