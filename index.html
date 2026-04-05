@@ -82,7 +82,7 @@ html.light .topic-card:hover{box-shadow:0 12px 32px rgba(0,0,0,.1)}
 html.light .q-card:hover{box-shadow:0 8px 24px rgba(0,0,0,.08)}
 .v-col{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:18px 16px;min-width:62px;border-right:1px solid var(--border);flex-shrink:0}
 .v-score{font-family:var(--font-mono);font-size:14px;font-weight:600;color:var(--text2);line-height:1}
-.v-score.pos{color:var(--green)}.v-score.neg{color:var(--red)}
+.v-score.pos{color:var(--green)}.v-score.neg{color:var(--red).v-score.zero{color:var(--text2)}
 .bulb{display:flex;align-items:center;gap:3px;font-size:10.5px;color:var(--text3);margin-top:5px;font-family:var(--font-mono)}
 .q-body{flex:1;padding:16px 20px;min-width:0}
 .q-title{font-family:var(--font-disp);font-size:1rem;font-weight:600;color:var(--text);margin-bottom:5px;line-height:1.4}
@@ -501,7 +501,15 @@ async function loadRecent(retry = true) {
 
 function cardHTML(q, i = 0) {
   const score = q.up - q.dn, sc = score > 0 ? 'pos' : score < 0 ? 'neg' : 'zero';
-  const cat = q.tags[0] || '', cd = Object.entries(CATS).find(([k]) => k === cat);
+  
+  // Sort tags: known category names first, subtopic tags second
+  const sortedTags = [...q.tags].sort((a, b) => {
+    const aIsCat = a in CATS ? 0 : 1;
+    const bIsCat = b in CATS ? 0 : 1;
+    return aIsCat - bIsCat;
+  });
+  
+  const cat = sortedTags[0] || '', cd = Object.entries(CATS).find(([k]) => k === cat);
   const page = cd ? cd[1].page : 'algebra.html';
   return `<a class="q-card" href="${page}?q=${q.id}" style="animation-delay:${i*55}ms">
     <div class="v-col">
@@ -516,7 +524,7 @@ function cardHTML(q, i = 0) {
     <div class="q-body">
       <div class="q-title kr">${esc(q.title)}</div>
       <div class="q-about"><span class="q-lbl">About </span><span class="kr">${esc(q.about)}</span></div>
-      <div class="q-tags">${q.tags.map((t, i) => `<span class="qtag qtag-${Math.min(i,1)}">${t}</span>`).join('')}</div>
+      <div class="q-tags">${sortedTags.map((t, i) => `<span class="qtag qtag-${Math.min(i,1)}">${t}</span>`).join('')}</div>
       <div class="q-meta">${q.at}</div>
     </div>
   </a>`;
