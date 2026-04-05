@@ -500,7 +500,7 @@ async function loadRecent(retry = true) {
 }
 
 function cardHTML(q, i = 0) {
-  const score = q.up - q.dn, sc = score > 0 ? 'pos' : score < 0 ? 'neg' : '';
+  const score = q.up - q.dn, sc = score > 0 ? 'pos' : score < 0 ? 'neg' : 'zero';
   const cat = q.tags[0] || '', cd = Object.entries(CATS).find(([k]) => k === cat);
   const page = cd ? cd[1].page : 'algebra.html';
   return `<a class="q-card" href="${page}?q=${q.id}" style="animation-delay:${i*55}ms">
