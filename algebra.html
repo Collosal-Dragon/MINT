@@ -509,9 +509,7 @@ html.light .login-notice{background:rgba(30,122,72,.05);border-color:rgba(30,122
   <div id="postForm"></div>
 </main>
 
-<!-- ══════════════════════════════
-     GLOBAL POST INTUITION MODAL
-═══════════════════════════════ -->
+<!-- GLOBAL POST INTUITION MODAL -->
 <div class="modal-overlay" id="postIntModal">
   <div class="modal" style="max-width:600px">
     <div class="modal-title">💡 Post an Intuition</div>
@@ -571,9 +569,7 @@ html.light .login-notice{background:rgba(30,122,72,.05);border-color:rgba(30,122
   </div>
 </div>
 
-<!-- ══════════════════════════════
-     GLOBAL POST TAKEAWAY MODAL
-═══════════════════════════════ -->
+<!-- GLOBAL POST TAKEAWAY MODAL -->
 <div class="modal-overlay" id="postTakModal">
   <div class="modal" style="max-width:600px">
     <div class="modal-title">📝 Post a Takeaway</div>
@@ -617,23 +613,17 @@ html.light .login-notice{background:rgba(30,122,72,.05);border-color:rgba(30,122
   </div>
 </div>
 
-<!-- ══════════════════════════════
-     POST QUESTION MODAL
-═══════════════════════════════ -->
+<!-- POST QUESTION MODAL -->
 <div class="modal-overlay" id="postSubModal">
   <div class="modal" style="max-width:600px">
     <div class="modal-title">🗂 Post a Topic</div>
     <div class="modal-sub">Add a new topic that others can post intuitions and takeaways under</div>
     <div id="postSubError"></div>
-
-    <!-- MULTI-SELECT TOPIC PICKER -->
     <div class="form-group">
       <label class="form-label">Topics <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text3)">(select one or more)</span></label>
       <div class="topic-picker-grid" id="topicPickerGrid"></div>
       <div id="subTopicChips" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px"></div>
     </div>
-
-    <!-- SSC TAGS — shown per selected topic -->
     <div id="newQSscWrap" style="display:none">
       <div class="form-group">
         <label class="form-label">Tags <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text3)">(optional — grouped by topic)</span></label>
@@ -641,7 +631,6 @@ html.light .login-notice{background:rgba(30,122,72,.05);border-color:rgba(30,122
         <div id="newQSelectedTags" style="display:flex;flex-wrap:wrap;gap:5px;margin-top:8px"></div>
       </div>
     </div>
-
     <div class="form-group">
       <label class="form-label">Topic Title</label>
       <div class="preview-toggle">
@@ -655,7 +644,6 @@ html.light .login-notice{background:rgba(30,122,72,.05);border-color:rgba(30,122
         <div class="preview-rendered kr" id="qTitlePreviewContent" style="min-height:44px"></div>
       </div>
     </div>
-
     <div class="form-group">
       <label class="form-label">About <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text3)">(brief description)</span></label>
       <div class="preview-toggle">
@@ -669,7 +657,6 @@ html.light .login-notice{background:rgba(30,122,72,.05);border-color:rgba(30,122
         <div class="preview-rendered kr" id="qAboutPreviewContent"></div>
       </div>
     </div>
-
     <div class="modal-footer">
       <button class="btn btn-ghost" id="postSubCancelBtn">Cancel</button>
       <button class="btn btn-primary" id="postSubSubmitBtn">Post Topic</button>
@@ -760,7 +747,6 @@ let questions = [], intuitions = {}, takeaways = {};
 let questionVotes = {}, intuitionVotes = {}, takeawayVotes = {};
 let selectedQuestion = null, activeSubtopic = null, activeSsc = null, activeSscType = null;
 let currentSort = 'relevance', currentDetailTab = 'intuitions', currentDetailSort = 'relevance';
-let idCounter = 9000;
 const formState = { statement:'', explanation:'', explanationLinks:[], exampleLink:'', exampleExplanation:'', takeawayContent:'', takeawayLinks:[], intImageFile: null, takImageFile: null };
 
 const gIntState = { selectedQIds: new Set(), links: [], imageFile: null };
@@ -982,8 +968,7 @@ function initPostDropdown() {
   });
 }
 
-// ── SUBTOPIC MODAL (MULTI-SELECT) ─────────────────────────
-// Now uses a Set of selected subtopics instead of a single value
+// ── SUBTOPIC MODAL ─────────────────────────────────────────
 let selectedSubTopics = new Set();
 let selectedNewQTags = new Set();
 
@@ -1029,7 +1014,6 @@ function renderTopicPickerGrid() {
       const sub = pill.dataset.subtopic;
       if (selectedSubTopics.has(sub)) {
         selectedSubTopics.delete(sub);
-        // Remove any SSC tags belonging to this subtopic
         for (const tag of [...selectedNewQTags]) {
           const p = parseSscTag(tag);
           if (p && p.sub === sub) selectedNewQTags.delete(tag);
@@ -1068,14 +1052,12 @@ function renderNewQSscTags() {
     const sscData = SSC[sub];
     if (!sscData) return '';
     return `<div class="ssc-accordion-item">
-      <div class="ssc-accordion-header">
-        <span>${esc(sub)}</span>
-      </div>
+      <div class="ssc-accordion-header"><span>${esc(sub)}</span></div>
       <div class="ssc-accordion-body">
         <div class="sub-preview-label">Structure</div>
-        <div class="sub-preview-tags" id="ssc-structure-${sub.replace(/[^a-z0-9]/gi,'-')}">${sscData.structure.map(n => makeTagBtn(sub,n,'structure')).join('')}</div>
+        <div class="sub-preview-tags">${sscData.structure.map(n => makeTagBtn(sub,n,'structure')).join('')}</div>
         <div class="sub-preview-label" style="margin-top:8px">Technique</div>
-        <div class="sub-preview-tags" id="ssc-technique-${sub.replace(/[^a-z0-9]/gi,'-')}">${sscData.technique.map(n => makeTagBtn(sub,n,'technique')).join('')}</div>
+        <div class="sub-preview-tags">${sscData.technique.map(n => makeTagBtn(sub,n,'technique')).join('')}</div>
       </div>
     </div>`;
   }).join('');
@@ -1088,7 +1070,6 @@ function renderNewQSscTags() {
     });
   });
 
-  // Render selected tags summary
   const selectedEl = document.getElementById('newQSelectedTags');
   if (selectedNewQTags.size === 0) { selectedEl.innerHTML = ''; return; }
   selectedEl.innerHTML = [...selectedNewQTags].map(key => {
@@ -1121,7 +1102,6 @@ async function submitSubtopic() {
     if (qErr) throw qErr;
     const qid = qData.id;
 
-    // All selected subtopics + SSC tags
     const tagNames = [...selectedSubTopics, ...selectedNewQTags];
     for (const tagName of tagNames) {
       let { data: tagRow } = await db.from('tags').select('id').eq('name', tagName).eq('category', TOPIC_NAME).maybeSingle();
@@ -1418,7 +1398,6 @@ function buildSidebar() {
 }
 
 function bindEvents() {
-  // Auth
   document.getElementById('authOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeAuthModal(); });
   document.getElementById('googleSignInBtn').addEventListener('click', handleGoogleSignIn);
   document.getElementById('loginTab').addEventListener('click', () => switchAuthTab('login'));
@@ -1426,7 +1405,6 @@ function bindEvents() {
   document.getElementById('authCancelBtn').addEventListener('click', closeAuthModal);
   document.getElementById('authSubmitBtn').addEventListener('click', handleAuthSubmit);
 
-  // Intuition modal
   document.getElementById('postIntModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeGlobalIntModal(); });
   document.getElementById('postIntCancelBtn').addEventListener('click', closeGlobalIntModal);
   document.getElementById('postIntSubmitBtn').addEventListener('click', submitGlobalIntuition);
@@ -1442,7 +1420,6 @@ function bindEvents() {
     gIntState.links.push(v); i.value = ''; renderIntLinks();
   });
 
-  // Takeaway modal
   document.getElementById('postTakModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeGlobalTakModal(); });
   document.getElementById('postTakCancelBtn').addEventListener('click', closeGlobalTakModal);
   document.getElementById('postTakSubmitBtn').addEventListener('click', submitGlobalTakeaway);
@@ -1452,12 +1429,10 @@ function bindEvents() {
     gTakState.links.push(v); i.value = ''; renderTakLinks();
   });
 
-  // Subtopic modal
   document.getElementById('postSubModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeSubModal(); });
   document.getElementById('postSubCancelBtn').addEventListener('click', closeSubModal);
   document.getElementById('postSubSubmitBtn').addEventListener('click', submitSubtopic);
 
-  // Post-question modal: title + about live previews
   const makePreviewToggle = (key, getVal) => {
     document.getElementById(`${key}WriteTab`).addEventListener('click', () => {
       document.getElementById(`${key}WriteTab`).classList.add('active');
@@ -1479,13 +1454,11 @@ function bindEvents() {
   makePreviewToggle('qTitle', () => document.getElementById('newQTitle').value);
   makePreviewToggle('qAbout', () => document.getElementById('newQAbout').value);
 
-  // Back / nav
   document.getElementById('backBtn').addEventListener('click', goBack);
   document.querySelectorAll('.tab-btn[data-sort]').forEach(btn => btn.addEventListener('click', () => switchSort(btn)));
   document.querySelectorAll('.tab-btn[data-dtab]').forEach(btn => btn.addEventListener('click', () => switchDetailTab(btn)));
   document.querySelectorAll('.sort-btn[data-dsort]').forEach(btn => btn.addEventListener('click', () => switchDetailSort(btn)));
 
-  // Search
   const si = document.getElementById('questionSearch'), sc = document.getElementById('searchClear');
   si.addEventListener('input', () => {
     sc.classList.toggle('hidden', !si.value);
@@ -1496,7 +1469,6 @@ function bindEvents() {
     renderQuestions(); si.focus();
   });
 
-  // Keyboard
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
       if (document.getElementById('postSubModal').classList.contains('open')) { closeSubModal(); return; }
@@ -1513,7 +1485,7 @@ function bindEvents() {
   });
 }
 
-// ── LOAD QUESTIONS ─────────────────────────────────────────
+// ── LOAD QUESTIONS — FIXED: removed author_id from select ─
 async function loadQuestions() {
   document.getElementById('questionsList').innerHTML = '<div class="loading-state"><div class="spinner"></div>Loading questions…</div>';
   try {
@@ -1523,11 +1495,11 @@ async function loadQuestions() {
     if (!qtData?.length) { questions = []; renderQuestions(); return; }
     const qIds = [...new Set(qtData.map(qt => qt.question_id))];
     const { data, error } = await db.from('questions')
-      .select('id,author_id,title,about,created_at,question_tags(tags(name)),intuitions(id),takeaways(id)')
+      .select('id,title,about,created_at,question_tags(tags(name)),intuitions(id),takeaways(id)')
       .in('id', qIds).order('created_at', { ascending: false });
     if (error) throw error;
     questions = (data||[]).map(q => ({
-      id: q.id, title: q.title, about: q.about, author_id: q.author_id,
+      id: q.id, title: q.title, about: q.about,
       createdAt: ago(q.created_at), createdAtRaw: q.created_at,
       tags: (q.question_tags||[]).map(qt => qt.tags?.name).filter(Boolean),
       intuitionCount: (q.intuitions||[]).length, takeawayCount: (q.takeaways||[]).length,
@@ -1682,7 +1654,6 @@ function questionCardHTML(q, i=0, searchQuery='') {
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
           Report
         </button>
-        ${me && me.id === q.author_id ? `<button class="btn-edit" onclick="deleteItem('${q.id}','q')" style="color:var(--red)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>Delete</button>` : ''}
       </div>
     </div>
   </div>`;
@@ -1832,7 +1803,6 @@ function renderDetailItems() {
   tc.querySelectorAll('.btn-report[data-reportid]').forEach(btn => btn.addEventListener('click', () => handleReport(btn.dataset.reportid, btn.dataset.reporttype)));
   openSections.forEach(sid => document.getElementById(sid)?.classList.add('open'));
   renderDetailHeader();
-  renderDetailHeader();
 }
 
 function intuitionCardHTML(item, idx=0) {
@@ -1844,7 +1814,7 @@ function intuitionCardHTML(item, idx=0) {
   const cc = (item.comments||[]).length, cHTML = (item.comments||[]).map(c=>`<div class="comment-item"><div class="comment-text">${processText(c.text)}</div><div class="comment-meta">${esc(c.author)} · ${c.createdAt}</div></div>`).join('');
   const isOwn = me && me.id === item.author_id;
   const editBtn = isOwn ? `<button class="btn-edit" data-editid="${item.id}" data-edittype="i"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit</button>` : '';
-  const deleteBtn = isOwn ? `<button class="btn-edit" onclick="deleteItem('${item.id}','t')" style="color:var(--red)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>Delete</button>` : '';
+  const deleteBtn = isOwn ? `<button class="btn-edit" onclick="deleteItem('${item.id}','i')" style="color:var(--red)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>Delete</button>` : '';
   return `<div class="i-card" id="icard-${item.id}" style="animation-delay:${idx*40}ms">
     <div class="i-card-inner">
       <div class="vote-col"><button class="vote-btn ${vu==='up'?'voted-up':''}" data-vid="${item.id}" data-vdir="up"><svg width="16" height="16" viewBox="0 0 24 24" fill="${vu==='up'?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M7 11l5-5 5 5M7 17l5-5 5 5"/></svg></button><span class="vote-score ${sc}">${score}</span><button class="vote-btn ${vu==='down'?'voted-down':''}" data-vid="${item.id}" data-vdir="down"><svg width="16" height="16" viewBox="0 0 24 24" fill="${vu==='down'?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M7 7l5 5 5-5M7 13l5 5 5-5"/></svg></button></div>
@@ -1859,12 +1829,11 @@ function intuitionCardHTML(item, idx=0) {
         <div class="i-footer">
           <span>By ${esc(item.author)} · ${item.createdAt}${item.edited?' <span style="color:var(--text3);font-size:11px">(edited)</span>':''}</span>
           <div style="display:flex;align-items:center;gap:6px">
-            <button class="btn-report" data-reportid="${item.id}" data-reporttype="intuition" title="Report this intuition">
+            <button class="btn-report" data-reportid="${item.id}" data-reporttype="intuition">
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
               Report
             </button>
-            ${editBtn}
-            ${deleteBtn}
+            ${editBtn}${deleteBtn}
             <button class="comment-btn" data-cid="${item.id}" data-ctype="i"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>${cc} comment${cc!==1?'s':''}</button>
           </div>
         </div>
@@ -1918,12 +1887,11 @@ function takeawayCardHTML(item, idx=0) {
         <div class="i-footer">
           <span>${item.createdAt}${item.edited?' <span style="color:var(--text3);font-size:11px">(edited)</span>':''}</span>
           <div style="display:flex;align-items:center;gap:6px">
-            <button class="btn-report" data-reportid="${item.id}" data-reporttype="takeaway" title="Report this takeaway">
+            <button class="btn-report" data-reportid="${item.id}" data-reporttype="takeaway">
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
               Report
             </button>
-            ${editBtn}
-            ${deleteBtn}
+            ${editBtn}${deleteBtn}
             <button class="comment-btn" data-cid="${item.id}" data-ctype="t"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>${cc} comment${cc!==1?'s':''}</button>
           </div>
         </div>
@@ -2036,21 +2004,16 @@ function toggleEditTab(id, type, mode) {
     if (el) { el.innerHTML = raw.trim() ? processText(raw) : '<span style="color:var(--text3);font-style:italic;font-size:13px">Nothing to preview yet.</span>'; renderMath(el); }
   }
 }
+
 async function deleteItem(id, type) {
   if (!me) { openAuthModal(); return; }
   const label = type === 'q' ? 'question' : type === 'i' ? 'intuition' : 'takeaway';
   if (!confirm(`Delete this ${label}? This cannot be undone.`)) return;
-
   const table = type === 'q' ? 'questions' : type === 'i' ? 'intuitions' : 'takeaways';
-  const { error } = await db.from(table).delete().eq('id', id).eq(type === 'q' ? 'id' : 'author_id', type === 'q' ? id : me.id);
-  
+  const { error } = await db.from(table).delete().eq('id', id).eq('author_id', me.id);
   if (error) { showToast('Delete failed: ' + error.message, 'error'); return; }
   showToast(`${label.charAt(0).toUpperCase() + label.slice(1)} deleted.`, 'success');
-
-  if (type === 'q') {
-    goBack();
-    await loadQuestions();
-  } else if (type === 'i' && selectedQuestion) {
+  if (type === 'i' && selectedQuestion) {
     intuitions[selectedQuestion.id] = (intuitions[selectedQuestion.id] || []).filter(x => x.id !== id);
     renderDetailItems();
   } else if (type === 't' && selectedQuestion) {
@@ -2058,6 +2021,7 @@ async function deleteItem(id, type) {
     renderDetailItems();
   }
 }
+
 async function saveEdit(id, type) {
   if (!me) { openAuthModal(); return; }
   const saveBtn = document.querySelector(`button[data-saveid="${id}"][data-savetype="${type}"]`);
@@ -2091,7 +2055,6 @@ async function addComment(id, type) {
   const text = el?.value.trim();
   if (!text) return;
 
-  // Capture which comment sections are currently open before re-render
   const openSections = new Set();
   document.querySelectorAll('.comments-section.open').forEach(sec => openSections.add(sec.id));
 
@@ -2117,7 +2080,6 @@ async function addComment(id, type) {
     item.comments.push(comment);
   }
 
-  // Re-render and restore open state + ensure this section stays open
   openSections.add(`comments-${type}-${id}`);
   renderDetailItems();
   openSections.forEach(sid => document.getElementById(sid)?.classList.add('open'));
