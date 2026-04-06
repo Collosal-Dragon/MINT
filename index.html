@@ -503,16 +503,17 @@ function cardHTML(q, i = 0) {
   const score = q.up - q.dn, sc = score > 0 ? 'pos' : score < 0 ? 'neg' : 'zero';
   
   // Sort tags: known category names first, subtopic tags second
-  const sortedTags = [...q.tags]
-  .filter(t => !t.includes('::'))
-  .sort((a, b) => {
-    const aIsCat = a in CATS ? 0 : 1;
-    const bIsCat = b in CATS ? 0 : 1;
-    return aIsCat - bIsCat;
-  });
+  const sortedTags = [...q.tags].sort((a, b) => {
+  const aIsCat = a in CATS ? 0 : 1;
+  const bIsCat = b in CATS ? 0 : 1;
+  return aIsCat - bIsCat;
+});
   
-  const cat = sortedTags[0] || '', cd = Object.entries(CATS).find(([k]) => k === cat);
-  const page = cd ? cd[1].page : 'algebra.html';
+  const catEntry = sortedTags.reduce((found, t) => {
+    if (found) return found;
+    return Object.entries(CATS).find(([k]) => k === t) || null;
+  }, null);
+  const page = catEntry ? catEntry[1].page : 'problem-solving.html';
   return `<a class="q-card" href="${page}?q=${q.id}" style="animation-delay:${i*55}ms">
     <div class="v-col">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text3)"><polyline points="18 15 12 9 6 15"/></svg>
