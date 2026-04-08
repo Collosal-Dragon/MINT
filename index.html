@@ -496,7 +496,7 @@ async function loadRecent(retry = true) {
     el.innerHTML = '<div class="empty-state"><span class="empty-icon">No questions yet - be the first to post!</div>';
     return;
   }
-  el.innerHTML = qs.map((q, i) => cardHTML(q, i)).join('');
+    el.innerHTML = qs.map((q, i) => cardHTML(q, i)).filter(Boolean).join('');
   el.querySelectorAll('.kr').forEach(renderMath);
 }
 
@@ -504,14 +504,14 @@ function cardHTML(q, i = 0) {
   const score = q.up - q.dn, sc = score > 0 ? 'pos' : score < 0 ? 'neg' : 'zero';
   
   // Sort tags: known category names first, subtopic tags second
-  const sortedTags = [...q.tags].sort((a, b) => {
-  const aIsCat = a in CATS ? 0 : 1;
-  const bIsCat = b in CATS ? 0 : 1;
-  return aIsCat - bIsCat;
-});
+  const sortedTags = [...(q.tags || [])].sort((a, b) => {
+    const aIsCat = a in CATS ? 0 : 1;
+    const bIsCat = b in CATS ? 0 : 1;
+    return aIsCat - bIsCat;
+  });
   
   const catPage = (q.category && CATS[q.category]) ? CATS[q.category].page : 'problem-solving.html';
-  const page = catEntry ? catEntry[1].page : 'problem-solving.html';
+  if (!q.title) return '';
   return `<a class="q-card" href="${catPage}?q=${q.id}" style="animation-delay:${i*55}ms">
     <div class="v-col">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text3)"><polyline points="18 15 12 9 6 15"/></svg>
@@ -568,7 +568,7 @@ async function doSearch() {
       `<strong>${rs.length}</strong> result${rs.length !== 1 ? 's' : ''} for "<em>${esc(q)}</em>"`;
     const el = document.getElementById('searchList');
     el.innerHTML = rs.length
-      ? rs.map((r, i) => cardHTML(r, i)).join('')
+      ? rs.map((r, i) => cardHTML(r, i)).filter(Boolean).join('')
       : '<div class="empty-state">No results found.</div>';
     el.querySelectorAll('.kr').forEach(renderMath);
   } catch(e) {
