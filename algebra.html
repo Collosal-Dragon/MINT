@@ -83,7 +83,7 @@ html.light .btn-primary{color:#fff}
 .btn-link:hover{text-decoration:underline}
 
 /* ── LAYOUT ── */
-main{max-width:1040px;margin:0 auto;padding:28px 28px 60px;position:relative;z-index:1}
+main{max-width:1040px;margin:0 auto;padding:28px 28px 32px;position:relative;z-index:1}
 body{opacity:0;transition:opacity .18s ease}
 body.ready{opacity:1}
 .hidden{display:none!important}
@@ -417,14 +417,14 @@ html.light .login-notice{background:rgba(30,122,72,.05);border-color:rgba(30,122
             <span class="post-menu-icon intuition">💡</span>
             <span>
               <div class="post-menu-label">Post an Intuition</div>
-              <div class="post-menu-sub">Attach your insight to any question</div>
+              <div class="post-menu-sub">Attach your insight to any topic</div>
             </span>
           </button>
           <button class="post-menu-item" id="menuPostTakeaway">
             <span class="post-menu-icon takeaway">📝</span>
             <span>
               <div class="post-menu-label">Post a Takeaway</div>
-              <div class="post-menu-sub">Share what you learned</div>
+              <div class="post-menu-sub">Share what you learned through an example</div>
             </span>
           </button>
           <button class="post-menu-item" id="menuPostSubtopic">
@@ -513,7 +513,9 @@ html.light .login-notice{background:rgba(30,122,72,.05);border-color:rgba(30,122
   <div id="postForm"></div>
 </main>
 
-<!-- GLOBAL POST INTUITION MODAL -->
+<!-- ══════════════════════════════
+     GLOBAL POST INTUITION MODAL
+═══════════════════════════════ -->
 <div class="modal-overlay" id="postIntModal">
   <div class="modal" style="max-width:600px">
     <div class="modal-title">💡 Post an Intuition</div>
@@ -530,14 +532,24 @@ html.light .login-notice{background:rgba(30,122,72,.05);border-color:rgba(30,122
     </div>
     <div class="form-group">
       <label class="form-label">Intuition Statement</label>
-      <input class="form-input" id="intStatement" placeholder="e.g. It factors because of a common root" />
+      <input class="form-input" id="intStatement" placeholder="e.g. Primes become increasingly sparse" />
     </div>
     <div class="form-group">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
         <label class="form-label" style="margin:0">Explanation</label>
         <span id="intWordCount" class="word-count">0 / 1500 words</span>
       </div>
-      <textarea class="form-textarea" id="intExplanation" style="min-height:120px" placeholder="Explain your intuition… ($LaTeX$ and ||spoiler|| supported)"></textarea>
+      <div class="preview-toggle">
+        <button class="preview-tab active" id="intExpWriteTabModal">Write</button>
+        <button class="preview-tab" id="intExpPreviewTabModal">Preview</button>
+      </div>
+      <div class="preview-pane active" id="intExpWritePaneModal">
+        <textarea class="form-textarea" id="intExplanation" style="min-height:120px"
+          placeholder="Explain your intuition… ($LaTeX$ and ||spoiler|| supported)"></textarea>
+      </div>
+      <div class="preview-pane" id="intExpPreviewPaneModal">
+        <div class="preview-rendered kr" id="intExpPreviewContentModal" style="min-height:120px"></div>
+      </div>
     </div>
     <div class="form-group">
       <label class="form-label">Links (optional, max 3)</label>
@@ -559,7 +571,7 @@ html.light .login-notice{background:rgba(30,122,72,.05);border-color:rgba(30,122
     </div>
     <hr class="form-divider"/>
     <div class="form-group">
-      <label class="form-label">Problem Link (optional)</label>
+      <label class="form-label">Problems (optional)</label>
       <input class="form-input" id="intExampleLink" placeholder="https://…" />
     </div>
     <div class="form-group">
@@ -573,7 +585,9 @@ html.light .login-notice{background:rgba(30,122,72,.05);border-color:rgba(30,122
   </div>
 </div>
 
-<!-- GLOBAL POST TAKEAWAY MODAL -->
+<!-- ══════════════════════════════
+     GLOBAL POST TAKEAWAY MODAL
+═══════════════════════════════ -->
 <div class="modal-overlay" id="postTakModal">
   <div class="modal" style="max-width:600px">
     <div class="modal-title">📝 Post a Takeaway</div>
@@ -590,7 +604,17 @@ html.light .login-notice{background:rgba(30,122,72,.05);border-color:rgba(30,122
     </div>
     <div class="form-group">
       <label class="form-label">Your Takeaway</label>
-      <textarea class="form-textarea" id="takContent" style="min-height:130px" placeholder="Share your insights… ($LaTeX$ and ||spoiler|| supported)"></textarea>
+      <div class="preview-toggle">
+        <button class="preview-tab active" id="takExpWriteTabModal">Write</button>
+        <button class="preview-tab" id="takExpPreviewTabModal">Preview</button>
+      </div>
+      <div class="preview-pane active" id="takExpWritePaneModal">
+        <textarea class="form-textarea" id="takContent" style="min-height:130px"
+          placeholder="Share your insights… ($LaTeX$ and ||spoiler|| supported)"></textarea>
+      </div>
+      <div class="preview-pane" id="takExpPreviewPaneModal">
+        <div class="preview-rendered kr" id="takExpPreviewContentModal" style="min-height:130px"></div>
+      </div>
     </div>
     <div class="form-group">
       <label class="form-label">Add Image (optional)</label>
@@ -617,17 +641,23 @@ html.light .login-notice{background:rgba(30,122,72,.05);border-color:rgba(30,122
   </div>
 </div>
 
-<!-- POST QUESTION MODAL -->
+<!-- ══════════════════════════════
+     POST QUESTION MODAL
+═══════════════════════════════ -->
 <div class="modal-overlay" id="postSubModal">
   <div class="modal" style="max-width:600px">
-    <div class="modal-title">🗂 Post a Topic</div>
+    <div class="modal-title">🗂 Investigate a new Topic</div>
     <div class="modal-sub">Add a new topic that others can post intuitions and takeaways under</div>
     <div id="postSubError"></div>
+
+    <!-- MULTI-SELECT TOPIC PICKER -->
     <div class="form-group">
       <label class="form-label">Topics <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text3)">(select one or more)</span></label>
       <div class="topic-picker-grid" id="topicPickerGrid"></div>
       <div id="subTopicChips" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px"></div>
     </div>
+
+    <!-- SSC TAGS — shown per selected topic -->
     <div id="newQSscWrap" style="display:none">
       <div class="form-group">
         <label class="form-label">Tags <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text3)">(optional — grouped by topic)</span></label>
@@ -635,6 +665,7 @@ html.light .login-notice{background:rgba(30,122,72,.05);border-color:rgba(30,122
         <div id="newQSelectedTags" style="display:flex;flex-wrap:wrap;gap:5px;margin-top:8px"></div>
       </div>
     </div>
+
     <div class="form-group">
       <label class="form-label">Topic Title</label>
       <div class="preview-toggle">
@@ -648,6 +679,7 @@ html.light .login-notice{background:rgba(30,122,72,.05);border-color:rgba(30,122
         <div class="preview-rendered kr" id="qTitlePreviewContent" style="min-height:44px"></div>
       </div>
     </div>
+
     <div class="form-group">
       <label class="form-label">About <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text3)">(brief description)</span></label>
       <div class="preview-toggle">
@@ -661,6 +693,7 @@ html.light .login-notice{background:rgba(30,122,72,.05);border-color:rgba(30,122
         <div class="preview-rendered kr" id="qAboutPreviewContent"></div>
       </div>
     </div>
+
     <div class="modal-footer">
       <button class="btn btn-ghost" id="postSubCancelBtn">Cancel</button>
       <button class="btn btn-primary" id="postSubSubmitBtn">Post Topic</button>
@@ -717,27 +750,26 @@ const SUBS = ['Functional Equations', 'Inequality', 'Sequences', 'Polynomials', 
 
 const SSC = {
   'Functional Equations': {
-    structure: ['Reals', 'Positive Reals', 'Rationals/Integers', 'Natural Numbers', 'Injectivity/Surjectivity'],
-    technique: ['Wrapped', 'Inequalities', 'Transformation'],
+    structure: ['Reals', 'Positive Reals', 'Rationals/Integers', 'Natural Numbers', 'Wrapped', 'Injectivity/Surjectivity'],
+    technique: ['Transformation'],
   },
   'Inequality': {
-    structure: ['2 Variable', '3 Variable', 'Geometric Inequalities', 'Convex/Concavity'],
-    technique: ['Tangent Line Trick', 'Smoothing', 'Homogenous', 'AM-GM', 'Cauchy Schwarz Inequality', 'Substitution'],
+    structure: ['2 Variable', '3 Variable', 'Geometric Inequalities'],
+    technique: ['Convex/Concavity', 'Tangent Line Trick', 'Smoothing', 'Homogenous', 'AM-GM', 'Cauchy Schwarz Inequality', 'Substitution'],
   },
   'Sequences': {
     structure: ['Periodic', 'Bounded', 'Monotonic'],
     technique: ['Recurrence Relations', 'Summation Methods'],
   },
   'Polynomials': {
-    structure: ['Coefficients', 'Degree', 'Integer Polynomials', 'Rational Polynomials', 'Real Polynomials', 'Roots'],
-    technique: ['Factorisation', 'Inequalities', 'Symmetry'],
+    structure: ['Coefficients', 'Degree', 'Integer Polynomials', 'Rational Polynomials', 'Real Polynomials', 'Roots', 'Factorisation'],
+    technique: ['Inequalities', 'Symmetry'],
   },
   'Others': {
-    structure: ['Size'],
-    technique: ['Calculus'],
+    structure: [],
+    technique: ['Calculus', 'Size', 'Bounding'],
   }
 };
-
 function sscTagName(sub, sscName, type) { return `${sub}::${sscName}::${type}`; }
 function parseSscTag(tag) {
   const p = tag.split('::');
@@ -751,6 +783,7 @@ let questions = [], intuitions = {}, takeaways = {};
 let questionVotes = {}, intuitionVotes = {}, takeawayVotes = {};
 let selectedQuestion = null, activeSubtopic = null, activeSsc = null, activeSscType = null;
 let currentSort = 'relevance', currentDetailTab = 'intuitions', currentDetailSort = 'relevance';
+let idCounter = 9000;
 const formState = { statement:'', explanation:'', explanationLinks:[], exampleLink:'', exampleExplanation:'', takeawayContent:'', takeawayLinks:[], intImageFile: null, takImageFile: null };
 
 const gIntState = { selectedQIds: new Set(), links: [], imageFile: null };
@@ -972,7 +1005,8 @@ function initPostDropdown() {
   });
 }
 
-// ── SUBTOPIC MODAL ─────────────────────────────────────────
+// ── SUBTOPIC MODAL (MULTI-SELECT) ─────────────────────────
+// Now uses a Set of selected subtopics instead of a single value
 let selectedSubTopics = new Set();
 let selectedNewQTags = new Set();
 
@@ -1018,6 +1052,7 @@ function renderTopicPickerGrid() {
       const sub = pill.dataset.subtopic;
       if (selectedSubTopics.has(sub)) {
         selectedSubTopics.delete(sub);
+        // Remove any SSC tags belonging to this subtopic
         for (const tag of [...selectedNewQTags]) {
           const p = parseSscTag(tag);
           if (p && p.sub === sub) selectedNewQTags.delete(tag);
@@ -1056,12 +1091,14 @@ function renderNewQSscTags() {
     const sscData = SSC[sub];
     if (!sscData) return '';
     return `<div class="ssc-accordion-item">
-      <div class="ssc-accordion-header"><span>${esc(sub)}</span></div>
+      <div class="ssc-accordion-header">
+        <span>${esc(sub)}</span>
+      </div>
       <div class="ssc-accordion-body">
         <div class="sub-preview-label">Structure</div>
-        <div class="sub-preview-tags">${sscData.structure.map(n => makeTagBtn(sub,n,'structure')).join('')}</div>
+        <div class="sub-preview-tags" id="ssc-structure-${sub.replace(/[^a-z0-9]/gi,'-')}">${sscData.structure.map(n => makeTagBtn(sub,n,'structure')).join('')}</div>
         <div class="sub-preview-label" style="margin-top:8px">Technique</div>
-        <div class="sub-preview-tags">${sscData.technique.map(n => makeTagBtn(sub,n,'technique')).join('')}</div>
+        <div class="sub-preview-tags" id="ssc-technique-${sub.replace(/[^a-z0-9]/gi,'-')}">${sscData.technique.map(n => makeTagBtn(sub,n,'technique')).join('')}</div>
       </div>
     </div>`;
   }).join('');
@@ -1074,6 +1111,7 @@ function renderNewQSscTags() {
     });
   });
 
+  // Render selected tags summary
   const selectedEl = document.getElementById('newQSelectedTags');
   if (selectedNewQTags.size === 0) { selectedEl.innerHTML = ''; return; }
   selectedEl.innerHTML = [...selectedNewQTags].map(key => {
@@ -1102,10 +1140,11 @@ async function submitSubtopic() {
   btn.disabled = true; btn.textContent = 'Posting…';
 
   try {
-    const { data: qData, error: qErr } = await db.from('questions').insert({ title, about, author_id: me.id }).select('id').single();
+    const { data: qData, error: qErr } = await db.from('questions').insert({ title, about }).select('id').single();
     if (qErr) throw qErr;
     const qid = qData.id;
 
+    // All selected subtopics + SSC tags
     const tagNames = [...selectedSubTopics, ...selectedNewQTags];
     for (const tagName of tagNames) {
       let { data: tagRow } = await db.from('tags').select('id').eq('name', tagName).eq('category', TOPIC_NAME).maybeSingle();
@@ -1129,6 +1168,11 @@ async function submitSubtopic() {
 
 // ── GLOBAL INTUITION MODAL ────────────────────────────────
 function openGlobalIntModal(preselectedQId) {
+  document.getElementById('intExpWriteTabModal').classList.add('active');
+  document.getElementById('intExpPreviewTabModal').classList.remove('active');
+  document.getElementById('intExpWritePaneModal').classList.add('active');
+  document.getElementById('intExpPreviewPaneModal').classList.remove('active');
+  document.getElementById('intExpPreviewContentModal').innerHTML = '';
   gIntState.selectedQIds = new Set(preselectedQId ? [preselectedQId] : []);
   gIntState.links = [];
   gIntState.imageFile = null;
@@ -1150,6 +1194,11 @@ function openGlobalIntModal(preselectedQId) {
 function closeGlobalIntModal() { document.getElementById('postIntModal').classList.remove('open'); }
 
 function openGlobalTakModal(preselectedQId) {
+  document.getElementById('takExpWriteTabModal').classList.add('active');
+  document.getElementById('takExpPreviewTabModal').classList.remove('active');
+  document.getElementById('takExpWritePaneModal').classList.add('active');
+  document.getElementById('takExpPreviewPaneModal').classList.remove('active');
+  document.getElementById('takExpPreviewContentModal').innerHTML = '';
   gTakState.selectedQIds = new Set(preselectedQId ? [preselectedQId] : []);
   gTakState.links = [];
   gTakState.imageFile = null;
@@ -1402,6 +1451,7 @@ function buildSidebar() {
 }
 
 function bindEvents() {
+  // Auth
   document.getElementById('authOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeAuthModal(); });
   document.getElementById('googleSignInBtn').addEventListener('click', handleGoogleSignIn);
   document.getElementById('loginTab').addEventListener('click', () => switchAuthTab('login'));
@@ -1409,6 +1459,45 @@ function bindEvents() {
   document.getElementById('authCancelBtn').addEventListener('click', closeAuthModal);
   document.getElementById('authSubmitBtn').addEventListener('click', handleAuthSubmit);
 
+  document.getElementById('intExpWriteTabModal').addEventListener('click', () => {
+    document.getElementById('intExpWriteTabModal').classList.add('active');
+    document.getElementById('intExpPreviewTabModal').classList.remove('active');
+    document.getElementById('intExpWritePaneModal').classList.add('active');
+    document.getElementById('intExpPreviewPaneModal').classList.remove('active');
+  });
+  document.getElementById('intExpPreviewTabModal').addEventListener('click', () => {
+    document.getElementById('intExpPreviewTabModal').classList.add('active');
+    document.getElementById('intExpWriteTabModal').classList.remove('active');
+    document.getElementById('intExpPreviewPaneModal').classList.add('active');
+    document.getElementById('intExpWritePaneModal').classList.remove('active');
+    const raw = document.getElementById('intExplanation').value || '';
+    const el = document.getElementById('intExpPreviewContentModal');
+    el.innerHTML = raw.trim()
+      ? processText(raw)
+      : '<span style="color:var(--text3);font-style:italic;font-size:13px">Nothing to preview yet.</span>';
+    renderMath(el);
+  });
+  
+  // Global takeaway modal preview toggle
+  document.getElementById('takExpWriteTabModal').addEventListener('click', () => {
+    document.getElementById('takExpWriteTabModal').classList.add('active');
+    document.getElementById('takExpPreviewTabModal').classList.remove('active');
+    document.getElementById('takExpWritePaneModal').classList.add('active');
+    document.getElementById('takExpPreviewPaneModal').classList.remove('active');
+  });
+  document.getElementById('takExpPreviewTabModal').addEventListener('click', () => {
+    document.getElementById('takExpPreviewTabModal').classList.add('active');
+    document.getElementById('takExpWriteTabModal').classList.remove('active');
+    document.getElementById('takExpPreviewPaneModal').classList.add('active');
+    document.getElementById('takExpWritePaneModal').classList.remove('active');
+    const raw = document.getElementById('takContent').value || '';
+    const el = document.getElementById('takExpPreviewContentModal');
+    el.innerHTML = raw.trim()
+      ? processText(raw)
+      : '<span style="color:var(--text3);font-style:italic;font-size:13px">Nothing to preview yet.</span>';
+    renderMath(el);
+  });
+  // Intuition modal
   document.getElementById('postIntModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeGlobalIntModal(); });
   document.getElementById('postIntCancelBtn').addEventListener('click', closeGlobalIntModal);
   document.getElementById('postIntSubmitBtn').addEventListener('click', submitGlobalIntuition);
@@ -1424,6 +1513,7 @@ function bindEvents() {
     gIntState.links.push(v); i.value = ''; renderIntLinks();
   });
 
+  // Takeaway modal
   document.getElementById('postTakModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeGlobalTakModal(); });
   document.getElementById('postTakCancelBtn').addEventListener('click', closeGlobalTakModal);
   document.getElementById('postTakSubmitBtn').addEventListener('click', submitGlobalTakeaway);
@@ -1433,10 +1523,12 @@ function bindEvents() {
     gTakState.links.push(v); i.value = ''; renderTakLinks();
   });
 
+  // Subtopic modal
   document.getElementById('postSubModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeSubModal(); });
   document.getElementById('postSubCancelBtn').addEventListener('click', closeSubModal);
   document.getElementById('postSubSubmitBtn').addEventListener('click', submitSubtopic);
 
+  // Post-question modal: title + about live previews
   const makePreviewToggle = (key, getVal) => {
     document.getElementById(`${key}WriteTab`).addEventListener('click', () => {
       document.getElementById(`${key}WriteTab`).classList.add('active');
@@ -1458,11 +1550,13 @@ function bindEvents() {
   makePreviewToggle('qTitle', () => document.getElementById('newQTitle').value);
   makePreviewToggle('qAbout', () => document.getElementById('newQAbout').value);
 
+  // Back / nav
   document.getElementById('backBtn').addEventListener('click', goBack);
   document.querySelectorAll('.tab-btn[data-sort]').forEach(btn => btn.addEventListener('click', () => switchSort(btn)));
   document.querySelectorAll('.tab-btn[data-dtab]').forEach(btn => btn.addEventListener('click', () => switchDetailTab(btn)));
   document.querySelectorAll('.sort-btn[data-dsort]').forEach(btn => btn.addEventListener('click', () => switchDetailSort(btn)));
 
+  // Search
   const si = document.getElementById('questionSearch'), sc = document.getElementById('searchClear');
   si.addEventListener('input', () => {
     sc.classList.toggle('hidden', !si.value);
@@ -1473,6 +1567,7 @@ function bindEvents() {
     renderQuestions(); si.focus();
   });
 
+  // Keyboard
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
       if (document.getElementById('postSubModal').classList.contains('open')) { closeSubModal(); return; }
@@ -1489,7 +1584,7 @@ function bindEvents() {
   });
 }
 
-// ── LOAD QUESTIONS — FIXED: removed author_id from select ─
+// ── LOAD QUESTIONS ─────────────────────────────────────────
 async function loadQuestions() {
   document.getElementById('questionsList').innerHTML = '<div class="loading-state"><div class="spinner"></div>Loading questions…</div>';
   try {
@@ -1718,17 +1813,6 @@ async function loadDetailItems(qid) {
         else if (l.parent_type === 'takeaway') { const item = takeaways[qid].find(t => t.id === l.parent_id); if (item) item.links.push(l.url); }
       });
     } catch {}
-    try {
-      const { data: commentData } = await db.from('comments')
-        .select('id,parent_id,parent_type,text,created_at,profiles(username)')
-        .in('parent_id', allItemIds)
-        .order('created_at', { ascending: true });
-      (commentData||[]).forEach(c => {
-        const comment = { id: c.id, text: c.text, author: c.profiles?.username || 'Anonymous', createdAt: ago(c.created_at) };
-        if (c.parent_type === 'intuition') { const item = intuitions[qid].find(i => i.id === c.parent_id); if (item) item.comments.push(comment); }
-        else if (c.parent_type === 'takeaway') { const item = takeaways[qid].find(t => t.id === c.parent_id); if (item) item.comments.push(comment); }
-      });
-    } catch {}
   }
   const [ivc, tvc] = await Promise.all([fetchVoteCounts(intIds, 'intuition'), fetchVoteCounts(takIds, 'takeaway')]);
   intuitions[qid].forEach(i => { const v=ivc[i.id]||{}; i.upvotes=+v.upvotes||0; i.downvotes=+v.downvotes||0; });
@@ -1790,8 +1874,6 @@ function switchDetailSort(btn) {
 
 function renderDetailItems() {
   if (!selectedQuestion) return;
-  const openSections = new Set();
-  document.querySelectorAll('.comments-section.open').forEach(sec => openSections.add(sec.id));
   const qid = selectedQuestion.id, il = intuitions[qid]||[], tl = takeaways[qid]||[];
   document.getElementById('intCount').textContent = il.length;
   document.getElementById('takCount').textContent = tl.length;
@@ -1805,7 +1887,6 @@ function renderDetailItems() {
   tc.querySelectorAll('.kr').forEach(renderMath);
   tc.querySelectorAll('.vote-btn[data-vid]').forEach(btn => btn.addEventListener('click', () => handleVote(btn.dataset.vid, btn.dataset.vdir, 't')));
   tc.querySelectorAll('.btn-report[data-reportid]').forEach(btn => btn.addEventListener('click', () => handleReport(btn.dataset.reportid, btn.dataset.reporttype)));
-  openSections.forEach(sid => document.getElementById(sid)?.classList.add('open'));
   renderDetailHeader();
 }
 
@@ -1818,7 +1899,6 @@ function intuitionCardHTML(item, idx=0) {
   const cc = (item.comments||[]).length, cHTML = (item.comments||[]).map(c=>`<div class="comment-item"><div class="comment-text">${processText(c.text)}</div><div class="comment-meta">${esc(c.author)} · ${c.createdAt}</div></div>`).join('');
   const isOwn = me && me.id === item.author_id;
   const editBtn = isOwn ? `<button class="btn-edit" data-editid="${item.id}" data-edittype="i"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit</button>` : '';
-  const deleteBtn = isOwn ? `<button class="btn-edit" onclick="deleteItem('${item.id}','i')" style="color:var(--red)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>Delete</button>` : '';
   return `<div class="i-card" id="icard-${item.id}" style="animation-delay:${idx*40}ms">
     <div class="i-card-inner">
       <div class="vote-col"><button class="vote-btn ${vu==='up'?'voted-up':''}" data-vid="${item.id}" data-vdir="up"><svg width="16" height="16" viewBox="0 0 24 24" fill="${vu==='up'?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M7 11l5-5 5 5M7 17l5-5 5 5"/></svg></button><span class="vote-score ${sc}">${score}</span><button class="vote-btn ${vu==='down'?'voted-down':''}" data-vid="${item.id}" data-vdir="down"><svg width="16" height="16" viewBox="0 0 24 24" fill="${vu==='down'?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M7 7l5 5 5-5M7 13l5 5 5-5"/></svg></button></div>
@@ -1833,11 +1913,11 @@ function intuitionCardHTML(item, idx=0) {
         <div class="i-footer">
           <span>By ${esc(item.author)} · ${item.createdAt}${item.edited?' <span style="color:var(--text3);font-size:11px">(edited)</span>':''}</span>
           <div style="display:flex;align-items:center;gap:6px">
-            <button class="btn-report" data-reportid="${item.id}" data-reporttype="intuition">
+            <button class="btn-report" data-reportid="${item.id}" data-reporttype="intuition" title="Report this intuition">
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
               Report
             </button>
-            ${editBtn}${deleteBtn}
+            ${editBtn}
             <button class="comment-btn" data-cid="${item.id}" data-ctype="i"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>${cc} comment${cc!==1?'s':''}</button>
           </div>
         </div>
@@ -1878,7 +1958,6 @@ function takeawayCardHTML(item, idx=0) {
   const cc = (item.comments||[]).length, cHTML = (item.comments||[]).map(c=>`<div class="comment-item"><div class="comment-text">${processText(c.text)}</div><div class="comment-meta">${esc(c.author)} · ${c.createdAt}</div></div>`).join('');
   const isOwn = me && me.id === item.author_id;
   const editBtn = isOwn ? `<button class="btn-edit" data-editid="${item.id}" data-edittype="t"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit</button>` : '';
-  const deleteBtn = isOwn ? `<button class="btn-edit" onclick="deleteItem('${item.id}','t')" style="color:var(--red)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>Delete</button>` : '';
   return `<div class="i-card" id="tcard-${item.id}" style="animation-delay:${idx*40}ms">
     <div class="i-card-inner">
       <div class="vote-col"><button class="vote-btn ${vu==='up'?'voted-up':''}" data-vid="${item.id}" data-vdir="up"><svg width="16" height="16" viewBox="0 0 24 24" fill="${vu==='up'?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M7 11l5-5 5 5M7 17l5-5 5 5"/></svg></button><span class="vote-score ${sc}">${score}</span><button class="vote-btn ${vu==='down'?'voted-down':''}" data-vid="${item.id}" data-vdir="down"><svg width="16" height="16" viewBox="0 0 24 24" fill="${vu==='down'?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M7 7l5 5 5-5M7 13l5 5 5-5"/></svg></button></div>
@@ -1891,11 +1970,11 @@ function takeawayCardHTML(item, idx=0) {
         <div class="i-footer">
           <span>${item.createdAt}${item.edited?' <span style="color:var(--text3);font-size:11px">(edited)</span>':''}</span>
           <div style="display:flex;align-items:center;gap:6px">
-            <button class="btn-report" data-reportid="${item.id}" data-reporttype="takeaway">
+            <button class="btn-report" data-reportid="${item.id}" data-reporttype="takeaway" title="Report this takeaway">
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
               Report
             </button>
-            ${editBtn}${deleteBtn}
+            ${editBtn}
             <button class="comment-btn" data-cid="${item.id}" data-ctype="t"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>${cc} comment${cc!==1?'s':''}</button>
           </div>
         </div>
@@ -2009,23 +2088,6 @@ function toggleEditTab(id, type, mode) {
   }
 }
 
-async function deleteItem(id, type) {
-  if (!me) { openAuthModal(); return; }
-  const label = type === 'q' ? 'question' : type === 'i' ? 'intuition' : 'takeaway';
-  if (!confirm(`Delete this ${label}? This cannot be undone.`)) return;
-  const table = type === 'q' ? 'questions' : type === 'i' ? 'intuitions' : 'takeaways';
-  const { error } = await db.from(table).delete().eq('id', id).eq('author_id', me.id);
-  if (error) { showToast('Delete failed: ' + error.message, 'error'); return; }
-  showToast(`${label.charAt(0).toUpperCase() + label.slice(1)} deleted.`, 'success');
-  if (type === 'i' && selectedQuestion) {
-    intuitions[selectedQuestion.id] = (intuitions[selectedQuestion.id] || []).filter(x => x.id !== id);
-    renderDetailItems();
-  } else if (type === 't' && selectedQuestion) {
-    takeaways[selectedQuestion.id] = (takeaways[selectedQuestion.id] || []).filter(x => x.id !== id);
-    renderDetailItems();
-  }
-}
-
 async function saveEdit(id, type) {
   if (!me) { openAuthModal(); return; }
   const saveBtn = document.querySelector(`button[data-saveid="${id}"][data-savetype="${type}"]`);
@@ -2048,45 +2110,20 @@ async function saveEdit(id, type) {
     const item = (takeaways[selectedQuestion.id]||[]).find(x => x.id === id);
     if (item) { item.content = content; item.edited = true; }
   }
-
   showToast('Saved!', 'success');
   renderDetailItems();
 }
 
-async function addComment(id, type) {
+function addComment(id, type) {
   if (!me) { openAuthModal(); return; }
-  const el = document.getElementById(`ctext-${type}-${id}`);
-  const text = el?.value.trim();
-  if (!text) return;
-
-  const openSections = new Set();
-  document.querySelectorAll('.comments-section.open').forEach(sec => openSections.add(sec.id));
-
-  const parentType = type === 'i' ? 'intuition' : 'takeaway';
-  const { data: saved, error } = await db.from('comments')
-    .insert({ parent_id: id, parent_type: parentType, text, author_id: me.id })
-    .select('id,created_at')
-    .single();
-
-  if (error) { showToast('Comment failed: ' + error.message, 'error'); return; }
-
-  const comment = {
-    id: saved.id,
-    text,
-    author: profile?.username || 'Anonymous',
-    createdAt: ago(saved.created_at)
-  };
-
-  const list = type === 'i' ? (intuitions[selectedQuestion.id] || []) : (takeaways[selectedQuestion.id] || []);
+  const el = document.getElementById(`ctext-${type}-${id}`), text = el?.value.trim(); if (!text) return;
+  const comment = { id:'c'+(++idCounter), text, author: profile?.username||'You', createdAt:'just now' };
+  const list = type==='i' ? (intuitions[selectedQuestion.id]||[]) : (takeaways[selectedQuestion.id]||[]);
   const item = list.find(x => x.id === id);
-  if (item) {
-    if (!item.comments) item.comments = [];
-    item.comments.push(comment);
-  }
-
-  openSections.add(`comments-${type}-${id}`);
+  if (item) { if (!item.comments) item.comments=[]; item.comments.push(comment); }
+  db.from('comments').insert({ parent_id:id, parent_type:type==='i'?'intuition':'takeaway', text, author_id:me.id });
   renderDetailItems();
-  openSections.forEach(sid => document.getElementById(sid)?.classList.add('open'));
+  setTimeout(() => document.getElementById(`comments-${type}-${id}`)?.classList.add('open'), 10);
 }
 
 // ── VOTING ────────────────────────────────────────────────
@@ -2134,6 +2171,22 @@ function renderPostForm() {
     const elEl = document.getElementById('pf-exampleLink'), eeEl = document.getElementById('pf-exampleExp');
     if (elEl) { elEl.value = formState.exampleLink;        elEl.addEventListener('input', e => { formState.exampleLink = e.target.value; }); }
     if (eeEl) { eeEl.value = formState.exampleExplanation; eeEl.addEventListener('input', e => { formState.exampleExplanation = e.target.value; }); }
+    document.getElementById('intExpWriteTab')?.addEventListener('click', () => {
+      document.getElementById('intExpWriteTab').classList.add('active');
+      document.getElementById('intExpPreviewTab').classList.remove('active');
+      document.getElementById('intExpWritePane').classList.add('active');
+      document.getElementById('intExpPreviewPane').classList.remove('active');
+    });
+    document.getElementById('intExpPreviewTab')?.addEventListener('click', () => {
+      document.getElementById('intExpPreviewTab').classList.add('active');
+      document.getElementById('intExpWriteTab').classList.remove('active');
+      document.getElementById('intExpPreviewPane').classList.add('active');
+      document.getElementById('intExpWritePane').classList.remove('active');
+      const raw = document.getElementById('pf-explanation')?.value || '';
+      const el = document.getElementById('intExpPreviewContent');
+      el.innerHTML = raw.trim() ? processText(raw) : '<span style="color:var(--text3);font-style:italic;font-size:13px">Nothing to preview yet.</span>';
+      renderMath(el);
+    });
     document.getElementById('pf-addlink')?.addEventListener('click', addIntLink);
     document.getElementById('pf-submitInt')?.addEventListener('click', submitIntuition);
     wireImagePreview('pf-intImage','pf-intImagePreviewBox','pf-intImagePreview','pf-intImageRemove',formState,'intImageFile');
@@ -2141,6 +2194,22 @@ function renderPostForm() {
   } else {
     const tkEl = document.getElementById('pf-takeaway');
     if (tkEl) { tkEl.value = formState.takeawayContent; tkEl.addEventListener('input', e => { formState.takeawayContent = e.target.value; }); }
+    document.getElementById('takExpWriteTab')?.addEventListener('click', () => {
+      document.getElementById('takExpWriteTab').classList.add('active');
+      document.getElementById('takExpPreviewTab').classList.remove('active');
+      document.getElementById('takExpWritePane').classList.add('active');
+      document.getElementById('takExpPreviewPane').classList.remove('active');
+    });
+    document.getElementById('takExpPreviewTab')?.addEventListener('click', () => {
+      document.getElementById('takExpPreviewTab').classList.add('active');
+      document.getElementById('takExpWriteTab').classList.remove('active');
+      document.getElementById('takExpPreviewPane').classList.add('active');
+      document.getElementById('takExpWritePane').classList.remove('active');
+      const raw = document.getElementById('pf-takeaway')?.value || '';
+      const el = document.getElementById('takExpPreviewContent');
+      el.innerHTML = raw.trim() ? processText(raw) : '<span style="color:var(--text3);font-style:italic;font-size:13px">Nothing to preview yet.</span>';
+      renderMath(el);
+    });
     document.getElementById('pf-addtaklink')?.addEventListener('click', addTakLink);
     document.getElementById('pf-submitTak')?.addEventListener('click', submitTakeaway);
     wireImagePreview('pf-takImage','pf-takImagePreviewBox','pf-takImagePreview','pf-takImageRemove',formState,'takImageFile');
@@ -2153,15 +2222,15 @@ function intuitionFormHTML() {
   return `<div class="form-card">
     <div class="form-title">Share Your Intuition</div>
     ${!li ? `<div class="login-notice">You need to <button class="btn-link" id="loginPrompt">log in</button> to post an intuition.</div>` : ''}
-    <div class="form-group"><label class="form-label">Intuition Statement</label><input class="form-input" id="pf-statement" placeholder="e.g. It factors because of a common root" ${!li?'disabled':''} /></div>
-    <div class="form-group"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><label class="form-label" style="margin:0">Explanation</label><span id="wordCount" class="word-count">0 / 1500 words</span></div><textarea class="form-textarea" id="pf-explanation" style="min-height:120px" ${!li?'disabled':''} placeholder="Explain your intuition… ($LaTeX$ and ||spoiler|| supported)"></textarea></div>
+    <div class="form-group"><label class="form-label">Intuition Statement</label><input class="form-input" id="pf-statement" placeholder="e.g. Primes become increasingly sparse" ${!li?'disabled':''} /></div>
+    <div class="form-group"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><label class="form-label" style="margin:0">Explanation</label><span id="wordCount" class="word-count">0 / 1500 words</span></div><div class="preview-toggle"><button class="preview-tab active" id="intExpWriteTab">Write</button><button class="preview-tab" id="intExpPreviewTab">Preview</button></div><div class="preview-pane active" id="intExpWritePane"><textarea class="form-textarea" id="pf-explanation" style="min-height:120px" ${!li?'disabled':''} placeholder="Explain your intuition… ($LaTeX$ and ||spoiler|| supported)"></textarea></div><div class="preview-pane" id="intExpPreviewPane"><div class="preview-rendered kr" id="intExpPreviewContent" style="min-height:120px"></div></div></div>
     <div class="form-group"><label class="form-label">Add Image (optional)</label>
       <input type="file" id="pf-intImage" accept="image/*" style="color:var(--text2);font-size:13px" ${!li?'disabled':''} />
       <div class="img-preview-box" id="pf-intImagePreviewBox" style="display:none"><img id="pf-intImagePreview" src="" alt="Preview" /><button class="img-preview-remove" id="pf-intImageRemove"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
     </div>
     <div class="form-group"><label class="form-label">Links (optional, max 3)</label><div class="link-input-row"><input class="form-input" id="pf-link" placeholder="https://…" style="flex:1" ${!li?'disabled':''} /><button class="btn btn-ghost btn-sm" id="pf-addlink" ${!li?'disabled':''}>Add</button></div><div class="link-list" id="int-links"></div></div>
     <hr class="form-divider"/>
-    <div class="form-group"><label class="form-label">Problem Link (optional)</label><input class="form-input" id="pf-exampleLink" placeholder="https://…" ${!li?'disabled':''} /></div>
+    <div class="form-group"><label class="form-label">Problems (optional)</label><input class="form-input" id="pf-exampleLink" placeholder="https://…" ${!li?'disabled':''} /></div>
     <div class="form-group"><label class="form-label">Additional Context (optional)</label><textarea class="form-textarea" id="pf-exampleExp" style="min-height:70px" ${!li?'disabled':''}></textarea></div>
     <button class="btn btn-primary" id="pf-submitInt" ${!li?'disabled':''}>Post Intuition</button>
   </div>`;
@@ -2172,8 +2241,7 @@ function takeawayFormHTML() {
   return `<div class="form-card">
     <div class="form-title">Share Your Takeaway</div>
     ${!li ? `<div class="login-notice">You need to <button class="btn-link" id="loginPrompt">log in</button> to post a takeaway.</div>` : ''}
-    <div class="form-group"><label class="form-label">Your Takeaway</label><textarea class="form-textarea" id="pf-takeaway" style="min-height:130px" ${!li?'disabled':''} placeholder="Share your insights… ($LaTeX$ and ||spoiler|| supported)"></textarea></div>
-    <div class="form-group"><label class="form-label">Add Image (optional)</label>
+    <div class="form-group"><label class="form-label">Your Takeaway</label><div class="preview-toggle"><button class="preview-tab active" id="takExpWriteTab">Write</button><button class="preview-tab" id="takExpPreviewTab">Preview</button></div><div class="preview-pane active" id="takExpWritePane"><textarea class="form-textarea" id="pf-takeaway" style="min-height:130px" ${!li?'disabled':''} placeholder="Share your insights… ($LaTeX$ and ||spoiler|| supported)"></textarea></div><div class="preview-pane" id="takExpPreviewPane"><div class="preview-rendered kr" id="takExpPreviewContent" style="min-height:130px"></div></div></div>    <div class="form-group"><label class="form-label">Add Image (optional)</label>
       <input type="file" id="pf-takImage" accept="image/*" style="color:var(--text2);font-size:13px" ${!li?'disabled':''} />
       <div class="img-preview-box" id="pf-takImagePreviewBox" style="display:none"><img id="pf-takImagePreview" src="" alt="Preview" /><button class="img-preview-remove" id="pf-takImageRemove"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
     </div>
@@ -2270,5 +2338,11 @@ document.querySelectorAll('a').forEach(a => {
   });
 });
 </script>
+<footer style="text-align:center;padding:20px 28px;border-top:1px solid var(--border);position:relative;z-index:1">
+  <p style="font-family:var(--font-serif);font-size:13.5px;color:var(--text3)">
+    Report issues, make suggestions, add categories, or join the team by contacting 
+    <a href="mailto:mint.forum.contact@gmail.com" style="color:var(--primary);text-decoration:none;font-weight:600">mint.forum.contact@gmail.com</a>
+  </p>
+</footer>
 </body>
 </html>
