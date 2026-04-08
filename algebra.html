@@ -1135,6 +1135,7 @@ async function submitSubtopic() {
   if (!title) { document.getElementById('postSubError').innerHTML = '<div class="err-box">Please enter a question title.</div>'; return; }
   if (!about) { document.getElementById('postSubError').innerHTML = '<div class="err-box">Please add a brief description.</div>'; return; }
   if (selectedSubTopics.size === 0) { document.getElementById('postSubError').innerHTML = '<div class="err-box">Please select at least one topic.</div>'; return; }
+  if (selectedSubTopics.size + selectedNewQTags.size > 5) { document.getElementById('postSubError').innerHTML = '<div class="err-box">Maximum of 5 topics + tags combined.</div>'; return; }
 
   const btn = document.getElementById('postSubSubmitBtn');
   btn.disabled = true; btn.textContent = 'Posting…';
