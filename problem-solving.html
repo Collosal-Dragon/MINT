@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en" class="dark">
 <head>
@@ -85,6 +84,8 @@ html.light .btn-primary{color:#fff}
 
 /* ── LAYOUT ── */
 main{max-width:1040px;margin:0 auto;padding:28px 28px 60px;position:relative;z-index:1}
+body{opacity:0;transition:opacity .18s ease}
+body.ready{opacity:1}
 .hidden{display:none!important}
 
 /* ── BREADCRUMB ── */
@@ -368,28 +369,30 @@ html.light .login-notice{background:rgba(30,122,72,.05);border-color:rgba(30,122
 
 <header>
   <div class="header-inner">
-    <svg class="logo-mark-svg" width="38" height="38" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <clipPath id="clipTriangle">
-          <polygon points="50,4 96,96 4,96"/>
-        </clipPath>
-      </defs>
-      <g clip-path="url(#clipTriangle)">
-        <polygon points="50,4 96,96 4,96" fill="#7ec7b4"/>
-        <polygon points="50,4 73,48 50,60" fill="#9fd8c8"/>
-        <polygon points="4,96 50,60 50,4" fill="#8ccbb9"/>
-        <polygon points="96,96 50,60 50,4" fill="#6fb3a3"/>
-        <polygon points="50,48 70,58 50,68 30,58" fill="#c9efe3"/>
-        <polygon points="30,58 50,68 50,96 30,86" fill="#8fd0b6"/>
-        <polygon points="70,58 50,68 50,96 70,86" fill="#76bca8"/>
-        <polygon points="4,96 30,86 50,96" fill="#5aa094"/>
-        <polygon points="96,96 70,86 50,96" fill="#4f9186"/>
-      </g>
-    </svg>
-    <div class="logo-text">
-      <span class="logo-name">MINT</span>
-      <span class="logo-tagline">Math Olympiad Intuition</span>
-    </div>
+    <a class="logo" href="index.html">
+      <svg class="logo-mark-svg" width="38" height="38" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <clipPath id="clipTriangle">
+            <polygon points="50,4 96,96 4,96"/>
+          </clipPath>
+        </defs>
+        <g clip-path="url(#clipTriangle)">
+          <polygon points="50,4 96,96 4,96" fill="#7ec7b4"/>
+          <polygon points="50,4 73,48 50,60" fill="#9fd8c8"/>
+          <polygon points="4,96 50,60 50,4" fill="#8ccbb9"/>
+          <polygon points="96,96 50,60 50,4" fill="#6fb3a3"/>
+          <polygon points="50,48 70,58 50,68 30,58" fill="#c9efe3"/>
+          <polygon points="30,58 50,68 50,96 30,86" fill="#8fd0b6"/>
+          <polygon points="70,58 50,68 50,96 70,86" fill="#76bca8"/>
+          <polygon points="4,96 30,86 50,96" fill="#5aa094"/>
+          <polygon points="96,96 70,86 50,96" fill="#4f9186"/>
+        </g>
+      </svg>
+      <div class="logo-text">
+        <span class="logo-name">MINT</span>
+        <span class="logo-tagline">Math Olympiad Intuition</span>
+      </div>
+    </a>
     <div class="header-right">
       <button class="theme-btn" id="themeBtn" title="Toggle theme">
         <svg id="iconDark" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -414,14 +417,14 @@ html.light .login-notice{background:rgba(30,122,72,.05);border-color:rgba(30,122
             <span class="post-menu-icon intuition">💡</span>
             <span>
               <div class="post-menu-label">Post an Intuition</div>
-              <div class="post-menu-sub">Attach your insight to any question</div>
+              <div class="post-menu-sub">Attach your insight to any topic</div>
             </span>
           </button>
           <button class="post-menu-item" id="menuPostTakeaway">
             <span class="post-menu-icon takeaway">📝</span>
             <span>
               <div class="post-menu-label">Post a Takeaway</div>
-              <div class="post-menu-sub">Share what you learned</div>
+              <div class="post-menu-sub">Share what you learned through an example</div>
             </span>
           </button>
           <button class="post-menu-item" id="menuPostSubtopic">
@@ -529,7 +532,7 @@ html.light .login-notice{background:rgba(30,122,72,.05);border-color:rgba(30,122
     </div>
     <div class="form-group">
       <label class="form-label">Intuition Statement</label>
-      <input class="form-input" id="intStatement" placeholder="e.g. It factors because of a common root" />
+      <input class="form-input" id="intStatement" placeholder="e.g. Primes become increasingly sparse" />
     </div>
     <div class="form-group">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
@@ -558,7 +561,7 @@ html.light .login-notice{background:rgba(30,122,72,.05);border-color:rgba(30,122
     </div>
     <hr class="form-divider"/>
     <div class="form-group">
-      <label class="form-label">Problem Link (optional)</label>
+      <label class="form-label">Problems (optional)</label>
       <input class="form-input" id="intExampleLink" placeholder="https://…" />
     </div>
     <div class="form-group">
@@ -623,7 +626,7 @@ html.light .login-notice{background:rgba(30,122,72,.05);border-color:rgba(30,122
 ═══════════════════════════════ -->
 <div class="modal-overlay" id="postSubModal">
   <div class="modal" style="max-width:600px">
-    <div class="modal-title">🗂 Post a Topic</div>
+    <div class="modal-title">🗂 Investigate a new Topic</div>
     <div class="modal-sub">Add a new topic that others can post intuitions and takeaways under</div>
     <div id="postSubError"></div>
 
@@ -2231,6 +2234,25 @@ async function submitTakeaway() {
   renderDetailItems(); renderPostForm();
   window.scrollTo({ top: document.getElementById('dtab-takeaways').offsetTop - 80, behavior: 'smooth' });
 }
+document.addEventListener('DOMContentLoaded', () => {
+  document.body.classList.add('ready');
+});
+
+document.querySelectorAll('a').forEach(a => {
+  const href = a.getAttribute('href');
+  if (!href || href.startsWith('#') || href.startsWith('javascript') || a.target === '_blank') return;
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    document.body.style.opacity = '0';
+    setTimeout(() => { window.location.href = a.href; }, 180);
+  });
+});
 </script>
+<footer style="text-align:center;padding:32px 28px;border-top:1px solid var(--border);margin-top:40px;position:relative;z-index:1">
+  <p style="font-family:var(--font-serif);font-size:13.5px;color:var(--text3)">
+    Contact us at mint.forum.contact@gmail.com
+    <a href="mailto:support@mint.com" style="color:var(--primary);text-decoration:none;font-weight:600">support@mint.com</a>
+  </p>
+</footer>
 </body>
 </html>
