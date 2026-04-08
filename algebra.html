@@ -805,10 +805,11 @@ db.auth.onAuthStateChange(async (ev, session) => {
 
 async function fetchProfile(user) {
   const { data } = await db.from('profiles').select('username,email').eq('id', user.id).maybeSingle();
-  if (data?.username && if (data?.username && data.username === user.user_metadata?.username) {) {
-    profile = data; refreshHeader(); return;
-  }
-  openUsernameModal(user, data);
+  if (data) { profile = data; refreshHeader(); return; }
+  const base = (user.user_metadata?.full_name || user.email.split('@')[0]).replace(/[^a-zA-Z0-9_]/g,'_').slice(0,16);
+  const username = base + '_' + Math.random().toString(36).slice(2,5);
+  const { data: ins } = await db.from('profiles').insert({ id: user.id, username, email: user.email }).select('username,email').maybeSingle();
+  profile = ins ?? null; refreshHeader();
 }
 
 function refreshHeader() {
@@ -1569,7 +1570,6 @@ function bindEvents() {
   // Keyboard
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
-      if (document.getElementById('usernameModal').classList.contains('open')) return;
       if (document.getElementById('postSubModal').classList.contains('open')) { closeSubModal(); return; }
       if (document.getElementById('postIntModal').classList.contains('open')) { closeGlobalIntModal(); return; }
       if (document.getElementById('postTakModal').classList.contains('open')) { closeGlobalTakModal(); return; }
@@ -2337,36 +2337,6 @@ document.querySelectorAll('a').forEach(a => {
     setTimeout(() => { window.location.href = a.href; }, 180);
   });
 });
-function openUsernameModal(user, existingProfile) {
-  document.getElementById('usernameModal').classList.add('open');
-  document.getElementById('unameErr').style.display = 'none';
-  document.getElementById('unameInput').value = '';
-  setTimeout(() => document.getElementById('unameInput').focus(), 80);
-
-  document.getElementById('unameSubmitBtn').onclick = async () => {
-    const username = document.getElementById('unameInput').value.trim();
-    const errEl = document.getElementById('unameErr');
-    if (!/^[a-zA-Z0-9_]{3,20}$/.test(username)) {
-      errEl.textContent = 'Username: 3–20 chars, letters/numbers/underscores.';
-      errEl.style.display = 'block'; return;
-    }
-    const { data: ex } = await db.from('profiles').select('id').eq('username', username).maybeSingle();
-    if (ex) { errEl.textContent = 'Username already taken.'; errEl.style.display = 'block'; return; }
-
-    const btn = document.getElementById('unameSubmitBtn');
-    btn.disabled = true; btn.textContent = 'Saving…';
-
-    await db.from('profiles').upsert(
-      { id: user.id, username, email: user.email },
-      { onConflict: 'id' }
-    );
-    profile = { username, email: user.email };
-    refreshHeader();
-    document.getElementById('usernameModal').classList.remove('open');
-    showToast('Welcome to MINT!', 'success');
-    btn.disabled = false; btn.textContent = 'Save Username';
-  };
-}
 </script>
 <footer style="text-align:center;padding:20px 28px;border-top:1px solid var(--border);position:relative;z-index:1">
   <p style="font-family:var(--font-serif);font-size:13.5px;color:var(--text3)">
@@ -2374,19 +2344,5 @@ function openUsernameModal(user, existingProfile) {
     <a href="mailto:mint.forum.contact@gmail.com" style="color:var(--primary);text-decoration:none;font-weight:600">mint.forum.contact@gmail.com</a>
   </p>
 </footer>
-<div class="modal-overlay" id="usernameModal">
-  <div class="modal" style="max-width:400px">
-    <div class="modal-title">Choose a Username</div>
-    <div class="modal-sub">Pick a unique username to display on your posts</div>
-    <div class="auth-msg err" id="unameErr"></div>
-    <div class="form-group">
-      <label class="form-label">Username</label>
-      <input class="form-input" id="unameInput" type="text" placeholder="mathwiz42" autocomplete="off" />
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-primary" id="unameSubmitBtn">Save Username</button>
-    </div>
-  </div>
-</div>
 </body>
 </html>
