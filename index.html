@@ -472,7 +472,7 @@ async function loadRecent(retry = true) {
   document.getElementById('recentList').innerHTML =
     '<div class="loading-state"><div class="spinner"></div>Loading questions...</div>';
   const { data, error } = await db.from('questions')
-    .select('id,title,about,created_at,question_tags(tags(name)),intuitions(id)')
+    .select('id,title,about,created_at,question_tags(tags(name,category)),intuitions(id)')
     .order('created_at', { ascending: false }).limit(10);
   if (error) {
     // Lock contention on rapid reloads — wait briefly and retry once
@@ -486,6 +486,7 @@ async function loadRecent(retry = true) {
   let qs = data.map(q => ({
     id: q.id, title: q.title, about: q.about, at: ago(q.created_at),
     tags: q.question_tags.map(t => t.tags?.name).filter(Boolean),
+    category: q.question_tags.map(t => t.tags?.category).find(c => c && c in CATS) || null,
     n: q.intuitions.length, up: 0, dn: 0
   }));
   const vm = await getVotes(qs.map(q => q.id), 'question');
@@ -509,10 +510,7 @@ function cardHTML(q, i = 0) {
   return aIsCat - bIsCat;
 });
   
-  const catEntry = sortedTags.reduce((found, t) => {
-    if (found) return found;
-    return Object.entries(CATS).find(([k]) => k === t) || null;
-  }, null);
+  const page = q.category ? CATS[q.category].page : 'problem-solving.html';
   const page = catEntry ? catEntry[1].page : 'problem-solving.html';
   return `<a class="q-card" href="${page}?q=${q.id}" style="animation-delay:${i*55}ms">
     <div class="v-col">
@@ -554,13 +552,14 @@ async function doSearch() {
   if (searchCtrl) searchCtrl.abort(); searchCtrl = new AbortController();
   try {
     const { data, error } = await db.from('questions')
-      .select('id,title,about,created_at,question_tags(tags(name)),intuitions(id)')
+      .select('id,title,about,created_at,question_tags(tags(name,category)),intuitions(id)')
       .or(`title.ilike.%${q}%,about.ilike.%${q}%`)
       .order('created_at', { ascending: false }).limit(20).abortSignal(searchCtrl.signal);
     if (error) throw error;
     let rs = data.map(r => ({
       id: r.id, title: r.title, about: r.about, at: ago(r.created_at),
       tags: r.question_tags.map(t => t.tags?.name).filter(Boolean),
+      category: r.question_tags.map(t => t.tags?.category).find(c => c && c in CATS) || null,
       n: r.intuitions.length, up: 0, dn: 0
     }));
     const vm = await getVotes(rs.map(r => r.id), 'question');
