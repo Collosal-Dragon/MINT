@@ -83,7 +83,7 @@ html.light .btn-primary{color:#fff}
 .btn-link:hover{text-decoration:underline}
 
 /* ── LAYOUT ── */
-main{max-width:1040px;margin:0 auto;padding:28px 28px 60px;position:relative;z-index:1}
+main{max-width:1040px;margin:0 auto;padding:28px 28px 32px;position:relative;z-index:1}
 body{opacity:0;transition:opacity .18s ease}
 body.ready{opacity:1}
 .hidden{display:none!important}
@@ -393,10 +393,6 @@ html.light .login-notice{background:rgba(30,122,72,.05);border-color:rgba(30,122
         <span class="logo-tagline">Math Olympiad Intuition</span>
       </div>
     </a>
-    <div class="logo-text">
-      <span class="logo-name">MINT</span>
-      <span class="logo-tagline">Math Olympiad Intuition</span>
-    </div>
     <div class="header-right">
       <button class="theme-btn" id="themeBtn" title="Toggle theme">
         <svg id="iconDark" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
@@ -421,14 +417,14 @@ html.light .login-notice{background:rgba(30,122,72,.05);border-color:rgba(30,122
             <span class="post-menu-icon intuition">💡</span>
             <span>
               <div class="post-menu-label">Post an Intuition</div>
-              <div class="post-menu-sub">Attach your insight to any question</div>
+              <div class="post-menu-sub">Attach your insight to any topic</div>
             </span>
           </button>
           <button class="post-menu-item" id="menuPostTakeaway">
             <span class="post-menu-icon takeaway">📝</span>
             <span>
               <div class="post-menu-label">Post a Takeaway</div>
-              <div class="post-menu-sub">Share what you learned</div>
+              <div class="post-menu-sub">Share what you learned through an example</div>
             </span>
           </button>
           <button class="post-menu-item" id="menuPostSubtopic">
@@ -536,14 +532,24 @@ html.light .login-notice{background:rgba(30,122,72,.05);border-color:rgba(30,122
     </div>
     <div class="form-group">
       <label class="form-label">Intuition Statement</label>
-      <input class="form-input" id="intStatement" placeholder="e.g. It factors because of a common root" />
+      <input class="form-input" id="intStatement" placeholder="e.g. Primes become increasingly sparse" />
     </div>
     <div class="form-group">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
         <label class="form-label" style="margin:0">Explanation</label>
         <span id="intWordCount" class="word-count">0 / 1500 words</span>
       </div>
-      <textarea class="form-textarea" id="intExplanation" style="min-height:120px" placeholder="Explain your intuition… ($LaTeX$ and ||spoiler|| supported)"></textarea>
+      <div class="preview-toggle">
+        <button class="preview-tab active" id="intExpWriteTabModal">Write</button>
+        <button class="preview-tab" id="intExpPreviewTabModal">Preview</button>
+      </div>
+      <div class="preview-pane active" id="intExpWritePaneModal">
+        <textarea class="form-textarea" id="intExplanation" style="min-height:120px"
+          placeholder="Explain your intuition… ($LaTeX$ and ||spoiler|| supported)"></textarea>
+      </div>
+      <div class="preview-pane" id="intExpPreviewPaneModal">
+        <div class="preview-rendered kr" id="intExpPreviewContentModal" style="min-height:120px"></div>
+      </div>
     </div>
     <div class="form-group">
       <label class="form-label">Links (optional, max 3)</label>
@@ -565,7 +571,7 @@ html.light .login-notice{background:rgba(30,122,72,.05);border-color:rgba(30,122
     </div>
     <hr class="form-divider"/>
     <div class="form-group">
-      <label class="form-label">Problem Link (optional)</label>
+      <label class="form-label">Problems (optional)</label>
       <input class="form-input" id="intExampleLink" placeholder="https://…" />
     </div>
     <div class="form-group">
@@ -598,7 +604,17 @@ html.light .login-notice{background:rgba(30,122,72,.05);border-color:rgba(30,122
     </div>
     <div class="form-group">
       <label class="form-label">Your Takeaway</label>
-      <textarea class="form-textarea" id="takContent" style="min-height:130px" placeholder="Share your insights… ($LaTeX$ and ||spoiler|| supported)"></textarea>
+      <div class="preview-toggle">
+        <button class="preview-tab active" id="takExpWriteTabModal">Write</button>
+        <button class="preview-tab" id="takExpPreviewTabModal">Preview</button>
+      </div>
+      <div class="preview-pane active" id="takExpWritePaneModal">
+        <textarea class="form-textarea" id="takContent" style="min-height:130px"
+          placeholder="Share your insights… ($LaTeX$ and ||spoiler|| supported)"></textarea>
+      </div>
+      <div class="preview-pane" id="takExpPreviewPaneModal">
+        <div class="preview-rendered kr" id="takExpPreviewContentModal" style="min-height:130px"></div>
+      </div>
     </div>
     <div class="form-group">
       <label class="form-label">Add Image (optional)</label>
@@ -630,7 +646,7 @@ html.light .login-notice{background:rgba(30,122,72,.05);border-color:rgba(30,122
 ═══════════════════════════════ -->
 <div class="modal-overlay" id="postSubModal">
   <div class="modal" style="max-width:600px">
-    <div class="modal-title">🗂 Post a Topic</div>
+    <div class="modal-title">🗂 Investigate a new Topic</div>
     <div class="modal-sub">Add a new topic that others can post intuitions and takeaways under</div>
     <div id="postSubError"></div>
 
@@ -1139,6 +1155,11 @@ async function submitSubtopic() {
 
 // ── GLOBAL INTUITION MODAL ────────────────────────────────
 function openGlobalIntModal(preselectedQId) {
+  document.getElementById('intExpWriteTabModal').classList.add('active');
+  document.getElementById('intExpPreviewTabModal').classList.remove('active');
+  document.getElementById('intExpWritePaneModal').classList.add('active');
+  document.getElementById('intExpPreviewPaneModal').classList.remove('active');
+  document.getElementById('intExpPreviewContentModal').innerHTML = '';
   gIntState.selectedQIds = new Set(preselectedQId ? [preselectedQId] : []);
   gIntState.links = [];
   gIntState.imageFile = null;
@@ -1160,6 +1181,11 @@ function openGlobalIntModal(preselectedQId) {
 function closeGlobalIntModal() { document.getElementById('postIntModal').classList.remove('open'); }
 
 function openGlobalTakModal(preselectedQId) {
+  document.getElementById('takExpWriteTabModal').classList.add('active');
+  document.getElementById('takExpPreviewTabModal').classList.remove('active');
+  document.getElementById('takExpWritePaneModal').classList.add('active');
+  document.getElementById('takExpPreviewPaneModal').classList.remove('active');
+  document.getElementById('takExpPreviewContentModal').innerHTML = '';
   gTakState.selectedQIds = new Set(preselectedQId ? [preselectedQId] : []);
   gTakState.links = [];
   gTakState.imageFile = null;
@@ -1420,6 +1446,44 @@ function bindEvents() {
   document.getElementById('authCancelBtn').addEventListener('click', closeAuthModal);
   document.getElementById('authSubmitBtn').addEventListener('click', handleAuthSubmit);
 
+  document.getElementById('intExpWriteTabModal').addEventListener('click', () => {
+    document.getElementById('intExpWriteTabModal').classList.add('active');
+    document.getElementById('intExpPreviewTabModal').classList.remove('active');
+    document.getElementById('intExpWritePaneModal').classList.add('active');
+    document.getElementById('intExpPreviewPaneModal').classList.remove('active');
+  });
+  document.getElementById('intExpPreviewTabModal').addEventListener('click', () => {
+    document.getElementById('intExpPreviewTabModal').classList.add('active');
+    document.getElementById('intExpWriteTabModal').classList.remove('active');
+    document.getElementById('intExpPreviewPaneModal').classList.add('active');
+    document.getElementById('intExpWritePaneModal').classList.remove('active');
+    const raw = document.getElementById('intExplanation').value || '';
+    const el = document.getElementById('intExpPreviewContentModal');
+    el.innerHTML = raw.trim()
+      ? processText(raw)
+      : '<span style="color:var(--text3);font-style:italic;font-size:13px">Nothing to preview yet.</span>';
+    renderMath(el);
+  });
+  
+  // Global takeaway modal preview toggle
+  document.getElementById('takExpWriteTabModal').addEventListener('click', () => {
+    document.getElementById('takExpWriteTabModal').classList.add('active');
+    document.getElementById('takExpPreviewTabModal').classList.remove('active');
+    document.getElementById('takExpWritePaneModal').classList.add('active');
+    document.getElementById('takExpPreviewPaneModal').classList.remove('active');
+  });
+  document.getElementById('takExpPreviewTabModal').addEventListener('click', () => {
+    document.getElementById('takExpPreviewTabModal').classList.add('active');
+    document.getElementById('takExpWriteTabModal').classList.remove('active');
+    document.getElementById('takExpPreviewPaneModal').classList.add('active');
+    document.getElementById('takExpWritePaneModal').classList.remove('active');
+    const raw = document.getElementById('takContent').value || '';
+    const el = document.getElementById('takExpPreviewContentModal');
+    el.innerHTML = raw.trim()
+      ? processText(raw)
+      : '<span style="color:var(--text3);font-style:italic;font-size:13px">Nothing to preview yet.</span>';
+    renderMath(el);
+  });
   // Intuition modal
   document.getElementById('postIntModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeGlobalIntModal(); });
   document.getElementById('postIntCancelBtn').addEventListener('click', closeGlobalIntModal);
@@ -2033,7 +2097,6 @@ async function saveEdit(id, type) {
     const item = (takeaways[selectedQuestion.id]||[]).find(x => x.id === id);
     if (item) { item.content = content; item.edited = true; }
   }
-
   showToast('Saved!', 'success');
   renderDetailItems();
 }
@@ -2095,6 +2158,22 @@ function renderPostForm() {
     const elEl = document.getElementById('pf-exampleLink'), eeEl = document.getElementById('pf-exampleExp');
     if (elEl) { elEl.value = formState.exampleLink;        elEl.addEventListener('input', e => { formState.exampleLink = e.target.value; }); }
     if (eeEl) { eeEl.value = formState.exampleExplanation; eeEl.addEventListener('input', e => { formState.exampleExplanation = e.target.value; }); }
+    document.getElementById('intExpWriteTab')?.addEventListener('click', () => {
+      document.getElementById('intExpWriteTab').classList.add('active');
+      document.getElementById('intExpPreviewTab').classList.remove('active');
+      document.getElementById('intExpWritePane').classList.add('active');
+      document.getElementById('intExpPreviewPane').classList.remove('active');
+    });
+    document.getElementById('intExpPreviewTab')?.addEventListener('click', () => {
+      document.getElementById('intExpPreviewTab').classList.add('active');
+      document.getElementById('intExpWriteTab').classList.remove('active');
+      document.getElementById('intExpPreviewPane').classList.add('active');
+      document.getElementById('intExpWritePane').classList.remove('active');
+      const raw = document.getElementById('pf-explanation')?.value || '';
+      const el = document.getElementById('intExpPreviewContent');
+      el.innerHTML = raw.trim() ? processText(raw) : '<span style="color:var(--text3);font-style:italic;font-size:13px">Nothing to preview yet.</span>';
+      renderMath(el);
+    });
     document.getElementById('pf-addlink')?.addEventListener('click', addIntLink);
     document.getElementById('pf-submitInt')?.addEventListener('click', submitIntuition);
     wireImagePreview('pf-intImage','pf-intImagePreviewBox','pf-intImagePreview','pf-intImageRemove',formState,'intImageFile');
@@ -2102,6 +2181,22 @@ function renderPostForm() {
   } else {
     const tkEl = document.getElementById('pf-takeaway');
     if (tkEl) { tkEl.value = formState.takeawayContent; tkEl.addEventListener('input', e => { formState.takeawayContent = e.target.value; }); }
+    document.getElementById('takExpWriteTab')?.addEventListener('click', () => {
+      document.getElementById('takExpWriteTab').classList.add('active');
+      document.getElementById('takExpPreviewTab').classList.remove('active');
+      document.getElementById('takExpWritePane').classList.add('active');
+      document.getElementById('takExpPreviewPane').classList.remove('active');
+    });
+    document.getElementById('takExpPreviewTab')?.addEventListener('click', () => {
+      document.getElementById('takExpPreviewTab').classList.add('active');
+      document.getElementById('takExpWriteTab').classList.remove('active');
+      document.getElementById('takExpPreviewPane').classList.add('active');
+      document.getElementById('takExpWritePane').classList.remove('active');
+      const raw = document.getElementById('pf-takeaway')?.value || '';
+      const el = document.getElementById('takExpPreviewContent');
+      el.innerHTML = raw.trim() ? processText(raw) : '<span style="color:var(--text3);font-style:italic;font-size:13px">Nothing to preview yet.</span>';
+      renderMath(el);
+    });
     document.getElementById('pf-addtaklink')?.addEventListener('click', addTakLink);
     document.getElementById('pf-submitTak')?.addEventListener('click', submitTakeaway);
     wireImagePreview('pf-takImage','pf-takImagePreviewBox','pf-takImagePreview','pf-takImageRemove',formState,'takImageFile');
@@ -2114,15 +2209,15 @@ function intuitionFormHTML() {
   return `<div class="form-card">
     <div class="form-title">Share Your Intuition</div>
     ${!li ? `<div class="login-notice">You need to <button class="btn-link" id="loginPrompt">log in</button> to post an intuition.</div>` : ''}
-    <div class="form-group"><label class="form-label">Intuition Statement</label><input class="form-input" id="pf-statement" placeholder="e.g. It factors because of a common root" ${!li?'disabled':''} /></div>
-    <div class="form-group"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><label class="form-label" style="margin:0">Explanation</label><span id="wordCount" class="word-count">0 / 1500 words</span></div><textarea class="form-textarea" id="pf-explanation" style="min-height:120px" ${!li?'disabled':''} placeholder="Explain your intuition… ($LaTeX$ and ||spoiler|| supported)"></textarea></div>
+    <div class="form-group"><label class="form-label">Intuition Statement</label><input class="form-input" id="pf-statement" placeholder="e.g. Primes become increasingly sparse" ${!li?'disabled':''} /></div>
+    <div class="form-group"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><label class="form-label" style="margin:0">Explanation</label><span id="wordCount" class="word-count">0 / 1500 words</span></div><div class="preview-toggle"><button class="preview-tab active" id="intExpWriteTab">Write</button><button class="preview-tab" id="intExpPreviewTab">Preview</button></div><div class="preview-pane active" id="intExpWritePane"><textarea class="form-textarea" id="pf-explanation" style="min-height:120px" ${!li?'disabled':''} placeholder="Explain your intuition… ($LaTeX$ and ||spoiler|| supported)"></textarea></div><div class="preview-pane" id="intExpPreviewPane"><div class="preview-rendered kr" id="intExpPreviewContent" style="min-height:120px"></div></div></div>
     <div class="form-group"><label class="form-label">Add Image (optional)</label>
       <input type="file" id="pf-intImage" accept="image/*" style="color:var(--text2);font-size:13px" ${!li?'disabled':''} />
       <div class="img-preview-box" id="pf-intImagePreviewBox" style="display:none"><img id="pf-intImagePreview" src="" alt="Preview" /><button class="img-preview-remove" id="pf-intImageRemove"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
     </div>
     <div class="form-group"><label class="form-label">Links (optional, max 3)</label><div class="link-input-row"><input class="form-input" id="pf-link" placeholder="https://…" style="flex:1" ${!li?'disabled':''} /><button class="btn btn-ghost btn-sm" id="pf-addlink" ${!li?'disabled':''}>Add</button></div><div class="link-list" id="int-links"></div></div>
     <hr class="form-divider"/>
-    <div class="form-group"><label class="form-label">Problem Link (optional)</label><input class="form-input" id="pf-exampleLink" placeholder="https://…" ${!li?'disabled':''} /></div>
+    <div class="form-group"><label class="form-label">Problems (optional)</label><input class="form-input" id="pf-exampleLink" placeholder="https://…" ${!li?'disabled':''} /></div>
     <div class="form-group"><label class="form-label">Additional Context (optional)</label><textarea class="form-textarea" id="pf-exampleExp" style="min-height:70px" ${!li?'disabled':''}></textarea></div>
     <button class="btn btn-primary" id="pf-submitInt" ${!li?'disabled':''}>Post Intuition</button>
   </div>`;
@@ -2133,8 +2228,7 @@ function takeawayFormHTML() {
   return `<div class="form-card">
     <div class="form-title">Share Your Takeaway</div>
     ${!li ? `<div class="login-notice">You need to <button class="btn-link" id="loginPrompt">log in</button> to post a takeaway.</div>` : ''}
-    <div class="form-group"><label class="form-label">Your Takeaway</label><textarea class="form-textarea" id="pf-takeaway" style="min-height:130px" ${!li?'disabled':''} placeholder="Share your insights… ($LaTeX$ and ||spoiler|| supported)"></textarea></div>
-    <div class="form-group"><label class="form-label">Add Image (optional)</label>
+    <div class="form-group"><label class="form-label">Your Takeaway</label><div class="preview-toggle"><button class="preview-tab active" id="takExpWriteTab">Write</button><button class="preview-tab" id="takExpPreviewTab">Preview</button></div><div class="preview-pane active" id="takExpWritePane"><textarea class="form-textarea" id="pf-takeaway" style="min-height:130px" ${!li?'disabled':''} placeholder="Share your insights… ($LaTeX$ and ||spoiler|| supported)"></textarea></div><div class="preview-pane" id="takExpPreviewPane"><div class="preview-rendered kr" id="takExpPreviewContent" style="min-height:130px"></div></div></div>    <div class="form-group"><label class="form-label">Add Image (optional)</label>
       <input type="file" id="pf-takImage" accept="image/*" style="color:var(--text2);font-size:13px" ${!li?'disabled':''} />
       <div class="img-preview-box" id="pf-takImagePreviewBox" style="display:none"><img id="pf-takImagePreview" src="" alt="Preview" /><button class="img-preview-remove" id="pf-takImageRemove"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
     </div>
@@ -2231,5 +2325,11 @@ document.querySelectorAll('a').forEach(a => {
   });
 });
 </script>
+<footer style="text-align:center;padding:20px 28px;border-top:1px solid var(--border);position:relative;z-index:1">
+  <p style="font-family:var(--font-serif);font-size:13.5px;color:var(--text3)">
+    Report issues, make suggestions, add categories, or join the team by contacting 
+    <a href="mailto:mint.forum.contact@gmail.com" style="color:var(--primary);text-decoration:none;font-weight:600">mint.forum.contact@gmail.com</a>
+  </p>
+</footer>
 </body>
 </html>
