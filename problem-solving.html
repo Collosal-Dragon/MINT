@@ -539,7 +539,17 @@ html.light .login-notice{background:rgba(30,122,72,.05);border-color:rgba(30,122
         <label class="form-label" style="margin:0">Explanation</label>
         <span id="intWordCount" class="word-count">0 / 1500 words</span>
       </div>
-      <textarea class="form-textarea" id="intExplanation" style="min-height:120px" placeholder="Explain your intuition… ($LaTeX$ and ||spoiler|| supported)"></textarea>
+      <div class="preview-toggle">
+        <button class="preview-tab active" id="intExpWriteTabModal">Write</button>
+        <button class="preview-tab" id="intExpPreviewTabModal">Preview</button>
+      </div>
+      <div class="preview-pane active" id="intExpWritePaneModal">
+        <textarea class="form-textarea" id="intExplanation" style="min-height:120px"
+          placeholder="Explain your intuition… ($LaTeX$ and ||spoiler|| supported)"></textarea>
+      </div>
+      <div class="preview-pane" id="intExpPreviewPaneModal">
+        <div class="preview-rendered kr" id="intExpPreviewContentModal" style="min-height:120px"></div>
+      </div>
     </div>
     <div class="form-group">
       <label class="form-label">Links (optional, max 3)</label>
@@ -594,7 +604,17 @@ html.light .login-notice{background:rgba(30,122,72,.05);border-color:rgba(30,122
     </div>
     <div class="form-group">
       <label class="form-label">Your Takeaway</label>
-      <textarea class="form-textarea" id="takContent" style="min-height:130px" placeholder="Share your insights… ($LaTeX$ and ||spoiler|| supported)"></textarea>
+      <div class="preview-toggle">
+        <button class="preview-tab active" id="takExpWriteTabModal">Write</button>
+        <button class="preview-tab" id="takExpPreviewTabModal">Preview</button>
+      </div>
+      <div class="preview-pane active" id="takExpWritePaneModal">
+        <textarea class="form-textarea" id="takContent" style="min-height:130px"
+          placeholder="Share your insights… ($LaTeX$ and ||spoiler|| supported)"></textarea>
+      </div>
+      <div class="preview-pane" id="takExpPreviewPaneModal">
+        <div class="preview-rendered kr" id="takExpPreviewContentModal" style="min-height:130px"></div>
+      </div>
     </div>
     <div class="form-group">
       <label class="form-label">Add Image (optional)</label>
@@ -1156,6 +1176,11 @@ async function submitSubtopic() {
 
 // ── GLOBAL INTUITION MODAL ────────────────────────────────
 function openGlobalIntModal(preselectedQId) {
+  document.getElementById('intExpWriteTabModal').classList.add('active');
+  document.getElementById('intExpPreviewTabModal').classList.remove('active');
+  document.getElementById('intExpWritePaneModal').classList.add('active');
+  document.getElementById('intExpPreviewPaneModal').classList.remove('active');
+  document.getElementById('intExpPreviewContentModal').innerHTML = '';
   gIntState.selectedQIds = new Set(preselectedQId ? [preselectedQId] : []);
   gIntState.links = [];
   gIntState.imageFile = null;
@@ -1177,6 +1202,11 @@ function openGlobalIntModal(preselectedQId) {
 function closeGlobalIntModal() { document.getElementById('postIntModal').classList.remove('open'); }
 
 function openGlobalTakModal(preselectedQId) {
+  document.getElementById('takExpWriteTabModal').classList.add('active');
+  document.getElementById('takExpPreviewTabModal').classList.remove('active');
+  document.getElementById('takExpWritePaneModal').classList.add('active');
+  document.getElementById('takExpPreviewPaneModal').classList.remove('active');
+  document.getElementById('takExpPreviewContentModal').innerHTML = '';
   gTakState.selectedQIds = new Set(preselectedQId ? [preselectedQId] : []);
   gTakState.links = [];
   gTakState.imageFile = null;
@@ -1437,6 +1467,44 @@ function bindEvents() {
   document.getElementById('authCancelBtn').addEventListener('click', closeAuthModal);
   document.getElementById('authSubmitBtn').addEventListener('click', handleAuthSubmit);
 
+  document.getElementById('intExpWriteTabModal').addEventListener('click', () => {
+    document.getElementById('intExpWriteTabModal').classList.add('active');
+    document.getElementById('intExpPreviewTabModal').classList.remove('active');
+    document.getElementById('intExpWritePaneModal').classList.add('active');
+    document.getElementById('intExpPreviewPaneModal').classList.remove('active');
+  });
+  document.getElementById('intExpPreviewTabModal').addEventListener('click', () => {
+    document.getElementById('intExpPreviewTabModal').classList.add('active');
+    document.getElementById('intExpWriteTabModal').classList.remove('active');
+    document.getElementById('intExpPreviewPaneModal').classList.add('active');
+    document.getElementById('intExpWritePaneModal').classList.remove('active');
+    const raw = document.getElementById('intExplanation').value || '';
+    const el = document.getElementById('intExpPreviewContentModal');
+    el.innerHTML = raw.trim()
+      ? processText(raw)
+      : '<span style="color:var(--text3);font-style:italic;font-size:13px">Nothing to preview yet.</span>';
+    renderMath(el);
+  });
+  
+  // Global takeaway modal preview toggle
+  document.getElementById('takExpWriteTabModal').addEventListener('click', () => {
+    document.getElementById('takExpWriteTabModal').classList.add('active');
+    document.getElementById('takExpPreviewTabModal').classList.remove('active');
+    document.getElementById('takExpWritePaneModal').classList.add('active');
+    document.getElementById('takExpPreviewPaneModal').classList.remove('active');
+  });
+  document.getElementById('takExpPreviewTabModal').addEventListener('click', () => {
+    document.getElementById('takExpPreviewTabModal').classList.add('active');
+    document.getElementById('takExpWriteTabModal').classList.remove('active');
+    document.getElementById('takExpPreviewPaneModal').classList.add('active');
+    document.getElementById('takExpWritePaneModal').classList.remove('active');
+    const raw = document.getElementById('takContent').value || '';
+    const el = document.getElementById('takExpPreviewContentModal');
+    el.innerHTML = raw.trim()
+      ? processText(raw)
+      : '<span style="color:var(--text3);font-style:italic;font-size:13px">Nothing to preview yet.</span>';
+    renderMath(el);
+  });
   // Intuition modal
   document.getElementById('postIntModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeGlobalIntModal(); });
   document.getElementById('postIntCancelBtn').addEventListener('click', closeGlobalIntModal);
