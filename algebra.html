@@ -84,6 +84,8 @@ html.light .btn-primary{color:#fff}
 
 /* ── LAYOUT ── */
 main{max-width:1040px;margin:0 auto;padding:28px 28px 60px;position:relative;z-index:1}
+body{opacity:0;transition:opacity .18s ease}
+body.ready{opacity:1}
 .hidden{display:none!important}
 
 /* ── BREADCRUMB ── */
@@ -2254,6 +2256,19 @@ async function submitTakeaway() {
   renderDetailItems(); renderPostForm();
   window.scrollTo({ top: document.getElementById('dtab-takeaways').offsetTop - 80, behavior: 'smooth' });
 }
+document.addEventListener('DOMContentLoaded', () => {
+  document.body.classList.add('ready');
+});
+
+document.querySelectorAll('a').forEach(a => {
+  const href = a.getAttribute('href');
+  if (!href || href.startsWith('#') || href.startsWith('javascript') || a.target === '_blank') return;
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    document.body.style.opacity = '0';
+    setTimeout(() => { window.location.href = a.href; }, 180);
+  });
+});
 </script>
 </body>
 </html>
