@@ -22,6 +22,7 @@ html.light header{background:rgba(247,246,241,.9)}
 .header-inner{max-width:1040px;margin:0 auto;padding:0 28px;height:62px;display:flex;align-items:center;justify-content:space-between;gap:16px}
 .logo{display:flex;align-items:center;gap:12px;text-decoration:none;flex-shrink:0}
 .logo-mark{width:38px;height:38px;background:linear-gradient(135deg,var(--primary) 0%,var(--primary2) 100%);border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:var(--font-disp);font-size:20px;font-weight:900;color:#0b0c10;box-shadow:0 0 20px rgba(110,231,160,.25);flex-shrink:0}
+.logo-mark-svg{width:38px;height:38px;flex-shrink:0;filter:drop-shadow(0 0 10px rgba(110,231,160,.35));}
 html.light .logo-mark{color:#fff;box-shadow:0 0 20px rgba(30,122,72,.2)}
 .logo-text{display:flex;flex-direction:column;line-height:1.1}
 .logo-name{font-family:var(--font-disp);font-size:1.15rem;font-weight:700;color:var(--text);letter-spacing:.02em}
@@ -148,7 +149,24 @@ body.ready{opacity:1}
 <header>
   <div class="header-inner">
     <a class="logo" href="index.html">
-      <div class="logo-mark">∑</div>
+      <svg class="logo-mark-svg" width="38" height="38" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <clipPath id="clipTriangle">
+            <polygon points="50,4 96,96 4,96"/>
+          </clipPath>
+        </defs>
+        <g clip-path="url(#clipTriangle)">
+          <polygon points="50,4 96,96 4,96" fill="#7ec7b4"/>
+          <polygon points="50,4 73,48 50,60" fill="#9fd8c8"/>
+          <polygon points="4,96 50,60 50,4" fill="#8ccbb9"/>
+          <polygon points="96,96 50,60 50,4" fill="#6fb3a3"/>
+          <polygon points="50,48 70,58 50,68 30,58" fill="#c9efe3"/>
+          <polygon points="30,58 50,68 50,96 30,86" fill="#8fd0b6"/>
+          <polygon points="70,58 50,68 50,96 70,86" fill="#76bca8"/>
+          <polygon points="4,96 30,86 50,96" fill="#5aa094"/>
+          <polygon points="96,96 70,86 50,96" fill="#4f9186"/>
+        </g>
+      </svg>
       <div class="logo-text">
         <span class="logo-name">MINT</span>
         <span class="logo-tagline">Math Olympiad Intuition</span>
