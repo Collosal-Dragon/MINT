@@ -585,7 +585,7 @@ async function doSearch() {
     if (error) throw error;
     let rs = data.map(r => ({
       id: r.id, title: r.title, about: r.about, at: ago(r.created_at),
-      tags: r.question_tags.map(t => t.tags?.name).filter(Boolean),
+      tags: [...new Set(r.question_tags.map(t => t.tags?.name).filter(n => n != null).map(n => n.split('::')[0]))],
       category: r.question_tags.map(t => t.tags?.category).find(c => c && Object.keys(CATS).some(k => k.toLowerCase() === c.toLowerCase())) || null,
       n: r.intuitions.length, up: 0, dn: 0
     }));
