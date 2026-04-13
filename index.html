@@ -515,7 +515,7 @@ async function loadRecent(retry = true) {
   }
   let qs = data.map(q => ({
     id: q.id, title: q.title, about: q.about, at: ago(q.created_at),
-    tags: q.question_tags.map(t => t.tags?.name).filter(n => n != null),
+    tags: [...new Set(q.question_tags.map(t => t.tags?.name).filter(n => n != null).map(n => n.split('::')[0]))],
     category: q.question_tags.map(t => t.tags?.category).find(c => c && Object.keys(CATS).some(k => k.toLowerCase() === c.toLowerCase())) || null,
     n: q.intuitions.length, up: 0, dn: 0
   }));
@@ -534,11 +534,7 @@ function cardHTML(q, i = 0) {
   const score = q.up - q.dn, sc = score > 0 ? 'pos' : score < 0 ? 'neg' : 'zero';
   
   // Sort tags: known category names first, subtopic tags second
-  const sortedTags = [...(q.tags || [])].sort((a, b) => {
-    const aIsCat = Object.keys(CATS).some(k => k.toLowerCase() === a?.toLowerCase()) ? 0 : 1;
-    const bIsCat = Object.keys(CATS).some(k => k.toLowerCase() === b?.toLowerCase()) ? 0 : 1;
-    return aIsCat - bIsCat;
-  });
+  const sortedTags = q.tags || [];
   
   const catKey = q.category ? Object.keys(CATS).find(k => k.toLowerCase() === q.category.toLowerCase()) : null;
   const catPage = catKey ? CATS[catKey].page : 'problem-solving.html';
@@ -556,7 +552,7 @@ function cardHTML(q, i = 0) {
     <div class="q-body">
       <div class="q-title kr">${esc(q.title)}</div>
       <div class="q-about"><span class="q-lbl">About </span><span class="kr">${esc(q.about)}</span></div>
-      <div class="q-tags">${sortedTags.map((t, i) => `<span class="qtag qtag-${Math.min(i,1)}">${t.split('::')[0]}</span>`).join('')}</div>
+      <div class="q-tags">${sortedTags.map((t, i) => `<span class="qtag qtag-${Math.min(i,1)}">${t}</span>`).join('')}</div>
       <div class="q-meta">${q.at}</div>
     </div>
   </a>`;
