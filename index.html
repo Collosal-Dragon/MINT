@@ -505,7 +505,7 @@ async function loadRecent(retry = true) {
   }
   let qs = data.map(q => ({
     id: q.id, title: q.title, about: q.about, at: ago(q.created_at),
-    tags: q.question_tags.map(t => t.tags?.name).filter(Boolean),
+    tags: q.question_tags.map(t => t.tags?.name).filter(n => n != null),
     category: q.question_tags.map(t => t.tags?.category).find(c => c && c in CATS) || null,
     n: q.intuitions.length, up: 0, dn: 0
   }));
@@ -525,8 +525,8 @@ function cardHTML(q, i = 0) {
   
   // Sort tags: known category names first, subtopic tags second
   const sortedTags = [...(q.tags || [])].sort((a, b) => {
-    const aIsCat = a in CATS ? 0 : 1;
-    const bIsCat = b in CATS ? 0 : 1;
+    const aIsCat = Object.keys(CATS).some(k => k.toLowerCase() === a?.toLowerCase()) ? 0 : 1;
+    const bIsCat = Object.keys(CATS).some(k => k.toLowerCase() === b?.toLowerCase()) ? 0 : 1;
     return aIsCat - bIsCat;
   });
   
