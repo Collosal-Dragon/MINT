@@ -556,7 +556,7 @@ function cardHTML(q, i = 0) {
     <div class="q-body">
       <div class="q-title kr">${esc(q.title)}</div>
       <div class="q-about"><span class="q-lbl">About </span><span class="kr">${esc(q.about)}</span></div>
-      <div class="q-tags">${sortedTags.map((t, i) => `<span class="qtag qtag-${Math.min(i,1)}">${t.split('::').pop()}</span>`).join('')}</div>
+      <div class="q-tags">${sortedTags.map((t, i) => `<span class="qtag qtag-${Math.min(i,1)}">${t.split('::')[0]}</span>`).join('')}</div>
       <div class="q-meta">${q.at}</div>
     </div>
   </a>`;
