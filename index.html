@@ -515,7 +515,7 @@ async function loadRecent(retry = true) {
   }
   let qs = data.map(q => ({
     id: q.id, title: q.title, about: q.about, at: ago(q.created_at),
-    tags: [...new Set(q.question_tags.map(t => t.tags?.name).filter(n => n != null).map(n => n.split('::')[0]))],
+    tags: [...new Set(q.question_tags.map(t => t.tags?.name).filter(n => n != null))],
     category: q.question_tags.map(t => t.tags?.category).find(c => c && Object.keys(CATS).some(k => k.toLowerCase() === c.toLowerCase())) || null,
     n: q.intuitions.length, up: 0, dn: 0
   }));
@@ -585,7 +585,7 @@ async function doSearch() {
     if (error) throw error;
     let rs = data.map(r => ({
       id: r.id, title: r.title, about: r.about, at: ago(r.created_at),
-      tags: [...new Set(r.question_tags.map(t => t.tags?.name).filter(n => n != null).map(n => n.split('::')[0]))],
+      tags: [...new Set(q.question_tags.map(t => t.tags?.name).filter(Boolean).map(n => { const p = n.split('::'); return p[1] || p[0]; }))],
       category: r.question_tags.map(t => t.tags?.category).find(c => c && Object.keys(CATS).some(k => k.toLowerCase() === c.toLowerCase())) || null,
       n: r.intuitions.length, up: 0, dn: 0
     }));
