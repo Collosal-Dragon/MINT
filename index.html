@@ -11,48 +11,8 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false})"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root{--bg:
-#0b0c10;--bg2:
-#0f1116;--bg3:
-#161820;--bg4:
-#1c1f2b;--border:
-#1e2130;--border2:
-#262a3a;--border3:
-#303550;--text:
-#eceef5;--text2:
-#8e95b0;--text3:
-#4a5070;--primary:
-#6ee7a0;--primary2:
-#3db870;--green:
-#6ee7a0;--red:
-#f07070;--gold:
-#f0c060;--blue:
-#7ab0f5;--purple:
-#b090f5;--teal:
-#5dd8d0;--card-bg:
-#0f1116;--card-hover:
-#141720;--shadow:0 1px 3px rgba(0,0,0,.5),0 4px 16px rgba(0,0,0,.4);--shadow-lg:0 8px 40px rgba(0,0,0,.6);--radius:12px;--font-disp:'Playfair Display',Georgia,serif;--font-body:'DM Sans',sans-serif;--font-serif:'Crimson Pro',Georgia,serif;--font-mono:'JetBrains Mono',monospace}
-html.light{--bg:
-#f7f6f1;--bg2:
-#ffffff;--bg3:
-#f0ede6;--bg4:
-#e8e4db;--border:
-#ddd9d0;--border2:
-#ccc8be;--border3:
-#b8b3a8;--text:
-#1a1814;--text2:
-#4a4640;--text3:
-#8a8680;--primary:
-#1e7a48;--primary2:
-#155c36;--green:
-#1e7a48;--red:
-#c0392b;--gold:
-#b07820;--blue:
-#2060c0;--purple:
-#6040b0;--teal:
-#0a7a74;--card-bg:
-#ffffff;--card-hover:
-#faf9f6;--shadow:0 1px 3px rgba(0,0,0,.06),0 4px 12px rgba(0,0,0,.08);--shadow-lg:0 8px 32px rgba(0,0,0,.12)}
+:root{--bg:#0b0c10;--bg2:#0f1116;--bg3:#161820;--bg4:#1c1f2b;--border:#1e2130;--border2:#262a3a;--border3:#303550;--text:#eceef5;--text2:#8e95b0;--text3:#4a5070;--primary:#6ee7a0;--primary2:#3db870;--green:#6ee7a0;--red:#f07070;--gold:#f0c060;--blue:#7ab0f5;--purple:#b090f5;--teal:#5dd8d0;--card-bg:#0f1116;--card-hover:#141720;--shadow:0 1px 3px rgba(0,0,0,.5),0 4px 16px rgba(0,0,0,.4);--shadow-lg:0 8px 40px rgba(0,0,0,.6);--radius:12px;--font-disp:'Playfair Display',Georgia,serif;--font-body:'DM Sans',sans-serif;--font-serif:'Crimson Pro',Georgia,serif;--font-mono:'JetBrains Mono',monospace}
+html.light{--bg:#f7f6f1;--bg2:#ffffff;--bg3:#f0ede6;--bg4:#e8e4db;--border:#ddd9d0;--border2:#ccc8be;--border3:#b8b3a8;--text:#1a1814;--text2:#4a4640;--text3:#8a8680;--primary:#1e7a48;--primary2:#155c36;--green:#1e7a48;--red:#c0392b;--gold:#b07820;--blue:#2060c0;--purple:#6040b0;--teal:#0a7a74;--card-bg:#ffffff;--card-hover:#faf9f6;--shadow:0 1px 3px rgba(0,0,0,.06),0 4px 12px rgba(0,0,0,.08);--shadow-lg:0 8px 32px rgba(0,0,0,.12)}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;line-height:1.6;transition:background .25s,color .25s;overflow-x:hidden}
 body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 50% at 20% -10%,rgba(110,231,160,.04) 0%,transparent 60%),radial-gradient(ellipse 60% 40% at 80% 110%,rgba(122,176,245,.03) 0%,transparent 55%);pointer-events:none;z-index:0}
@@ -61,8 +21,7 @@ header{position:sticky;top:0;z-index:100;background:rgba(11,12,16,.85);border-bo
 html.light header{background:rgba(247,246,241,.9)}
 .header-inner{max-width:1040px;margin:0 auto;padding:0 28px;height:62px;display:flex;align-items:center;justify-content:space-between;gap:16px}
 .logo{display:flex;align-items:center;gap:12px;text-decoration:none;flex-shrink:0}
-.logo-mark{width:38px;height:38px;background:linear-gradient(135deg,var(--primary) 0%,var(--primary2) 100%);border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:var(--font-disp);font-size:20px;font-weight:900;color:
-#0b0c10;box-shadow:0 0 20px rgba(110,231,160,.25);flex-shrink:0}
+.logo-mark{width:38px;height:38px;background:linear-gradient(135deg,var(--primary) 0%,var(--primary2) 100%);border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:var(--font-disp);font-size:20px;font-weight:900;color:#0b0c10;box-shadow:0 0 20px rgba(110,231,160,.25);flex-shrink:0}
 .logo-mark-svg{width:38px;height:38px;flex-shrink:0;filter:drop-shadow(0 0 10px rgba(110,231,160,.35));}
 html.light .logo-mark{color:#fff;box-shadow:0 0 20px rgba(30,122,72,.2)}
 .logo-text{display:flex;flex-direction:column;line-height:1.1}
@@ -75,8 +34,7 @@ html.light .logo-mark{color:#fff;box-shadow:0 0 20px rgba(30,122,72,.2)}
 .user-pill-dot{width:8px;height:8px;background:var(--green);border-radius:50%;flex-shrink:0;box-shadow:0 0 6px rgba(110,231,160,.6)}
 html.light .user-pill-dot{box-shadow:0 0 6px rgba(30,122,72,.4)}
 .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border-radius:8px;border:none;font-family:var(--font-body);font-size:13.5px;font-weight:500;cursor:pointer;transition:all .15s;white-space:nowrap;text-decoration:none}
-.btn-primary{background:var(--primary);color:
-#0b0c10;font-weight:600;box-shadow:0 0 20px rgba(110,231,160,.2)}
+.btn-primary{background:var(--primary);color:#0b0c10;font-weight:600;box-shadow:0 0 20px rgba(110,231,160,.2)}
 .btn-primary:hover{filter:brightness(1.08);transform:translateY(-1px);box-shadow:0 0 28px rgba(110,231,160,.3)}
 html.light .btn-primary{color:#fff}
 .btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border2)}
@@ -187,6 +145,7 @@ body.ready{opacity:1}
 </style>
 </head>
 <body>
+
 <header>
   <div class="header-inner">
     <a class="logo" href="index.html">
@@ -197,24 +156,15 @@ body.ready{opacity:1}
           </clipPath>
         </defs>
         <g clip-path="url(#clipTriangle)">
-          <polygon points="50,4 96,96 4,96" fill="
-#7ec7b4"/>
-          <polygon points="50,4 73,48 50,60" fill="
-#9fd8c8"/>
-          <polygon points="4,96 50,60 50,4" fill="
-#8ccbb9"/>
-          <polygon points="96,96 50,60 50,4" fill="
-#6fb3a3"/>
-          <polygon points="50,48 70,58 50,68 30,58" fill="
-#c9efe3"/>
-          <polygon points="30,58 50,68 50,96 30,86" fill="
-#8fd0b6"/>
-          <polygon points="70,58 50,68 50,96 70,86" fill="
-#76bca8"/>
-          <polygon points="4,96 30,86 50,96" fill="
-#5aa094"/>
-          <polygon points="96,96 70,86 50,96" fill="
-#4f9186"/>
+          <polygon points="50,4 96,96 4,96" fill="#7ec7b4"/>
+          <polygon points="50,4 73,48 50,60" fill="#9fd8c8"/>
+          <polygon points="4,96 50,60 50,4" fill="#8ccbb9"/>
+          <polygon points="96,96 50,60 50,4" fill="#6fb3a3"/>
+          <polygon points="50,48 70,58 50,68 30,58" fill="#c9efe3"/>
+          <polygon points="30,58 50,68 50,96 30,86" fill="#8fd0b6"/>
+          <polygon points="70,58 50,68 50,96 70,86" fill="#76bca8"/>
+          <polygon points="4,96 30,86 50,96" fill="#5aa094"/>
+          <polygon points="96,96 70,86 50,96" fill="#4f9186"/>
         </g>
       </svg>
       <div class="logo-text">
@@ -235,6 +185,7 @@ body.ready{opacity:1}
     </div>
   </div>
 </header>
+
 <main>
   <!-- HERO -->
   <div class="hero">
@@ -252,12 +203,14 @@ body.ready{opacity:1}
       </button>
     </div>
   </div>
+
   <!-- SEARCH RESULTS -->
   <div id="searchSec" class="hidden">
     <div class="sec-hd"><span class="sec-title">Search Results</span><span class="sec-line"></span></div>
     <p class="search-count" id="searchCount"></p>
     <div id="searchList" class="q-list"></div>
   </div>
+
   <!-- BROWSE -->
   <div id="browseSec">
     <div class="sec-hd"><span class="sec-title">Browse by Topic</span><span class="sec-line"></span></div>
@@ -268,17 +221,14 @@ body.ready{opacity:1}
     </div>
   </div>
 </main>
+
 <!-- AUTH MODAL -->
 <div class="modal-overlay" id="authOverlay" onclick="if(event.target===this)closeAuth()">
   <div class="modal">
     <div class="modal-title">Welcome to MINT</div>
     <div class="modal-sub">Sign in to post questions, share intuitions, and vote on answers.</div>
     <button class="btn btn-google" onclick="googleSignIn()">
-      <svg width="18" height="18" viewBox="0 0 24 24" style="margin-right:6px"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="
-#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="
-#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="
-#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="
-#EA4335"/></svg>
+      <svg width="18" height="18" viewBox="0 0 24 24" style="margin-right:6px"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
       Continue with Google
     </button>
     <div class="divider">or continue with email</div>
@@ -310,23 +260,23 @@ body.ready{opacity:1}
     </div>
   </div>
 </div>
+
 <script>
 const SUPABASE_URL = 'https://idlrmpecdvsofaykphfe.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlkbHJtcGVjZHZzb2ZheWtwaGZlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMzk5NTAsImV4cCI6MjA4OTgxNTk1MH0.FWSllmspL4twQ1aF2q20---HmoLxBM1NqFnQ2OPOoUg';
+
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
 const CATS = {
-  'Algebra':         { glyph:'𝑥²', color:'
-#7ab0f5', desc:'',        subs:[],   page:'algebra.html' },
-  'Combinatorics':   { glyph:'⊕', color:'
-#b090f5', desc:'',              subs:[],       page:'combinatorics.html' },
-  'Geometry':        { glyph:'△',color:'
-#6ee7a0', desc:'',                        subs:[],               page:'geometry.html' },
-  'Number Theory':   { glyph:'ℕ',  color:'
-#f0c060', desc:'',          subs:[],             page:'number-theory.html' },
-  'Problem Solving': { glyph:'✦',  color:'
-#f09060', desc:'',  subs:[],page:'problem-solving.html' },
+  'Algebra':         { glyph:'𝑥²', color:'#7ab0f5', desc:'',        subs:[],   page:'algebra.html' },
+  'Combinatorics':   { glyph:'⊕', color:'#b090f5', desc:'',              subs:[],       page:'combinatorics.html' },
+  'Geometry':        { glyph:'△',color:'#6ee7a0', desc:'',                        subs:[],               page:'geometry.html' },
+  'Number Theory':   { glyph:'ℕ',  color:'#f0c060', desc:'',          subs:[],             page:'number-theory.html' },
+  'Problem Solving': { glyph:'✦',  color:'#f09060', desc:'',  subs:[],page:'problem-solving.html' },
 };
+
 let me = null, profile = null, authMode = 'login', searchCtrl = null, searchTimer = null;
+
 // ── BOOT SEQUENCE ────────────────────────────────────────────────────────────
 // Hide auth controls until we know the session state — prevents the "Log in"
 // flash on every reload for logged-in users.
@@ -334,11 +284,23 @@ document.addEventListener('DOMContentLoaded', () => {
   applyTheme(localStorage.getItem('theme') || 'dark');
   buildGrid();
   refreshHeader();
+  document.body.classList.add('ready');
+  document.querySelectorAll('a').forEach(a => {
+    const href = a.getAttribute('href');
+    if (!href || href.startsWith('#') || href.startsWith('javascript') || a.target === '_blank') return;
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      document.body.style.opacity = '0';
+      setTimeout(() => { window.location.href = a.href; }, 180);
+    });
+  });
 });
+
 // Single source of truth for all auth state and data loading.
 // INITIAL_SESSION fires on every page load, SIGNED_IN/SIGNED_OUT for changes.
 db.auth.onAuthStateChange(async (ev, session) => {
   me = session?.user ?? null;
+
   if (me) {
     if (!profile) {
       profile = { username: me.user_metadata?.username || me.user_metadata?.full_name || me.email.split('@')[0], email: me.email };
@@ -349,14 +311,17 @@ db.auth.onAuthStateChange(async (ev, session) => {
     profile = null;
     refreshHeader();
   }
+
   if (ev === 'SIGNED_IN' && document.getElementById('authOverlay').classList.contains('open')) {
     closeAuth();
     toast('Welcome back!', 'success');
   }
+
   if (ev === 'INITIAL_SESSION' || ev === 'SIGNED_IN' || ev === 'SIGNED_OUT') {
     loadRecent();
   }
 });
+
 // Re-validate when the user returns to a backgrounded/suspended tab.
 document.addEventListener('visibilitychange', async () => {
   if (document.visibilityState !== 'visible' || !me) return;
@@ -368,7 +333,9 @@ document.addEventListener('visibilitychange', async () => {
     toast('Session expired. Please log in again.', 'error');
   }
 });
+
 function onKatexReady() { document.querySelectorAll('.kr').forEach(renderMath); }
+
 // ── PROFILE ──────────────────────────────────────────────────────────────────
 async function fetchProfile(user) {
   const { data } = await db.from('profiles').select('username,email').eq('id', user.id).maybeSingle();
@@ -382,6 +349,7 @@ async function fetchProfile(user) {
   profile = ins ?? null;
   refreshHeader();
 }
+
 function refreshHeader() {
   const pill = document.getElementById('userPill');
   const btn  = document.getElementById('authBtn');
@@ -396,6 +364,7 @@ function refreshHeader() {
     btn.onclick = openAuth;
   }
 }
+
 // ── GOOGLE OAUTH ─────────────────────────────────────────────────────────────
 async function googleSignIn() {
   const { error } = await db.auth.signInWithOAuth({
@@ -404,6 +373,7 @@ async function googleSignIn() {
   });
   if (error) toast('Google sign-in failed: ' + error.message, 'error');
 }
+
 // ── AUTH MODAL ────────────────────────────────────────────────────────────────
 function openAuth() {
   document.getElementById('authOverlay').classList.add('open');
@@ -481,6 +451,7 @@ function niceErr(m) {
   if (m.includes('Password should be'))        return 'Password must be at least 6 characters.';
   return m;
 }
+
 // ── THEME ─────────────────────────────────────────────────────────────────────
 function applyTheme(t) {
   document.documentElement.className = t;
@@ -491,10 +462,11 @@ document.getElementById('themeBtn').addEventListener('click', () => {
   const t = document.documentElement.className === 'dark' ? 'light' : 'dark';
   localStorage.setItem('theme', t); applyTheme(t);
 });
+
 // ── UTILITIES ─────────────────────────────────────────────────────────────────
 function ago(ts) {
-  const d = Date.now() - new Date(ts), m = ~~(d/6e4), h = ~~(d/36e5), dy = (d/864e5);
-  return m < 1 ? 'just now' : m < 60 ? ${m}m ago : h < 24 ? ${h}h ago : dy < 7 ? ${dy}d ago : `${(dy/7)}w ago;
+  const d = Date.now() - new Date(ts), m = ~~(d/6e4), h = ~~(d/36e5), dy = ~~(d/864e5);
+  return m < 1 ? 'just now' : m < 60 ? `${m}m ago` : h < 24 ? `${h}h ago` : dy < 7 ? `${dy}d ago` : `${~~(dy/7)}w ago`;
 }
 function esc(s) { return s ? s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') : ''; }
 function renderMath(el) {
@@ -510,19 +482,21 @@ async function getVotes(ids, type) {
   (data || []).forEach(v => { m[v.target_id] = { up: +v.upvotes, dn: +v.downvotes }; });
   return m;
 }
+
 // ── GRID ──────────────────────────────────────────────────────────────────────
 function buildGrid() {
-  document.getElementById('topicGrid').innerHTML = Object.entries(CATS).map(([name, c]) => 
+  document.getElementById('topicGrid').innerHTML = Object.entries(CATS).map(([name, c]) => `
     <a class="topic-card" href="${c.page}" style="--tc:${c.color}">
       <span class="t-glyph" style="color:${c.color}">${c.glyph}</span>
       <div class="t-name" style="color:${c.color}">${name}</div>
       <div class="t-desc">${c.desc}</div>
       <div class="t-tags">
-        ${c.subs.slice(0,3).map(s => <span class="t-tag">${s}</span>).join('')}
-        ${c.subs.length > 3 ? <span class="t-tag">+${c.subs.length - 3}</span> : ''}
+        ${c.subs.slice(0,3).map(s => `<span class="t-tag">${s}</span>`).join('')}
+        ${c.subs.length > 3 ? `<span class="t-tag">+${c.subs.length - 3}</span>` : ''}
       </div>
-    </a>).join('');
+    </a>`).join('');
 }
+
 // ── QUESTIONS ─────────────────────────────────────────────────────────────────
 async function loadRecent(retry = true) {
   document.getElementById('recentList').innerHTML =
@@ -536,7 +510,7 @@ async function loadRecent(retry = true) {
       setTimeout(() => loadRecent(false), 800);
       return;
     }
-    document.getElementById('recentList').innerHTML = <div class="err-box">Could not load: ${error.message}</div>`;
+    document.getElementById('recentList').innerHTML = `<div class="err-box">Could not load: ${error.message}</div>`;
     return;
   }
   let qs = data.map(q => ({
@@ -555,20 +529,21 @@ async function loadRecent(retry = true) {
     el.innerHTML = qs.map((q, i) => cardHTML(q, i)).filter(Boolean).join('');
   el.querySelectorAll('.kr').forEach(renderMath);
 }
+
 function cardHTML(q, i = 0) {
   const score = q.up - q.dn, sc = score > 0 ? 'pos' : score < 0 ? 'neg' : 'zero';
-
+  
   // Sort tags: known category names first, subtopic tags second
   const sortedTags = [...(q.tags || [])].sort((a, b) => {
     const aIsCat = Object.keys(CATS).some(k => k.toLowerCase() === a?.toLowerCase()) ? 0 : 1;
     const bIsCat = Object.keys(CATS).some(k => k.toLowerCase() === b?.toLowerCase()) ? 0 : 1;
     return aIsCat - bIsCat;
   });
-
+  
   const catKey = q.category ? Object.keys(CATS).find(k => k.toLowerCase() === q.category.toLowerCase()) : null;
   const catPage = catKey ? CATS[catKey].page : 'problem-solving.html';
   if (!q.title) return '';
-  return <a class="q-card" href="${catPage}?q=${q.id}" style="animation-delay:${i*55}ms">
+  return `<a class="q-card" href="${catPage}?q=${q.id}" style="animation-delay:${i*55}ms">
     <div class="v-col">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text3)"><polyline points="18 15 12 9 6 15"/></svg>
       <span class="v-score ${sc}">${score}</span>
@@ -581,11 +556,12 @@ function cardHTML(q, i = 0) {
     <div class="q-body">
       <div class="q-title kr">${esc(q.title)}</div>
       <div class="q-about"><span class="q-lbl">About </span><span class="kr">${esc(q.about)}</span></div>
-      <div class="q-tags">${sortedTags.map((t, i) => <span class="qtag qtag-${Math.min(i,1)}">${t.split('::').pop()}</span>).join('')}</div>
+      <div class="q-tags">${sortedTags.map((t, i) => `<span class="qtag qtag-${Math.min(i,1)}">${t.split('::').pop()}</span>`).join('')}</div>
       <div class="q-meta">${q.at}</div>
     </div>
-  </a>;
+  </a>`;
 }
+
 // ── SEARCH ────────────────────────────────────────────────────────────────────
 function handleSearch() {
   const v = document.getElementById('globalSearch').value;
@@ -608,19 +584,19 @@ async function doSearch() {
   try {
     const { data, error } = await db.from('questions')
       .select('id,title,about,created_at,question_tags(tags(name,category)),intuitions(id)')
-      .or(title.ilike.%${q}%,about.ilike.%${q}%)
+      .or(`title.ilike.%${q}%,about.ilike.%${q}%`)
       .order('created_at', { ascending: false }).limit(20).abortSignal(searchCtrl.signal);
     if (error) throw error;
     let rs = data.map(r => ({
       id: r.id, title: r.title, about: r.about, at: ago(r.created_at),
       tags: r.question_tags.map(t => t.tags?.name).filter(Boolean),
-      category: r.question_tags.map(t => t.tags?.category).find(c => c && c in CATS) || null,
+      category: r.question_tags.map(t => t.tags?.category).find(c => c && Object.keys(CATS).some(k => k.toLowerCase() === c.toLowerCase())) || null,
       n: r.intuitions.length, up: 0, dn: 0
     }));
     const vm = await getVotes(rs.map(r => r.id), 'question');
     rs.forEach(r => { const v = vm[r.id] || {}; r.up = v.up || 0; r.dn = v.dn || 0; });
     document.getElementById('searchCount').innerHTML =
-      <strong>${rs.length}</strong> result${rs.length !== 1 ? 's' : ''} for "<em>${esc(q)}</em>";
+      `<strong>${rs.length}</strong> result${rs.length !== 1 ? 's' : ''} for "<em>${esc(q)}</em>"`;
     const el = document.getElementById('searchList');
     el.innerHTML = rs.length
       ? rs.map((r, i) => cardHTML(r, i)).filter(Boolean).join('')
@@ -628,19 +604,21 @@ async function doSearch() {
     el.querySelectorAll('.kr').forEach(renderMath);
   } catch(e) {
     if (e.name !== 'AbortError')
-      document.getElementById('searchList').innerHTML = <div class="err-box">Search error: ${e.message}</div>;
+      document.getElementById('searchList').innerHTML = `<div class="err-box">Search error: ${e.message}</div>`;
   }
 }
+
 // ── TOAST ─────────────────────────────────────────────────────────────────────
 let toastTimer;
 function toast(msg, type = 'success') {
   document.querySelector('.toast')?.remove(); clearTimeout(toastTimer);
-  const t = document.createElement('div'); t.className = toast ${type};
-  t.innerHTML = <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">${
+  const t = document.createElement('div'); t.className = `toast ${type}`;
+  t.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">${
     type === 'success' ? '<polyline points="20 6 9 17 4 12"/>' : '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>'
-  }</svg> ${msg};
+  }</svg> ${msg}`;
   document.body.appendChild(t); toastTimer = setTimeout(() => t.remove(), 3200);
 }
+
 // ── KEYBOARD ──────────────────────────────────────────────────────────────────
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
@@ -650,18 +628,6 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Enter' && document.getElementById('authOverlay').classList.contains('open')) {
     const b = document.getElementById('authSubmit'); if (!b.disabled) submitAuth();
   }
-});
-document.addEventListener('DOMContentLoaded', () => {
-  document.body.classList.add('ready');
-});
-document.querySelectorAll('a').forEach(a => {
-  const href = a.getAttribute('href');
-  if (!href || href.startsWith('#') || href.startsWith('javascript') || a.target === '_blank') return;
-  a.addEventListener('click', e => {
-    e.preventDefault();
-    document.body.style.opacity = '0';
-    setTimeout(() => { window.location.href = a.href; }, 180);
-  });
 });
 </script>
 </body>
