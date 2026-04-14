@@ -17,15 +17,19 @@
 ════════════════════════════════════════ -->
 <script>
 const TOPIC_NAME = 'Geometry';
-const SUBS = ['Angle Chasing', 'Triangle', 'Quadrilaterals', 'Length chasing', 'Symmetry', 'Transformations', 'Computational', 'Projective tools', 'Construction', 'Simplification', 'Others'];
+const SUBS = ['Angle Chasing', 'Circles', 'Triangle', 'Quadrilaterals', 'Length chasing', 'Symmetry', 'Transformations', 'Computational', 'Projective tools', 'Construction', 'Simplification', 'Others'];
 
 const SSC = {
   'Angle Chasing': {
-    structure: [],
-    technique: ['Good lines/bad lines', 'Spiral similarity', 'Parallel lines'],
+    structure: ['Parallel lines', 'Tangents', 'Directed angles'],
+    technique: ['Good lines/bad lines', 'Spiral similarity'],
+  },
+  'Circles': {
+    structure: ['Coaxial circles', 'Concurrent circles', 'Radical axis'],
+    technique: [],
   },
   'Triangle': {
-    structure: ['Centers'],
+    structure: ['Centers','Configurations','Isogonal lines/points'],
     technique: [],
   },
   'Quadrilaterals': {
@@ -45,23 +49,23 @@ const SSC = {
     technique: ['Homothety','Inversion'],
   },
   'Computational': {
-    structure: ['Cartesian coordinates','Complex numbers','Barycentric coordinates','Method of Moving Points'],
-    technique: [],
+    structure: [],
+    technique: ['Cartesian coordinates','Complex numbers','Barycentric coordinates','Method of Moving Points'],
   },
   'Projective tools': {
     structure: [],
     technique: [],
   },
   'Construction': {
-    structure: ['Adding points'],
-    technique: [],
+    structure: [],
+    technique: ['Adding points'],
   },
   'Simplification': {
-    structure: ['Removing points'],
-    technique: [],
+    structure: [],
+    technique: ['Removing points'],
   },
   'Others': {
-    structure: [],
+    structure: ['Concurrent lines'],
     technique: [],
   }
 };
