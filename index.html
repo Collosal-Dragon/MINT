@@ -242,16 +242,12 @@ body.ready{opacity:1}
     <div class="auth-msg err" id="authErr"></div>
     <div class="auth-msg ok"  id="authOk"></div>
     <div class="form-group" id="identWrap">
-      <label class="form-label">Email or username</label>
+      <label class="form-label">Email</label>
       <input class="form-input" id="authIdent" type="text" placeholder="you@example.com or handle" autocomplete="username" />
     </div>
     <div class="form-group hidden" id="emailWrap">
       <label class="form-label">Email</label>
       <input class="form-input" id="authEmail" type="email" placeholder="you@example.com" autocomplete="email" />
-    </div>
-    <div class="form-group hidden" id="userWrap">
-      <label class="form-label">Username</label>
-      <input class="form-input" id="authUser" type="text" placeholder="mathwiz42" autocomplete="off" />
     </div>
     <div class="form-group">
       <label class="form-label">Password</label>
@@ -287,16 +283,6 @@ document.addEventListener('DOMContentLoaded', () => {
   applyTheme(localStorage.getItem('theme') || 'dark');
   buildGrid();
   refreshHeader();
-  document.body.classList.add('ready');
-  document.querySelectorAll('a').forEach(a => {
-    const href = a.getAttribute('href');
-    if (!href || href.startsWith('#') || href.startsWith('javascript') || a.target === '_blank') return;
-    a.addEventListener('click', e => {
-      e.preventDefault();
-      document.body.style.opacity = '0';
-      setTimeout(() => { window.location.href = a.href; }, 180);
-    });
-  });
 });
 
 // Single source of truth for all auth state and data loading.
@@ -522,7 +508,7 @@ async function loadRecent(retry = true) {
       const p = n.split('::');
       return [p[1]||p[0], { label: p[1]||p[0], type: p[2]||'default' }];
     })).values()],
-    category: q.question_tags.map(t => t.tags?.category).find(c => c && Object.keys(CATS).some(k => k.toLowerCase() === c.toLowerCase())) || null,
+    category: q.question_tags.map(t => t.tags?.category).find(c => c && c in CATS) || null,
     n: q.intuitions.length, up: 0, dn: 0
   }));
   const vm = await getVotes(qs.map(q => q.id), 'question');
@@ -540,10 +526,13 @@ function cardHTML(q, i = 0) {
   const score = q.up - q.dn, sc = score > 0 ? 'pos' : score < 0 ? 'neg' : 'zero';
   
   // Sort tags: known category names first, subtopic tags second
-  const sortedTags = q.tags || [];
+  const sortedTags = [...(q.tags || [])].sort((a, b) => {
+    const aIsCat = Object.keys(CATS).some(k => k.toLowerCase() === String(a)?.toLowerCase()) ? 0 : 1;
+    const bIsCat = Object.keys(CATS).some(k => k.toLowerCase() === String(b)?.toLowerCase()) ? 0 : 1;
+    return aIsCat - bIsCat;
+  });
   
-  const catKey = q.category ? Object.keys(CATS).find(k => k.toLowerCase() === q.category.toLowerCase()) : null;
-  const catPage = catKey ? CATS[catKey].page : 'problem-solving.html';
+  const catPage = (q.category && CATS[q.category]) ? CATS[q.category].page : 'problem-solving.html';
   if (!q.title) return '';
   return `<a class="q-card" href="${catPage}?q=${q.id}" style="animation-delay:${i*55}ms">
     <div class="v-col">
@@ -558,7 +547,7 @@ function cardHTML(q, i = 0) {
     <div class="q-body">
       <div class="q-title kr">${esc(q.title)}</div>
       <div class="q-about"><span class="q-lbl">About </span><span class="kr">${esc(q.about)}</span></div>
-      <div class="q-tags">${sortedTags.map(t => `<span class="qtag qtag-${t.type}">${esc(t.label)}</span>`).join('')}  </div>
+      <div class="q-tags">${sortedTags.map(t => `<span class="qtag qtag-${t.type}">${esc(t.label)}</span>`).join('')}</div>
       <div class="q-meta">${q.at}</div>
     </div>
   </a>`;
@@ -595,7 +584,7 @@ async function doSearch() {
         const p = n.split('::');
         return [p[1]||p[0], { label: p[1]||p[0], type: p[2]||'default' }];
       })).values()],
-      category: r.question_tags.map(t => t.tags?.category).find(c => c && Object.keys(CATS).some(k => k.toLowerCase() === c.toLowerCase())) || null,
+      category: r.question_tags.map(t => t.tags?.category).find(c => c && c in CATS) || null,
       n: r.intuitions.length, up: 0, dn: 0
     }));
     const vm = await getVotes(rs.map(r => r.id), 'question');
@@ -633,6 +622,19 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Enter' && document.getElementById('authOverlay').classList.contains('open')) {
     const b = document.getElementById('authSubmit'); if (!b.disabled) submitAuth();
   }
+});
+document.addEventListener('DOMContentLoaded', () => {
+  document.body.classList.add('ready');
+});
+
+document.querySelectorAll('a').forEach(a => {
+  const href = a.getAttribute('href');
+  if (!href || href.startsWith('#') || href.startsWith('javascript') || a.target === '_blank') return;
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    document.body.style.opacity = '0';
+    setTimeout(() => { window.location.href = a.href; }, 180);
+  });
 });
 </script>
 </body>
