@@ -11,13 +11,9 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="onKatexReady()"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<!-- ═══════════════════════════════════════
-     PAGE CONFIG — only thing you edit per topic
-════════════════════════════════════════ -->
 <script>
 const TOPIC_NAME = 'Problem Solving';
-const SUBS = ['Symmetry', 'Equality case', 'Generalisation', 'Reduction', 'Reformulation', 'Mentality', 'General advice'];
+const SUBS = ['Symmetry', 'Equality case', 'Generalisation', 'Reduction', 'Equivalent statements', 'Competition mentality', 'General advice'];
 
 const SSC = {
   'Symmetry': {
@@ -36,11 +32,11 @@ const SSC = {
     structure: [],
     technique: [],
   },
-  'Reformulation': {
+  'Equivalent statements': {
     structure: [],
     technique: [],
   },
-  'Mentality': {
+  'Competition mentality': {
     structure: [],
     technique: [],
   },
@@ -62,18 +58,22 @@ const SSC = {
 <header>
   <div class="header-inner">
     <a class="logo" href="index.html">
-      <svg class="logo-mark-svg" width="38" height="38" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <defs><clipPath id="clipTriangle"><polygon points="50,4 96,96 4,96"/></clipPath></defs>
+      <svg class="logo-mark-svg" width="38" height="38" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <clipPath id="clipTriangle">
+            <polygon points="250,30 475,420 25,420"/>
+          </clipPath>
+        </defs>
         <g clip-path="url(#clipTriangle)">
-          <polygon points="50,4 96,96 4,96" fill="#7ec7b4"/>
-          <polygon points="50,4 73,48 50,60" fill="#9fd8c8"/>
-          <polygon points="4,96 50,60 50,4" fill="#8ccbb9"/>
-          <polygon points="96,96 50,60 50,4" fill="#6fb3a3"/>
-          <polygon points="50,48 70,58 50,68 30,58" fill="#c9efe3"/>
-          <polygon points="30,58 50,68 50,96 30,86" fill="#8fd0b6"/>
-          <polygon points="70,58 50,68 50,96 70,86" fill="#76bca8"/>
-          <polygon points="4,96 30,86 50,96" fill="#5aa094"/>
-          <polygon points="96,96 70,86 50,96" fill="#4f9186"/>
+          <polygon points="250,30 475,420 25,420" fill="#7ec7b4"/>
+          <polygon points="250,30 362,225 250,160 138,225" fill="#9fd8c8"/>
+          <polygon points="25,420 138,225 250,420" fill="#8ccbb9"/>
+          <polygon points="475,420 362,225 250,420" fill="#6fb3a3"/>
+          <polygon points="250,160 362,225 250,290 138,225" fill="#c9efe3"/>
+          <polygon points="138,225 250,290 250,420 138,355" fill="#8fd0b6"/>
+          <polygon points="362,225 250,290 250,420 362,355" fill="#76bca8"/>
+          <polygon points="25,420 138,355 250,420" fill="#5aa094"/>
+          <polygon points="475,420 362,355 250,420" fill="#4f9186"/>
         </g>
       </svg>
       <div class="logo-text">
