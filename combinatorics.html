@@ -16,21 +16,19 @@
      PAGE CONFIG — only thing you edit per topic
 ════════════════════════════════════════ -->
 <script>
-const SUPABASE_URL = 'https://idlrmpecdvsofaykphfe.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlkbHJtcGVjZHZzb2ZheWtwaGZlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMzk5NTAsImV4cCI6MjA4OTgxNTk1MH0.FWSllmspL4twQ1aF2q20---HmoLxBM1NqFnQ2OPOoUg';
-const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
 const TOPIC_NAME = 'Combinatorics';
 const SUBS = ['Counting', 'Local techniques', 'Global techniques', 'Graph Theory', 'Grids', 'Processes', 'Constructive processes', 'Others'];
 
 const SSC = {
   'Counting': { structure: [], technique: ['Double Counting', 'Bijections'] },
   'Local techniques': { structure: [], technique: ['Induction', 'Extremal principle', 'Pigeonhole Principle'] },
-  'Graph Theory': { structure: ['Trees', 'Directed Graphs', 'Cycles'], technique: [] },
-  'Grids': { structure: [], technique: ['Factorisation', 'Inequalities', 'Symmetry'] },
-  'Processes': { structure: ['Algorithms'], technique: [] },
+  'Global techniques': { structure: [], technique: ['Invariants/monovariants', 'Colourings', 'Weightings','Probabilistic methods'] },
+  'Graph Theory': { structure: ['Trees', 'Directed Graphs', 'Cycles','Cliques'], technique: [] },
+  'Grids': { structure: [], technique: [] },
+  'Processes': { structure: ['Algorithms','Games], technique: [] },
   'Constructive processes': { structure: [], technique: [] },
-  'Others': { structure: ['Probabilistic methods'], technique: [] }
+  'Bounding':{structure: [] ,technique: [] },
+  'Others': { structure: [], technique: [] }
 };
 </script>
 </head>
