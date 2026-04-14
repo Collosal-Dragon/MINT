@@ -531,8 +531,8 @@ function cardHTML(q, i = 0) {
   
   // Sort tags: known category names first, subtopic tags second
   const sortedTags = [...(q.tags || [])].sort((a, b) => {
-    const aIsCat = Object.keys(CATS).some(k => k.toLowerCase() === a?.toLowerCase()) ? 0 : 1;
-    const bIsCat = Object.keys(CATS).some(k => k.toLowerCase() === b?.toLowerCase()) ? 0 : 1;
+    const aIsCat = Object.keys(CATS).some(k => k.toLowerCase() === String(a)?.toLowerCase()) ? 0 : 1;
+    const bIsCat = Object.keys(CATS).some(k => k.toLowerCase() === String(b)?.toLowerCase()) ? 0 : 1;
     return aIsCat - bIsCat;
   });
   
