@@ -1,3 +1,4 @@
+
 'use strict';
 
 /* ── SUPABASE ─────────────────────────────────────────── */
@@ -250,7 +251,7 @@ function initPostDropdown() {
   });
 }
 
-/* ── SUBTOPIC / POST-TOPIC MODAL ───────────────────── */
+/* ── SUBTOPIC / POST-QUESTION MODAL ───────────────────── */
 function openSubModal(preselectedTopic) {
   selectedSubTopics = new Set(preselectedTopic ? [preselectedTopic] : []);
   selectedNewQTags  = new Set();
@@ -354,7 +355,7 @@ async function submitSubtopic() {
   const btn = document.getElementById('postSubSubmitBtn');
   btn.disabled=true; btn.textContent='Posting…';
   try {
-    const { data: qData, error: qErr } = await db.from('topics').insert({ title, about }).select('id').single();
+    const { data: qData, error: qErr } = await db.from('questions').insert({ title, about }).select('id').single();
     if (qErr) throw qErr;
     const qid = qData.id;
     for (const tagName of [...selectedSubTopics, ...selectedNewQTags]) {
@@ -363,7 +364,7 @@ async function submitSubtopic() {
         const { data: newTag } = await db.from('tags').insert({ name:tagName, category:TOPIC_NAME }).select('id').single();
         tagRow = newTag;
       }
-      if (tagRow?.id) await db.from('topic_tags').insert({ topic_id:qid, tag_id:tagRow.id });
+      if (tagRow?.id) await db.from('question_tags').insert({ question_id:qid, tag_id:tagRow.id });
     }
     showToast('Topic posted!','success');
     closeSubModal();
@@ -378,6 +379,7 @@ async function submitSubtopic() {
 
 /* ── GLOBAL INT MODAL ─────────────────────────────────── */
 function openGlobalIntModal(preselectedQId) {
+  // reset write/preview tabs if they exist
   ['intExpWriteTabModal','intExpWritePaneModal'].forEach(id => document.getElementById(id)?.classList.add('active'));
   ['intExpPreviewTabModal','intExpPreviewPaneModal'].forEach(id => document.getElementById(id)?.classList.remove('active'));
   const prevEl = document.getElementById('intExpPreviewContentModal');
@@ -529,14 +531,14 @@ async function submitGlobalIntuition() {
   const exExp  = document.getElementById('intExampleExp').value.trim() || null;
   let posted=0, failed=0;
   for (const qid of [...gIntState.selectedQIds]) {
-    const { data:d, error:e } = await db.from('intuitions').insert({ topic_id:qid, statement:stmt, explanation:exp, example_link:exLink, example_explanation:exExp, author_id:me.id, image_url:imageUrl }).select('id').single();
+    const { data:d, error:e } = await db.from('intuitions').insert({ question_id:qid, statement:stmt, explanation:exp, example_link:exLink, example_explanation:exExp, author_id:me.id, image_url:imageUrl }).select('id').single();
     if (e) { failed++; continue; }
     posted++;
     if (gIntState.links.length && d) await db.from('links').insert(gIntState.links.map(url => ({ parent_id:d.id, parent_type:'intuition', url })));
   }
   btn.disabled=false; btn.textContent='Post Intuition';
   if (failed) showToast(`${posted} posted, ${failed} failed.`, failed===gIntState.selectedQIds.size?'error':'success');
-  else showToast(`Intuition posted to ${posted} topic${posted!==1?'s':''}!`,'success');
+  else showToast(`Intuition posted to ${posted} question${posted!==1?'s':''}!`,'success');
   closeGlobalIntModal();
   if (selectedQuestion && gIntState.selectedQIds.has(selectedQuestion.id)) { await loadDetailItems(selectedQuestion.id); renderDetailItems(); }
   await loadQuestions();
@@ -551,20 +553,20 @@ async function submitGlobalTakeaway() {
     catch(e) { showToast('Image upload failed: '+e.message,'error'); return; }
   }
   const content = document.getElementById('takContent').value.trim();
-  if (!gTakState.selectedQIds.size) { document.getElementById('postTakError').innerHTML='<div class="err-box">Please select at least one topic.</div>'; return; }
+  if (!gTakState.selectedQIds.size) { document.getElementById('postTakError').innerHTML='<div class="err-box">Please select at least one question.</div>'; return; }
   if (!content) { document.getElementById('postTakError').innerHTML='<div class="err-box">Please write your takeaway.</div>'; return; }
   const btn = document.getElementById('postTakSubmitBtn');
   btn.disabled=true; btn.textContent='Posting…';
   let posted=0, failed=0;
   for (const qid of [...gTakState.selectedQIds]) {
-    const { data:d, error:e } = await db.from('takeaways').insert({ topic_id:qid, image_url:imageUrl, content, author_id:me.id }).select('id').single();
+    const { data:d, error:e } = await db.from('takeaways').insert({ question_id:qid, image_url:imageUrl, content, author_id:me.id }).select('id').single();
     if (e) { failed++; continue; }
     posted++;
     if (gTakState.links.length && d) await db.from('links').insert(gTakState.links.map(url => ({ parent_id:d.id, parent_type:'takeaway', url })));
   }
   btn.disabled=false; btn.textContent='Post Takeaway';
   if (failed) showToast(`${posted} posted, ${failed} failed.`, failed===gTakState.selectedQIds.size?'error':'success');
-  else showToast(`Takeaway posted to ${posted} topic${posted!==1?'s':''}!`,'success');
+  else showToast(`Takeaway posted to ${posted} question${posted!==1?'s':''}!`,'success');
   closeGlobalTakModal();
   if (selectedQuestion && gTakState.selectedQIds.has(selectedQuestion.id)) { await loadDetailItems(selectedQuestion.id); renderDetailItems(); }
   await loadQuestions();
@@ -601,7 +603,7 @@ async function boot() {
 /* ── SIDEBAR ──────────────────────────────────────────── */
 function buildSidebar() {
   const list = document.getElementById('subtopicList');
-  list.innerHTML = `<button class="subtopic-btn active" data-sub="" data-ssc="" data-ssctype="">All Topics
+  list.innerHTML = `<button class="subtopic-btn active" data-sub="" data-ssc="" data-ssctype="">All Questions
     <svg class="subtopic-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:none"><polyline points="9 18 15 12 9 6"/></svg>
   </button>`;
   SUBS.forEach(sub => {
@@ -654,6 +656,7 @@ function buildSidebar() {
 
 /* ── BIND EVENTS ──────────────────────────────────────── */
 function bindEvents() {
+  // Auth
   document.getElementById('authOverlay').addEventListener('click', e => { if (e.target===e.currentTarget) closeAuthModal(); });
   document.getElementById('googleSignInBtn').addEventListener('click', handleGoogleSignIn);
   document.getElementById('loginTab').addEventListener('click', () => switchAuthTab('login'));
@@ -661,6 +664,7 @@ function bindEvents() {
   document.getElementById('authCancelBtn').addEventListener('click', closeAuthModal);
   document.getElementById('authSubmitBtn').addEventListener('click', handleAuthSubmit);
 
+  // Intuition modal
   document.getElementById('postIntModal').addEventListener('click', e => { if (e.target===e.currentTarget) closeGlobalIntModal(); });
   document.getElementById('postIntCancelBtn').addEventListener('click', closeGlobalIntModal);
   document.getElementById('postIntSubmitBtn').addEventListener('click', submitGlobalIntuition);
@@ -676,6 +680,7 @@ function bindEvents() {
     gIntState.links.push(v); i.value=''; renderIntLinks();
   });
 
+  // Optional preview tabs in int modal (Algebra has them, Problem Solving doesn't)
   const intWriteTabModal   = document.getElementById('intExpWriteTabModal');
   const intPreviewTabModal = document.getElementById('intExpPreviewTabModal');
   if (intWriteTabModal) {
@@ -695,6 +700,7 @@ function bindEvents() {
     });
   }
 
+  // Takeaway modal
   document.getElementById('postTakModal').addEventListener('click', e => { if (e.target===e.currentTarget) closeGlobalTakModal(); });
   document.getElementById('postTakCancelBtn').addEventListener('click', closeGlobalTakModal);
   document.getElementById('postTakSubmitBtn').addEventListener('click', submitGlobalTakeaway);
@@ -704,6 +710,7 @@ function bindEvents() {
     gTakState.links.push(v); i.value=''; renderTakLinks();
   });
 
+  // Optional preview tabs in tak modal
   const takWriteTabModal   = document.getElementById('takExpWriteTabModal');
   const takPreviewTabModal = document.getElementById('takExpPreviewTabModal');
   if (takWriteTabModal) {
@@ -723,10 +730,12 @@ function bindEvents() {
     });
   }
 
+  // Subtopic modal
   document.getElementById('postSubModal').addEventListener('click', e => { if (e.target===e.currentTarget) closeSubModal(); });
   document.getElementById('postSubCancelBtn').addEventListener('click', closeSubModal);
   document.getElementById('postSubSubmitBtn').addEventListener('click', submitSubtopic);
 
+  // Title + about preview toggles in post-topic modal
   const makePreviewToggle = (key, getVal) => {
     document.getElementById(`${key}WriteTab`).addEventListener('click', () => {
       document.getElementById(`${key}WriteTab`).classList.add('active');
@@ -750,15 +759,18 @@ function bindEvents() {
   makePreviewToggle('qTitle', () => document.getElementById('newQTitle').value);
   makePreviewToggle('qAbout', () => document.getElementById('newQAbout').value);
 
+  // List-view controls
   document.getElementById('backBtn').addEventListener('click', goBack);
   document.querySelectorAll('.tab-btn[data-sort]').forEach(btn => btn.addEventListener('click', () => switchSort(btn)));
   document.querySelectorAll('.tab-btn[data-dtab]').forEach(btn => btn.addEventListener('click', () => switchDetailTab(btn)));
   document.querySelectorAll('.sort-btn[data-dsort]').forEach(btn => btn.addEventListener('click', () => switchDetailSort(btn)));
 
+  // Search
   const si = document.getElementById('questionSearch'), sc = document.getElementById('searchClear');
   si.addEventListener('input', () => { sc.classList.toggle('hidden', !si.value); renderQuestions(); });
   sc.addEventListener('click', () => { si.value=''; sc.classList.add('hidden'); renderQuestions(); si.focus(); });
 
+  // Keyboard shortcuts
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
       if (document.getElementById('postSubModal').classList.contains('open')) { closeSubModal(); return; }
@@ -771,6 +783,7 @@ function bindEvents() {
     }
   });
 
+  // Browser back/forward
   window.addEventListener('popstate', () => {
     if (!getParam('q')) {
       selectedQuestion=null;
@@ -779,6 +792,7 @@ function bindEvents() {
     }
   });
 
+  // Fade page transitions on internal links
   document.querySelectorAll('a').forEach(a => {
     const href = a.getAttribute('href');
     if (!href || href.startsWith('#') || href.startsWith('javascript') || a.target==='_blank') return;
@@ -790,30 +804,30 @@ function bindEvents() {
   });
 }
 
-/* ── LOAD TOPICS ──────────────────────────────────────── */
+/* ── LOAD QUESTIONS ───────────────────────────────────── */
 async function loadQuestions() {
-  document.getElementById('questionsList').innerHTML = '<div class="loading-state"><div class="spinner"></div>Loading topics…</div>';
+  document.getElementById('questionsList').innerHTML = '<div class="loading-state"><div class="spinner"></div>Loading questions…</div>';
   try {
     const { data: tagData } = await db.from('tags').select('id,name').eq('category', TOPIC_NAME);
     if (!tagData?.length) { questions=[]; renderQuestions(); return; }
-    const { data: qtData } = await db.from('topic_tags').select('topic_id').in('tag_id', tagData.map(t=>t.id));
+    const { data: qtData } = await db.from('question_tags').select('question_id').in('tag_id', tagData.map(t=>t.id));
     if (!qtData?.length) { questions=[]; renderQuestions(); return; }
-    const qIds = [...new Set(qtData.map(qt=>qt.topic_id))];
-    const { data, error } = await db.from('topics')
-      .select('id,title,about,created_at,topic_tags(tags(name)),intuitions(id),takeaways(id)')
+    const qIds = [...new Set(qtData.map(qt=>qt.question_id))];
+    const { data, error } = await db.from('questions')
+      .select('id,title,about,created_at,question_tags(tags(name)),intuitions(id),takeaways(id)')
       .in('id', qIds).order('created_at', { ascending:false });
     if (error) throw error;
     questions = (data||[]).map(q => ({
       id:q.id, title:q.title, about:q.about,
       createdAt:ago(q.created_at), createdAtRaw:q.created_at,
-      tags:(q.topic_tags||[]).map(qt=>qt.tags?.name).filter(Boolean),
+      tags:(q.question_tags||[]).map(qt=>qt.tags?.name).filter(Boolean),
       intuitionCount:(q.intuitions||[]).length, takeawayCount:(q.takeaways||[]).length,
       upvotes:0, downvotes:0,
     }));
-    const vc = await fetchVoteCounts(qIds,'topic');
+    const vc = await fetchVoteCounts(qIds,'question');
     questions.forEach(q => { const v=vc[q.id]||{}; q.upvotes=+v.upvotes||0; q.downvotes=+v.downvotes||0; });
     if (me) {
-      const { data:vd } = await db.from('votes').select('target_id,direction').eq('user_id',me.id).eq('target_type','topic').in('target_id',qIds);
+      const { data:vd } = await db.from('votes').select('target_id,direction').eq('user_id',me.id).eq('target_type','question').in('target_id',qIds);
       (vd||[]).forEach(v => { questionVotes[v.target_id]=v.direction; });
     }
     renderQuestions();
@@ -872,7 +886,7 @@ function renderQuestions() {
   } else { sorted = sortItems(filtered, currentSort); }
 
   const scopeLabel = activeSsc ? `${activeSsc} (${activeSscType})` : activeSubtopic||'';
-  document.getElementById('qCount').textContent = `${sorted.length} topic${sorted.length!==1?'s':''}${scopeLabel?` · ${scopeLabel}`:''}`;
+  document.getElementById('qCount').textContent = `${sorted.length} question${sorted.length!==1?'s':''}${scopeLabel?` · ${scopeLabel}`:''}`;
 
   const pillEl = document.getElementById('activeFilterPill');
   if (query) {
@@ -891,8 +905,8 @@ function renderQuestions() {
   const container = document.getElementById('questionsList');
   if (!sorted.length) {
     container.innerHTML = query
-      ? `<div class="empty-state"><span class="empty-icon">🔍</span>No topics found for "<strong>${esc(query)}</strong>".<br><span style="font-size:12px;opacity:.7">Try a different keyword or browse by topic.</span></div>`
-      : `<div class="empty-state"><span class="empty-icon">💬</span>No topics yet${activeSubtopic?` in ${activeSubtopic}`:''}. Be the first!</div>`;
+      ? `<div class="empty-state"><span class="empty-icon">🔍</span>No questions found for "<strong>${esc(query)}</strong>".<br><span style="font-size:12px;opacity:.7">Try a different keyword or browse by topic.</span></div>`
+      : `<div class="empty-state"><span class="empty-icon">💬</span>No questions yet${activeSubtopic?` in ${activeSubtopic}`:''}. Be the first!</div>`;
     return;
   }
   container.innerHTML = sorted.map((q,i)=>questionCardHTML(q,i,query)).join('');
@@ -932,7 +946,7 @@ function questionCardHTML(q, i=0, searchQuery='') {
       }).join('')}</div>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px">
         <div class="card-meta">${q.createdAt}</div>
-        <button class="btn-report" data-reportid="${q.id}" data-reporttype="topic" title="Report this topic">
+        <button class="btn-report" data-reportid="${q.id}" data-reporttype="question" title="Report this question">
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
           Report
         </button>
@@ -949,7 +963,7 @@ function setSearchQuery(val) {
 /* ── REPORT ───────────────────────────────────────────── */
 async function handleReport(id, type) {
   if (!me) { openAuthModal(); return; }
-  const label = type==='topic'?'topic':type==='intuition'?'intuition':'takeaway';
+  const label = type==='question'?'question':type==='intuition'?'intuition':'takeaway';
   const reason = prompt(`Why are you reporting this ${label}?`);
   if (!reason?.trim()) return;
   const { error } = await db.from('reports').insert({ target_id:id, target_type:type, reason:reason.trim(), user_id:me.id });
@@ -979,8 +993,8 @@ function goBack() {
 
 async function loadDetailItems(qid) {
   const [{ data:intData }, { data:takData }] = await Promise.all([
-    db.from('intuitions').select('id,statement,explanation,example_link,example_explanation,image_url,created_at,author_id,profiles(username)').eq('topic_id',qid).order('created_at',{ascending:false}),
-    db.from('takeaways').select('id,content,image_url,created_at,author_id,profiles(username)').eq('topic_id',qid).order('created_at',{ascending:false}),
+    db.from('intuitions').select('id,statement,explanation,example_link,example_explanation,image_url,created_at,author_id,profiles(username)').eq('question_id',qid).order('created_at',{ascending:false}),
+    db.from('takeaways').select('id,content,image_url,created_at,author_id,profiles(username)').eq('question_id',qid).order('created_at',{ascending:false}),
   ]);
   intuitions[qid] = (intData||[]).map(i=>({ id:i.id, statement:i.statement, explanation:i.explanation, exampleLink:i.example_link||'', exampleExplanation:i.example_explanation||'', image_url:i.image_url||'', author:i.profiles?.username||'Anonymous', author_id:i.author_id, createdAt:ago(i.created_at), createdAtRaw:i.created_at, upvotes:0, downvotes:0, explanationLinks:[], comments:[], edited:false }));
   takeaways[qid]  = (takData||[]).map(t=>({ id:t.id, content:t.content, image_url:t.image_url||'', author:t.profiles?.username||'Anonymous', author_id:t.author_id, createdAt:ago(t.created_at), createdAtRaw:t.created_at, upvotes:0, downvotes:0, links:[], comments:[], edited:false }));
@@ -1025,7 +1039,7 @@ function renderDetailHeader() {
     }).join('')}</div>
     <div style="display:flex;align-items:center;justify-content:space-between">
       <div class="detail-meta">${q.createdAt}</div>
-      <button class="btn-report" data-reportid="${q.id}" data-reporttype="topic" onclick="handleReport('${q.id}','topic')">
+      <button class="btn-report" data-reportid="${q.id}" data-reporttype="question" onclick="handleReport('${q.id}','question')">
         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
         Report
       </button>
@@ -1258,7 +1272,7 @@ async function handleVote(id, dir, type) {
   if (!me) { openAuthModal(); return; }
   const vm=type==='q'?questionVotes:type==='i'?intuitionVotes:takeawayVotes;
   const cur=vm[id]??null, next=cur===dir?null:dir;
-  const ttype=type==='q'?'topic':type==='i'?'intuition':'takeaway';
+  const ttype=type==='q'?'question':type==='i'?'intuition':'takeaway';
   const ud=(cur==='up'?-1:0)+(next==='up'?1:0);
   const dd=(cur==='down'?-1:0)+(next==='down'?1:0);
   vm[id]=next;
@@ -1291,6 +1305,7 @@ function renderPostForm() {
     const elEl=document.getElementById('pf-exampleLink'), eeEl=document.getElementById('pf-exampleExp');
     if (elEl) { elEl.value=formState.exampleLink;        elEl.addEventListener('input',e=>{formState.exampleLink=e.target.value;}); }
     if (eeEl) { eeEl.value=formState.exampleExplanation; eeEl.addEventListener('input',e=>{formState.exampleExplanation=e.target.value;}); }
+    // optional write/preview tabs
     document.getElementById('intExpWriteTab')?.addEventListener('click',()=>{
       document.getElementById('intExpWriteTab').classList.add('active');document.getElementById('intExpPreviewTab').classList.remove('active');
       document.getElementById('intExpWritePane').classList.add('active');document.getElementById('intExpPreviewPane').classList.remove('active');
@@ -1411,7 +1426,7 @@ async function submitIntuition() {
   btn.disabled=true; btn.textContent='Posting…';
   const exLink=document.getElementById('pf-exampleLink')?.value.trim()||null;
   const exExp =document.getElementById('pf-exampleExp')?.value.trim()||null;
-  const { data:d, error:e }=await db.from('intuitions').insert({ topic_id:selectedQuestion.id, statement:stmt, explanation:exp, example_link:exLink, example_explanation:exExp, author_id:me.id, image_url:imageUrl }).select('id').single();
+  const { data:d, error:e }=await db.from('intuitions').insert({ question_id:selectedQuestion.id, statement:stmt, explanation:exp, example_link:exLink, example_explanation:exExp, author_id:me.id, image_url:imageUrl }).select('id').single();
   if (e) { showToast('Error posting: '+e.message,'error'); btn.disabled=false; btn.textContent='Post Intuition'; return; }
   if (formState.explanationLinks.length&&d) await db.from('links').insert(formState.explanationLinks.map(url=>({ parent_id:d.id, parent_type:'intuition', url })));
   Object.assign(formState,{ statement:'', explanation:'', explanationLinks:[], exampleLink:'', exampleExplanation:'', intImageFile:null });
@@ -1429,7 +1444,7 @@ async function submitTakeaway() {
   if (!content) { showToast('Please write your takeaway.','error'); return; }
   const btn=document.getElementById('pf-submitTak');
   btn.disabled=true; btn.textContent='Posting…';
-  const { data:d, error:e }=await db.from('takeaways').insert({ topic_id:selectedQuestion.id, content, image_url:imageUrl, author_id:me.id }).select('id').single();
+  const { data:d, error:e }=await db.from('takeaways').insert({ question_id:selectedQuestion.id, content, image_url:imageUrl, author_id:me.id }).select('id').single();
   if (e) { showToast('Error posting: '+e.message,'error'); btn.disabled=false; btn.textContent='Post Takeaway'; return; }
   if (formState.takeawayLinks.length&&d) await db.from('links').insert(formState.takeawayLinks.map(url=>({ parent_id:d.id, parent_type:'takeaway', url })));
   Object.assign(formState,{ takeawayContent:'', takeawayLinks:[], takImageFile:null });
