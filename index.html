@@ -128,6 +128,9 @@ html.light .auth-msg.ok{background:rgba(30,122,72,.06);border-color:rgba(30,122,
 .toast{position:fixed;bottom:24px;right:24px;z-index:999;background:var(--bg2);border:1px solid var(--border2);border-radius:11px;padding:12px 18px;font-size:13.5px;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:10px;animation:toastIn .25s ease;max-width:320px}
 .toast.success{border-color:var(--green);color:var(--green)}
 .toast.error{border-color:var(--red);color:var(--red)}
+.qtag-structure{background:rgba(122,176,245,.1);color:var(--blue);border:1px solid rgba(122,176,245,.2)}
+.qtag-technique{background:rgba(176,144,245,.1);color:var(--purple);border:1px solid rgba(176,144,245,.2)}
+.qtag-default{background:rgba(110,231,160,.1);color:var(--green);border:1px solid rgba(110,231,160,.2)}
 @keyframes toastIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 body{opacity:0;transition:opacity .18s ease}
 body.ready{opacity:1}
@@ -149,22 +152,22 @@ body.ready{opacity:1}
 <header>
   <div class="header-inner">
     <a class="logo" href="index.html">
-      <svg class="logo-mark-svg" width="38" height="38" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <svg class="logo-mark-svg" width="38" height="38" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <clipPath id="clipTriangle">
-            <polygon points="50,4 96,96 4,96"/>
+            <polygon points="250,30 475,420 25,420"/>
           </clipPath>
         </defs>
         <g clip-path="url(#clipTriangle)">
-          <polygon points="50,4 96,96 4,96" fill="#7ec7b4"/>
-          <polygon points="50,4 73,48 50,60" fill="#9fd8c8"/>
-          <polygon points="4,96 50,60 50,4" fill="#8ccbb9"/>
-          <polygon points="96,96 50,60 50,4" fill="#6fb3a3"/>
-          <polygon points="50,48 70,58 50,68 30,58" fill="#c9efe3"/>
-          <polygon points="30,58 50,68 50,96 30,86" fill="#8fd0b6"/>
-          <polygon points="70,58 50,68 50,96 70,86" fill="#76bca8"/>
-          <polygon points="4,96 30,86 50,96" fill="#5aa094"/>
-          <polygon points="96,96 70,86 50,96" fill="#4f9186"/>
+          <polygon points="250,30 475,420 25,420" fill="#7ec7b4"/>
+          <polygon points="250,30 362,225 250,160 138,225" fill="#9fd8c8"/>
+          <polygon points="25,420 138,225 250,420" fill="#8ccbb9"/>
+          <polygon points="475,420 362,225 250,420" fill="#6fb3a3"/>
+          <polygon points="250,160 362,225 250,290 138,225" fill="#c9efe3"/>
+          <polygon points="138,225 250,290 250,420 138,355" fill="#8fd0b6"/>
+          <polygon points="362,225 250,290 250,420 362,355" fill="#76bca8"/>
+          <polygon points="25,420 138,355 250,420" fill="#5aa094"/>
+          <polygon points="475,420 362,355 250,420" fill="#4f9186"/>
         </g>
       </svg>
       <div class="logo-text">
@@ -505,7 +508,10 @@ async function loadRecent(retry = true) {
   }
   let qs = data.map(q => ({
     id: q.id, title: q.title, about: q.about, at: ago(q.created_at),
-    tags: q.question_tags.map(t => t.tags?.name).filter(n => n != null),
+    tags: [...new Map(q.question_tags.map(t => t.tags?.name).filter(Boolean).map(n => {
+      const p = n.split('::');
+      return [p[1]||p[0], { label: p[1]||p[0], type: p[2]||'default' }];
+    })).values()],
     category: q.question_tags.map(t => t.tags?.category).find(c => c && c in CATS) || null,
     n: q.intuitions.length, up: 0, dn: 0
   }));
@@ -545,7 +551,7 @@ function cardHTML(q, i = 0) {
     <div class="q-body">
       <div class="q-title kr">${esc(q.title)}</div>
       <div class="q-about"><span class="q-lbl">About </span><span class="kr">${esc(q.about)}</span></div>
-      <div class="q-tags">${sortedTags.map((t, i) => `<span class="qtag qtag-${Math.min(i,1)}">${t.split('::').pop()}</span>`).join('')}</div>
+      <div class="q-tags">${sortedTags.map(t => `<span class="qtag qtag-${t.type}">${esc(t.label)}</span>`).join('')}</div>
       <div class="q-meta">${q.at}</div>
     </div>
   </a>`;
@@ -578,7 +584,10 @@ async function doSearch() {
     if (error) throw error;
     let rs = data.map(r => ({
       id: r.id, title: r.title, about: r.about, at: ago(r.created_at),
-      tags: r.question_tags.map(t => t.tags?.name).filter(Boolean),
+      tags: [...new Map(r.question_tags.map(t => t.tags?.name).filter(Boolean).map(n => {
+        const p = n.split('::');
+        return [p[1]||p[0], { label: p[1]||p[0], type: p[2]||'default' }];
+      })).values()],
       category: r.question_tags.map(t => t.tags?.category).find(c => c && c in CATS) || null,
       n: r.intuitions.length, up: 0, dn: 0
     }));
