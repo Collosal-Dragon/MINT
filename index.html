@@ -515,7 +515,7 @@ async function loadRecent(retry = true) {
   qs.forEach(q => { const v = vm[q.id] || {}; q.up = v.up || 0; q.dn = v.dn || 0; });
   const el = document.getElementById('recentList');
   if (!qs.length) {
-    el.innerHTML = '<div class="empty-state"><span class="empty-icon">No questions yet - be the first to post!</div>';
+    el.innerHTML = '<div class="empty-state"><span class="empty-icon">No topics yet - be the first to post!</div>';
     return;
   }
     el.innerHTML = qs.map((q, i) => cardHTML(q, i)).filter(Boolean).join('');
