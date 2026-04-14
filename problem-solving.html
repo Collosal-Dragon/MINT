@@ -2,7 +2,7 @@
 <html lang="en" class="dark">
 <head>
 <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Number Theory — MINT</title>
+<title>Problem Solving — MINT</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400;1,700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=JetBrains+Mono:wght@400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
@@ -16,10 +16,6 @@
      PAGE CONFIG — only thing you edit per topic
 ════════════════════════════════════════ -->
 <script>
-const SUPABASE_URL = 'https://idlrmpecdvsofaykphfe.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlkbHJtcGVjZHZzb2ZheWtwaGZlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMzk5NTAsImV4cCI6MjA4OTgxNTk1MH0.FWSllmspL4twQ1aF2q20---HmoLxBM1NqFnQ2OPOoUg';
-const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
 const TOPIC_NAME = 'Problem Solving';
 const SUBS = ['Symmetry', 'Equality case', 'Generalisation', 'Reduction', 'Reformulation', 'Mentality', 'General advice'];
 
@@ -119,11 +115,11 @@ const SSC = {
 
 <!-- LIST VIEW -->
 <main id="listView">
-  <div class="breadcrumb"><a href="index.html">Home</a><span>›</span><span>Number Theory</span></div>
+  <div class="breadcrumb"><a href="index.html">Home</a><span>›</span><span>Problem Solving</span></div>
   <div class="topic-header">
     <div class="topic-left">
       <span class="topic-glyph">ℕ</span>
-      <div><div class="topic-name">Number Theory</div><div class="topic-desc"></div></div>
+      <div><div class="topic-name">Problem Solving</div><div class="topic-desc"></div></div>
     </div>
   </div>
   <div class="topic-layout">
@@ -295,7 +291,7 @@ const SSC = {
     <div class="auth-msg ok" id="authOk"></div>
     <div class="form-group" id="identWrap"><label class="form-label">Email or username</label><input class="form-input" id="authIdent" type="text" placeholder="you@example.com or handle" autocomplete="username" /></div>
     <div class="form-group hidden" id="emailWrap"><label class="form-label">Email</label><input class="form-input" id="authEmail" type="email" placeholder="you@example.com" autocomplete="email" /></div>
-    <div class="form-group hidden" id="userWrap"><label class="form-label">Username</label><input class="form-input" id="authUser" type="text" placeholder="mathwiz42" autocomplete="off" /></div>
+    <div class="form-group hidden" id="userWrap"><label class="form-label">Username</label><input class="form-input" id="authUser" type="text" placeholder="mathlegend012" autocomplete="off" /></div>
     <div class="form-group"><label class="form-label">Password</label><input class="form-input" id="authPass" type="password" placeholder="••••••••" autocomplete="current-password" /></div>
     <div class="modal-footer"><button class="btn btn-ghost" id="authCancelBtn">Cancel</button><button class="btn btn-primary" id="authSubmitBtn">Log in</button></div>
   </div>
