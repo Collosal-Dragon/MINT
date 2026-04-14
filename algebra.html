@@ -20,7 +20,7 @@ const TOPIC_NAME = 'Algebra';
 const SUBS = ['Functional Equations', 'Inequality', 'Sequences', 'Polynomials', 'Others'];
 const SSC = {
   'Functional Equations': {
-    structure: ['Reals', 'Positive Reals', 'Rationals/Integers', 'Natural Numbers', 'Wrapped', 'Injectivity/Surjectivity'],
+    structure: ['Reals', 'Positive Reals', 'Rationals/Integers', 'Natural Numbers', 'Wrapped', 'Injectivity/Surjectivity','Additive','Adding new variables'],
     technique: ['Transformation'],
   },
   'Inequality': {
@@ -59,7 +59,7 @@ const SSC = {
           <polygon points="50,4 96,96 4,96" fill="#7ec7b4"/>
           <polygon points="50,4 73,48 50,60" fill="#9fd8c8"/>
           <polygon points="4,96 50,60 50,4" fill="#8ccbb9"/>
-          <polygon points="96,96 50,60 50,4" fill="#6fb3a3"/>
+          <polygon points="96,96 50,60 50,4" fill="#6fb3a3"/>     
           <polygon points="50,48 70,58 50,68 30,58" fill="#c9efe3"/>
           <polygon points="30,58 50,68 50,96 30,86" fill="#8fd0b6"/>
           <polygon points="70,58 50,68 50,96 70,86" fill="#76bca8"/>
@@ -260,7 +260,7 @@ const SSC = {
     </div>
     <div class="form-group"><label class="form-label">About <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text3)">(brief description)</span></label>
       <div class="preview-toggle"><button class="preview-tab active" id="qAboutWriteTab">Write</button><button class="preview-tab" id="qAboutPreviewTab">Preview</button></div>
-      <div class="preview-pane active" id="qAboutWritePane"><textarea class="form-textarea" id="newQAbout" style="min-height:70px" placeholder="What is this question about?"></textarea></div>
+      <div class="preview-pane active" id="qAboutWritePane"><textarea class="form-textarea" id="newQAbout" style="min-height:70px" placeholder="What is this topic about?"></textarea></div>
       <div class="preview-pane" id="qAboutPreviewPane"><div class="preview-rendered kr" id="qAboutPreviewContent"></div></div>
     </div>
     <div class="modal-footer"><button class="btn btn-ghost" id="postSubCancelBtn">Cancel</button><button class="btn btn-primary" id="postSubSubmitBtn">Post Topic</button></div>
