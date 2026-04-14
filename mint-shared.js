@@ -1,25 +1,3 @@
-/**
- * MINT — Shared JavaScript
- * 
- * HOW TO USE IN EACH TOPIC PAGE:
- * 1. Include this script BEFORE your page-specific <script> block
- * 2. In your page-specific script, define:
- *      const TOPIC_NAME = 'Algebra';          // the category name in the DB
- *      const SUBS = ['Sub1', 'Sub2', ...];    // sidebar subtopics
- *      const SSC  = { 'Sub1': { structure: [...], technique: [...] }, ... };
- * 3. Call boot() at the bottom (it's called for you by onKatexReady / DOMContentLoaded).
- *
- * TOPIC_NAME, SUBS, and SSC must be declared before this file loads,
- * OR in a <script> block that runs before boot() is invoked.
- * The simplest pattern:
- *
- *   <script>
- *     const TOPIC_NAME = '...';
- *     const SUBS = [...];
- *     const SSC  = {...};
- *   </script>
- *   <script src="mint-shared.js"></script>
- */
 
 'use strict';
 
@@ -544,7 +522,7 @@ async function submitGlobalIntuition() {
   }
   const stmt = document.getElementById('intStatement').value.trim();
   const exp  = document.getElementById('intExplanation').value.trim();
-  if (!gIntState.selectedQIds.size) { document.getElementById('postIntError').innerHTML='<div class="err-box">Please select at least one question.</div>'; return; }
+  if (!gIntState.selectedQIds.size) { document.getElementById('postIntError').innerHTML='<div class="err-box">Please select at least one topic.</div>'; return; }
   if (!stmt || !exp) { document.getElementById('postIntError').innerHTML='<div class="err-box">Please fill in the statement and explanation.</div>'; return; }
   if (exp.split(/\s+/).filter(Boolean).length > 1500) { document.getElementById('postIntError').innerHTML='<div class="err-box">Explanation exceeds 1500 words.</div>'; return; }
   const btn = document.getElementById('postIntSubmitBtn');
