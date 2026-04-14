@@ -1,0 +1,18 @@
+<svg width="500" height="500" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <clipPath id="clipTriangle">
+      <polygon points="250,30 475,420 25,420"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#clipTriangle)">
+    <polygon points="250,30 475,420 25,420" fill="#7ec7b4"/>
+    <polygon points="250,30 362,225 250,160 138,225" fill="#9fd8c8"/>
+    <polygon points="25,420 138,225 250,420" fill="#8ccbb9"/>
+    <polygon points="475,420 362,225 250,420" fill="#6fb3a3"/>
+    <polygon points="250,160 362,225 250,290 138,225" fill="#c9efe3"/>
+    <polygon points="138,225 250,290 250,420 138,355" fill="#8fd0b6"/>
+    <polygon points="362,225 250,290 250,420 362,355" fill="#76bca8"/>
+    <polygon points="25,420 138,355 250,420" fill="#5aa094"/>
+    <polygon points="475,420 362,355 250,420" fill="#4f9186"/>
+  </g>
+</svg>
