@@ -17,7 +17,7 @@
 ════════════════════════════════════════ -->
 <script>
 const TOPIC_NAME = 'Number Theory';
-const SUBS = ['Divisibility', 'Primes', 'Modular arithmetic', 'Special functions', 'P-adic valuation', 'Diophantines', 'Descent', 'Expressions', 'Bounding', 'Others'];
+const SUBS = ['Divisibility', 'Primes', 'Modular arithmetic', 'Special functions', 'P-adic valuation', 'Diophantines', 'Descent', 'Expressions', 'Bounding','Integer polynomials', 'Constructions', 'Others'];
 
 const SSC = {
   'Divisibility': {
@@ -25,19 +25,19 @@ const SSC = {
     technique: ['GCD/LCM'],
   },
   'Primes': {
-    structure: ['Growth'],
-    technique: [],
+    structure: [],
+    technique: ['Size'],
   },
   'Modular arithmetic': {
-    structure: ['Fermat’s little theorem', 'Euler’s theorem', 'Wilson’s theorem', 'Chinese remainder theorem', 'Quadratic residues'],
-    technique: ['Primitive roots'],
+    structure: ['Fermat’s little theorem', 'Euler’s theorem', 'Wilson’s theorem', 'Chinese remainder theorem', 'Primitive roots'],
+    technique: ['Quadratic residues', 'Modular contradictions', 'Inverses'],
   },
   'Special functions': {
-    structure: [],
-    technique: ['Divisor function', 'Euler totient function', 'Digit sum function'],
+    structure: ['Divisor function', 'Euler totient function', 'Digit sum function', 'Base systems'],
+    technique: [],
   },
   'P-adic valuation': {
-    structure: [],
+    structure: ['Lifting the exponent lemma', 'Legendre's formula'],
     technique: [],
   },
   'Diophantines': {
@@ -53,6 +53,14 @@ const SSC = {
     technique: ['Exponents', 'Factorials'],
   },
   'Bounding': {
+    structure: [],
+    technique: [],
+  },
+  'Integer polynomials': {
+    structure: [],
+    technique: [],
+  },
+  'Constructions': {
     structure: [],
     technique: [],
   },
