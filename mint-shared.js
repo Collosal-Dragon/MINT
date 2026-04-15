@@ -94,12 +94,14 @@ function applyTheme(t) {
 db.auth.onAuthStateChange(async (ev, session) => {
   me = session?.user ?? null;
   if (me) {
-    if (!profile) profile = { username: me.user_metadata?.username || me.user_metadata?.full_name || me.email.split('@')[0] };
+    if (!profile) profile = { username: me.user_metadata?.username || null };
     refreshHeader();
-    fetchProfile(me);
+    await fetchProfile(me);
+    if (!profile?.username) openUsernameModal();
   } else { profile = null; refreshHeader(); }
   if (ev === 'SIGNED_IN' && document.getElementById('authOverlay').classList.contains('open')) {
-    closeAuthModal(); showToast('Welcome back!', 'success');
+    closeAuthModal();
+    if (profile?.username) showToast('Welcome back!', 'success');
   }
   if (selectedQuestion) renderPostForm();
 });
@@ -107,16 +109,14 @@ db.auth.onAuthStateChange(async (ev, session) => {
 async function fetchProfile(user) {
   const { data } = await db.from('profiles').select('username,email').eq('id', user.id).maybeSingle();
   if (data) { profile = data; refreshHeader(); return; }
-  const base = (user.user_metadata?.full_name || user.email.split('@')[0]).replace(/[^a-zA-Z0-9_]/g,'_').slice(0,16);
-  const username = base + '_' + Math.random().toString(36).slice(2,5);
-  const { data: ins } = await db.from('profiles').insert({ id:user.id, username, email:user.email }).select('username,email').maybeSingle();
-  profile = ins ?? null; refreshHeader();
+  profile = { username: null, email: user.email };
+  refreshHeader();
 }
 
 function refreshHeader() {
   const pill = document.getElementById('userPill'), btn = document.getElementById('authBtn');
   if (me) {
-    document.getElementById('pillName').textContent = profile?.username || me.email.split('@')[0];
+    document.getElementById('pillName').textContent = profile?.username || '(no username)';
     pill.classList.remove('hidden');
     btn.textContent = 'Log out';
     btn.onclick = () => { profile = null; db.auth.signOut().then(() => showToast('Logged out','success')); };
@@ -199,6 +199,42 @@ async function handleAuthSubmit() {
     else { setAuthMsg('ok','Check your email to confirm, then log in.'); btn.disabled=false; btn.textContent='Create account'; }
   }
 }
+/* ── USERNAME MODAL (OAuth new users) ────────────────── */
+function openUsernameModal() {
+  const overlay = document.getElementById('usernameModal');
+  if (!overlay) return;
+  document.getElementById('usernameInput').value = '';
+  document.getElementById('usernameModalErr').textContent = '';
+  document.getElementById('usernameSubmitBtn').disabled = false;
+  document.getElementById('usernameSubmitBtn').textContent = 'Save username';
+  overlay.classList.add('open');
+  setTimeout(() => document.getElementById('usernameInput').focus(), 80);
+}
+function closeUsernameModal() {
+  document.getElementById('usernameModal')?.classList.remove('open');
+}
+async function handleUsernameSubmit() {
+  const input = document.getElementById('usernameInput');
+  const errEl = document.getElementById('usernameModalErr');
+  const btn   = document.getElementById('usernameSubmitBtn');
+  const val   = input?.value.trim();
+  errEl.textContent = '';
+  if (!val) { errEl.textContent = 'Please enter a username.'; return; }
+  if (!/^[a-zA-Z0-9_]{3,20}$/.test(val)) { errEl.textContent = 'Username: 3–20 chars, letters / numbers / underscores.'; return; }
+  btn.disabled = true; btn.textContent = 'Saving…';
+  const { data: ex } = await db.from('profiles').select('id').eq('username', val).maybeSingle();
+  if (ex) { errEl.textContent = 'That username is already taken.'; btn.disabled = false; btn.textContent = 'Save username'; return; }
+  const { error } = await db.from('profiles').upsert(
+    { id: me.id, username: val, email: me.email },
+    { onConflict: 'id' }
+  );
+  if (error) { errEl.textContent = 'Save failed: ' + error.message; btn.disabled = false; btn.textContent = 'Save username'; return; }
+  profile = { ...profile, username: val };
+  refreshHeader();
+  closeUsernameModal();
+  showToast('Username saved — welcome to MINT! 🎉', 'success');
+}
+
 function niceErr(m) {
   if (!m) return 'Something went wrong.';
   if (m.includes('Invalid login credentials')) return 'Incorrect email or password.';
@@ -776,6 +812,7 @@ function bindEvents() {
       if (document.getElementById('postSubModal').classList.contains('open')) { closeSubModal(); return; }
       if (document.getElementById('postIntModal').classList.contains('open')) { closeGlobalIntModal(); return; }
       if (document.getElementById('postTakModal').classList.contains('open')) { closeGlobalTakModal(); return; }
+      if (document.getElementById('usernameModal')?.classList.contains('open')) return; // can't dismiss — must set username
       if (document.getElementById('authOverlay').classList.contains('open')) closeAuthModal();
     }
     if (e.key==='Enter' && document.getElementById('authOverlay').classList.contains('open')) {
