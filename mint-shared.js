@@ -10,6 +10,11 @@ const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: true,
+    storage: {
+      getItem: (key) => Promise.resolve(localStorage.getItem(key)),
+      setItem: (key, value) => Promise.resolve(localStorage.setItem(key, value)),
+      removeItem: (key) => Promise.resolve(localStorage.removeItem(key)),
+    },
   }
 });
 async function withRetry(fn, retries = 3, delay = 300) {
