@@ -91,6 +91,7 @@ function applyTheme(t) {
 }
 
 /* ── AUTH ─────────────────────────────────────────────── */
+/* ── AUTH ─────────────────────────────────────────────── */
 db.auth.onAuthStateChange(async (ev, session) => {
   me = session?.user ?? null;
   if (me) {
@@ -108,7 +109,17 @@ db.auth.onAuthStateChange(async (ev, session) => {
 
 async function fetchProfile(user) {
   const { data } = await db.from('profiles').select('username,email').eq('id', user.id).maybeSingle();
-  if (data) { profile = data; refreshHeader(); return; }
+  if (data) {
+    // Backfill email if it's missing from the profile row (e.g. older OAuth signups)
+    if (!data.email && user.email) {
+      await db.from('profiles').update({ email: user.email }).eq('id', user.id);
+      data.email = user.email;
+    }
+    profile = data;
+    refreshHeader();
+    return;
+  }
+  // No profile row yet — will be created when username is set
   profile = { username: null, email: user.email };
   refreshHeader();
 }
@@ -166,15 +177,24 @@ function setAuthMsg(t, txt) {
   if (other) other.style.display = 'none';
 }
 async function resolveEmail(ident) {
-  if (ident.includes('@')) return { email: ident };
-  const { data } = await db.from('profiles').select('email').eq('username', ident).maybeSingle();
-  return data?.email ? { email: data.email } : { err: 'No account found with that username.' };
+  const trimmed = ident.trim();
+  if (trimmed.includes('@')) return { email: trimmed };
+  // Username lookup — check the profiles table (source of truth)
+  const { data } = await db
+    .from('profiles')
+    .select('email')
+    .eq('username', trimmed)
+    .maybeSingle();
+  if (data?.email) return { email: data.email };
+  return { err: 'No account found with that username.' };
 }
+
 async function handleAuthSubmit() {
   const pass = document.getElementById('authPass').value;
   const btn  = document.getElementById('authSubmitBtn');
   if (!pass || pass.length < 6) { setAuthMsg('err','Password must be at least 6 characters.'); return; }
   btn.disabled = true;
+
   if (authMode === 'login') {
     const ident = document.getElementById('authIdent').value.trim();
     if (!ident) { setAuthMsg('err','Please enter your email or username.'); btn.disabled=false; return; }
@@ -183,23 +203,51 @@ async function handleAuthSubmit() {
     if (err) { setAuthMsg('err', err); btn.disabled=false; btn.textContent='Log in'; return; }
     const { error } = await db.auth.signInWithPassword({ email, password: pass });
     if (error) { setAuthMsg('err', niceErr(error.message)); btn.disabled=false; btn.textContent='Log in'; return; }
+    // onAuthStateChange handles the rest
+
   } else {
+    // ── Sign up ──────────────────────────────────────────
     const email    = document.getElementById('authEmail').value.trim();
     const username = document.getElementById('authUser').value.trim();
     if (!email)    { setAuthMsg('err','Please enter your email.'); btn.disabled=false; btn.textContent='Create account'; return; }
     if (!username) { setAuthMsg('err','Please choose a username.'); btn.disabled=false; btn.textContent='Create account'; return; }
-    if (!/^[a-zA-Z0-9_]{3,20}$/.test(username)) { setAuthMsg('err','Username: 3–20 chars, letters/numbers/underscores.'); btn.disabled=false; btn.textContent='Create account'; return; }
+    if (!/^[a-zA-Z0-9_]{3,20}$/.test(username)) {
+      setAuthMsg('err','Username: 3–20 chars, letters/numbers/underscores.');
+      btn.disabled=false; btn.textContent='Create account'; return;
+    }
     btn.textContent = 'Creating account…';
+
+    // Check username uniqueness before touching Supabase Auth
     const { data: ex } = await db.from('profiles').select('id').eq('username', username).maybeSingle();
     if (ex) { setAuthMsg('err','Username already taken.'); btn.disabled=false; btn.textContent='Create account'; return; }
-    const { data: sd, error } = await db.auth.signUp({ email, password:pass, options:{ data:{ username } } });
+
+    const { data: sd, error } = await db.auth.signUp({
+      email,
+      password: pass,
+      options: { data: { username } }   // store in user_metadata as convenience copy
+    });
     if (error) { setAuthMsg('err', niceErr(error.message)); btn.disabled=false; btn.textContent='Create account'; return; }
-    if (sd?.user) await db.from('profiles').upsert({ id:sd.user.id, username, email }, { onConflict:'id' });
-    if (sd?.session) { closeAuthModal(); showToast('Welcome to MINT!','success'); }
-    else { setAuthMsg('ok','Check your email to confirm, then log in.'); btn.disabled=false; btn.textContent='Create account'; }
+
+    if (sd?.user) {
+      // Always write the canonical profile row with BOTH email and username
+      await db.from('profiles').upsert(
+        { id: sd.user.id, username, email },
+        { onConflict: 'id' }
+      );
+    }
+
+    if (sd?.session) {
+      // Email confirmations disabled — user is signed in immediately
+      closeAuthModal();
+      showToast('Welcome to MINT!', 'success');
+    } else {
+      setAuthMsg('ok', 'Check your email to confirm your account, then log in.');
+      btn.disabled=false; btn.textContent='Create account';
+    }
   }
 }
-/* ── USERNAME MODAL (OAuth new users) ────────────────── */
+
+/* ── USERNAME MODAL (OAuth / missing-username users) ────── */
 function openUsernameModal() {
   const overlay = document.getElementById('usernameModal');
   if (!overlay) return;
@@ -220,16 +268,27 @@ async function handleUsernameSubmit() {
   const val   = input?.value.trim();
   errEl.textContent = '';
   if (!val) { errEl.textContent = 'Please enter a username.'; return; }
-  if (!/^[a-zA-Z0-9_]{3,20}$/.test(val)) { errEl.textContent = 'Username: 3–20 chars, letters / numbers / underscores.'; return; }
+  if (!/^[a-zA-Z0-9_]{3,20}$/.test(val)) {
+    errEl.textContent = 'Username: 3–20 chars, letters / numbers / underscores.'; return;
+  }
   btn.disabled = true; btn.textContent = 'Saving…';
+
+  // Uniqueness check
   const { data: ex } = await db.from('profiles').select('id').eq('username', val).maybeSingle();
-  if (ex) { errEl.textContent = 'That username is already taken.'; btn.disabled = false; btn.textContent = 'Save username'; return; }
+  if (ex) { errEl.textContent = 'That username is already taken.'; btn.disabled=false; btn.textContent='Save username'; return; }
+
+  const userEmail = me.email ?? null;
+
   const { error } = await db.from('profiles').upsert(
-    { id: me.id, username: val, email: me.email },
+    { id: me.id, username: val, email: userEmail },
     { onConflict: 'id' }
   );
-  if (error) { errEl.textContent = 'Save failed: ' + error.message; btn.disabled = false; btn.textContent = 'Save username'; return; }
-  profile = { ...profile, username: val };
+  if (error) {
+    errEl.textContent = 'Save failed: ' + error.message;
+    btn.disabled=false; btn.textContent='Save username'; return;
+  }
+
+  profile = { ...profile, username: val, email: userEmail };
   refreshHeader();
   closeUsernameModal();
   showToast('Username saved — welcome to MINT! 🎉', 'success');
@@ -243,7 +302,6 @@ function niceErr(m) {
   if (m.includes('Password should be'))        return 'Password must be at least 6 characters.';
   return m;
 }
-
 /* ── IMAGE PREVIEW ────────────────────────────────────── */
 function wireImagePreview(inputId, previewBoxId, previewImgId, removeId, stateObj, key) {
   const input = document.getElementById(inputId);
