@@ -1,4 +1,3 @@
-
 'use strict';
 
 /* ── SUPABASE ─────────────────────────────────────────── */
@@ -90,7 +89,6 @@ function applyTheme(t) {
 }
 
 /* ── AUTH ─────────────────────────────────────────────── */
-/* ── AUTH ─────────────────────────────────────────────── */
 let _fetchingProfile = false;
 
 db.auth.onAuthStateChange(async (ev, session) => {
@@ -102,6 +100,14 @@ db.auth.onAuthStateChange(async (ev, session) => {
       _fetchingProfile = true;
       await fetchProfile(me);
       _fetchingProfile = false;
+    }
+    // Eagerly backfill email on every sign-in so username login always works
+    if (ev === 'SIGNED_IN' && me.email) {
+      db.from('profiles')
+        .update({ email: me.email })
+        .eq('id', me.id)
+        .is('email', null)
+        .then(() => {});
     }
     if (!profile?.username) openUsernameModal();
   } else {
@@ -187,13 +193,20 @@ function setAuthMsg(t, txt) {
 async function resolveEmail(ident) {
   const trimmed = ident.trim();
   if (trimmed.includes('@')) return { email: trimmed };
+
   // Username lookup — check the profiles table (source of truth)
-  const { data } = await db
+  const { data, error } = await db
     .from('profiles')
     .select('email')
     .eq('username', trimmed)
     .maybeSingle();
+
+  if (error) return { err: 'Lookup failed: ' + error.message };
   if (data?.email) return { email: data.email };
+
+  // Profile row exists but email column is null (rare: old OAuth account never backfilled)
+  if (data && !data.email) return { err: 'Account found but email not on file. Please log in with your email address instead.' };
+
   return { err: 'No account found with that username.' };
 }
 
