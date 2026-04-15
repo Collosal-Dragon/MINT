@@ -11,7 +11,13 @@
 <link rel="stylesheet" href="mint-shared.css" />
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="onKatexReady()"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.js"></script>
+
+<!-- Guard: onKatexReady may fire before mint-shared.js loads.
+     This stub queues the signal; mint-shared.js overwrites it with the real one. -->
+<script>
+function onKatexReady() { window._katexReadyQueued = true; }
+</script>
 
 <!-- ═══════════════════════════════════════
      PAGE CONFIG — only thing you edit per topic
@@ -294,7 +300,7 @@ const SSC = {
     </div>
     <div class="form-group"><label class="form-label">About <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text3)">(brief description)</span></label>
       <div class="preview-toggle"><button class="preview-tab active" id="qAboutWriteTab">Write</button><button class="preview-tab" id="qAboutPreviewTab">Preview</button></div>
-      <div class="preview-pane active" id="qAboutWritePane"><textarea class="form-textarea" id="newQAbout" style="min-height:70px" placeholder="What is this question about?"></textarea></div>
+      <div class="preview-pane active" id="qAboutWritePane"><textarea class="form-textarea" id="newQAbout" style="min-height:70px" placeholder="What is this topic about?"></textarea></div>
       <div class="preview-pane" id="qAboutPreviewPane"><div class="preview-rendered kr" id="qAboutPreviewContent"></div></div>
     </div>
     <div class="modal-footer"><button class="btn btn-ghost" id="postSubCancelBtn">Cancel</button><button class="btn btn-primary" id="postSubSubmitBtn">Post Topic</button></div>
@@ -322,6 +328,25 @@ const SSC = {
   </div>
 </div>
 
+<!-- USERNAME MODAL -->
+<div class="modal-overlay" id="usernameModal">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-title">Choose a username</div>
+    <div class="modal-sub">Pick a username to display on your posts. You can't skip this step.</div>
+    <div class="form-group">
+      <label class="form-label">Username</label>
+      <input class="form-input" id="usernameInput" placeholder="e.g. euler_fan" maxlength="20"
+             autocomplete="off" spellcheck="false"
+             onkeydown="if(event.key==='Enter')handleUsernameSubmit()" />
+    </div>
+    <p id="usernameModalErr" style="color:var(--red);font-size:12.5px;margin:4px 0 0;min-height:18px"></p>
+    <div class="modal-footer" style="margin-top:18px">
+      <button class="btn btn-primary" id="usernameSubmitBtn" style="width:100%"
+              onclick="handleUsernameSubmit()">Save username</button>
+    </div>
+  </div>
+</div>
+
 <script src="mint-shared.js"></script>
 
 <footer>
@@ -330,4 +355,4 @@ const SSC = {
   </p>
 </footer>
 </body>
-</html>
+</html>zzzzzzs
