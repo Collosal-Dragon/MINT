@@ -4,7 +4,19 @@
 /* ── SUPABASE ─────────────────────────────────────────── */
 const SUPABASE_URL = 'https://idlrmpecdvsofaykphfe.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlkbHJtcGVjZHZzb2ZheWtwaGZlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMzk5NTAsImV4cCI6MjA4OTgxNTk1MH0.FWSllmspL4twQ1aF2q20---HmoLxBM1NqFnQ2OPOoUg';
-const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+  auth: {
+    storageKey: 'mint-auth',
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true,
+  }
+});
+window.addEventListener('unhandledrejection', e => {
+  if (e.reason?.message?.includes('Lock') && e.reason?.message?.includes('stole it')) {
+    e.preventDefault();
+  }
+});
 
 /* ── STATE ────────────────────────────────────────────── */
 let me = null, profile = null, authMode = 'login';
@@ -92,14 +104,23 @@ function applyTheme(t) {
 
 /* ── AUTH ─────────────────────────────────────────────── */
 /* ── AUTH ─────────────────────────────────────────────── */
+let _fetchingProfile = false;
+
 db.auth.onAuthStateChange(async (ev, session) => {
   me = session?.user ?? null;
   if (me) {
     if (!profile) profile = { username: me.user_metadata?.username || null };
     refreshHeader();
-    await fetchProfile(me);
+    if (!_fetchingProfile) {
+      _fetchingProfile = true;
+      await fetchProfile(me);
+      _fetchingProfile = false;
+    }
     if (!profile?.username) openUsernameModal();
-  } else { profile = null; refreshHeader(); }
+  } else {
+    profile = null;
+    refreshHeader();
+  }
   if (ev === 'SIGNED_IN' && document.getElementById('authOverlay').classList.contains('open')) {
     closeAuthModal();
     if (profile?.username) showToast('Welcome back!', 'success');
