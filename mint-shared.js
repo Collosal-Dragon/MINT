@@ -4,39 +4,7 @@
 /* ── SUPABASE ─────────────────────────────────────────── */
 const SUPABASE_URL = 'https://idlrmpecdvsofaykphfe.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlkbHJtcGVjZHZzb2ZheWtwaGZlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMzk5NTAsImV4cCI6MjA4OTgxNTk1MH0.FWSllmspL4twQ1aF2q20---HmoLxBM1NqFnQ2OPOoUg';
-const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
-  auth: {
-    storageKey: 'mint-auth',
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: true,
-    storage: {
-      getItem: (key) => Promise.resolve(localStorage.getItem(key)),
-      setItem: (key, value) => Promise.resolve(localStorage.setItem(key, value)),
-      removeItem: (key) => Promise.resolve(localStorage.removeItem(key)),
-    },
-  }
-});
-async function withRetry(fn, retries = 3, delay = 300) {
-  for (let i = 0; i < retries; i++) {
-    try {
-      return await fn();
-    } catch (e) {
-      const isLockError = e?.message?.includes('Lock') && e?.message?.includes('stole it');
-      if (isLockError && i < retries - 1) {
-        await new Promise(res => setTimeout(res, delay * (i + 1)));
-        continue;
-      }
-      throw e;
-    }
-  }
-}
-window.addEventListener('unhandledrejection', e => {
-  if (e.reason?.message?.includes('Lock') && e.reason?.message?.includes('stole it')) {
-    e.preventDefault();
-  }
-});
-
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 /* ── STATE ────────────────────────────────────────────── */
 let me = null, profile = null, authMode = 'login';
 let questions = [], intuitions = {}, takeaways = {};
