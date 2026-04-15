@@ -292,7 +292,23 @@ const SSC = {
     <div class="modal-footer"><button class="btn btn-ghost" id="authCancelBtn">Cancel</button><button class="btn btn-primary" id="authSubmitBtn">Log in</button></div>
   </div>
 </div>
-
+<div class="modal-overlay" id="usernameModal">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-title">Choose a username</div>
+    <div class="modal-sub">Pick a username to display on your posts. You can't skip this step.</div>
+    <div class="form-group">
+      <label class="form-label">Username</label>
+      <input class="form-input" id="usernameInput" placeholder="e.g. euler_fan" maxlength="20"
+             autocomplete="off" spellcheck="false"
+             onkeydown="if(event.key==='Enter')handleUsernameSubmit()" />
+    </div>
+    <p id="usernameModalErr" style="color:var(--red);font-size:12.5px;margin:4px 0 0;min-height:18px"></p>
+    <div class="modal-footer" style="margin-top:18px">
+      <button class="btn btn-primary" id="usernameSubmitBtn" style="width:100%"
+              onclick="handleUsernameSubmit()">Save username</button>
+    </div>
+  </div>
+</div>
 <script src="mint-shared.js"></script>
 
 <footer>
