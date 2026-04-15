@@ -669,14 +669,19 @@ async function submitGlobalTakeaway() {
 /* ── BOOT ─────────────────────────────────────────────── */
 let _katexReady = false, _domReady = false;
 function tryBoot() { if (_katexReady && _domReady) boot(); }
+ 
 function onKatexReady() { _katexReady = true; tryBoot(); }
+ 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => { _domReady=true; tryBoot(); });
+  document.addEventListener('DOMContentLoaded', () => { _domReady = true; tryBoot(); });
 } else {
   _domReady = true;
-  if (window.renderMathInElement) _katexReady = true;
+  // KaTeX may have already fired and set the queued flag, or renderMathInElement
+  // may already be present on window — handle both cases.
+  if (window._katexReadyQueued || window.renderMathInElement) _katexReady = true;
   tryBoot();
 }
+
 
 async function boot() {
   applyTheme(localStorage.getItem('theme') || 'dark');
