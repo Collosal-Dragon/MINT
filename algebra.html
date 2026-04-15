@@ -13,6 +13,12 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="onKatexReady()"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+<!-- Guard: onKatexReady may fire before mint-shared.js loads.
+     This stub queues the signal; mint-shared.js overwrites it with the real one. -->
+<script>
+function onKatexReady() { window._katexReadyQueued = true; }
+</script>
+
 <!-- ═══════════════════════════════════════
      PAGE CONFIG — only thing you edit per topic
 ════════════════════════════════════════ -->
@@ -292,6 +298,8 @@ const SSC = {
     <div class="modal-footer"><button class="btn btn-ghost" id="authCancelBtn">Cancel</button><button class="btn btn-primary" id="authSubmitBtn">Log in</button></div>
   </div>
 </div>
+
+<!-- USERNAME MODAL -->
 <div class="modal-overlay" id="usernameModal">
   <div class="modal" style="max-width:400px">
     <div class="modal-title">Choose a username</div>
@@ -309,6 +317,7 @@ const SSC = {
     </div>
   </div>
 </div>
+
 <script src="mint-shared.js"></script>
 
 <footer>
@@ -317,4 +326,4 @@ const SSC = {
   </p>
 </footer>
 </body>
-</html>
+</html>zzzzzzs
