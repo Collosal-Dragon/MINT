@@ -12,6 +12,20 @@ const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
     detectSessionInUrl: true,
   }
 });
+async function withRetry(fn, retries = 3, delay = 300) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      return await fn();
+    } catch (e) {
+      const isLockError = e?.message?.includes('Lock') && e?.message?.includes('stole it');
+      if (isLockError && i < retries - 1) {
+        await new Promise(res => setTimeout(res, delay * (i + 1)));
+        continue;
+      }
+      throw e;
+    }
+  }
+}
 window.addEventListener('unhandledrejection', e => {
   if (e.reason?.message?.includes('Lock') && e.reason?.message?.includes('stole it')) {
     e.preventDefault();
@@ -295,14 +309,18 @@ async function handleUsernameSubmit() {
   btn.disabled = true; btn.textContent = 'Saving…';
 
   // Uniqueness check
-  const { data: ex } = await db.from('profiles').select('id').eq('username', val).maybeSingle();
+  const { data: ex } = await withRetry(() =>
+    db.from('profiles').select('id').eq('username', val).maybeSingle()
+  );
   if (ex) { errEl.textContent = 'That username is already taken.'; btn.disabled=false; btn.textContent='Save username'; return; }
 
   const userEmail = me.email ?? null;
 
-  const { error } = await db.from('profiles').upsert(
-    { id: me.id, username: val, email: userEmail },
-    { onConflict: 'id' }
+  const { error } = await withRetry(() =>
+    db.from('profiles').upsert(
+      { id: me.id, username: val, email: userEmail },
+      { onConflict: 'id' }
+    )
   );
   if (error) {
     errEl.textContent = 'Save failed: ' + error.message;
