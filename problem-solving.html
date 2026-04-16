@@ -12,6 +12,10 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="onKatexReady()"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- ═══════════════════════════════════════
+     PAGE CONFIG — only thing you edit per topic
+════════════════════════════════════════ -->
 <script>
 const TOPIC_NAME = 'Problem Solving';
 const SUBS = ['Symmetry', 'Equality case', 'Generalisation', 'Reduction', 'Equivalent statements', 'Competition mentality', 'General advice'];
@@ -270,7 +274,7 @@ const SSC = {
     </div>
     <div class="form-group"><label class="form-label">About <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text3)">(brief description)</span></label>
       <div class="preview-toggle"><button class="preview-tab active" id="qAboutWriteTab">Write</button><button class="preview-tab" id="qAboutPreviewTab">Preview</button></div>
-      <div class="preview-pane active" id="qAboutWritePane"><textarea class="form-textarea" id="newQAbout" style="min-height:70px" placeholder="What is this question about?"></textarea></div>
+      <div class="preview-pane active" id="qAboutWritePane"><textarea class="form-textarea" id="newQAbout" style="min-height:70px" placeholder="What is this topic about?"></textarea></div>
       <div class="preview-pane" id="qAboutPreviewPane"><div class="preview-rendered kr" id="qAboutPreviewContent"></div></div>
     </div>
     <div class="modal-footer"><button class="btn btn-ghost" id="postSubCancelBtn">Cancel</button><button class="btn btn-primary" id="postSubSubmitBtn">Post Topic</button></div>
@@ -290,9 +294,7 @@ const SSC = {
     <div class="auth-tabs"><button class="auth-tab active" id="loginTab">Log in</button><button class="auth-tab" id="signupTab">Sign up</button></div>
     <div class="auth-msg err" id="authErr"></div>
     <div class="auth-msg ok" id="authOk"></div>
-    <div class="form-group" id="identWrap"><label class="form-label">Email or username</label><input class="form-input" id="authIdent" type="text" placeholder="you@example.com or handle" autocomplete="username" /></div>
-    <div class="form-group hidden" id="emailWrap"><label class="form-label">Email</label><input class="form-input" id="authEmail" type="email" placeholder="you@example.com" autocomplete="email" /></div>
-    <div class="form-group hidden" id="userWrap"><label class="form-label">Username</label><input class="form-input" id="authUser" type="text" placeholder="mathlegend012" autocomplete="off" /></div>
+    <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="authEmail" type="email" placeholder="you@example.com" autocomplete="email" /></div>
     <div class="form-group"><label class="form-label">Password</label><input class="form-input" id="authPass" type="password" placeholder="••••••••" autocomplete="current-password" /></div>
     <div class="modal-footer"><button class="btn btn-ghost" id="authCancelBtn">Cancel</button><button class="btn btn-primary" id="authSubmitBtn">Log in</button></div>
   </div>
