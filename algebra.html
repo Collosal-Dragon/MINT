@@ -16,7 +16,10 @@
 <!-- Guard: onKatexReady may fire before mint-shared.js loads.
      This stub queues the signal; mint-shared.js overwrites it with the real one. -->
 <script>
-function onKatexReady() { window._katexReadyQueued = true; }
+function onKatexReady() { 
+  window._katexReadyQueued = true;
+  if (window._mintBoot) window._mintBoot();
+}
 </script>
 
 <!-- ═══════════════════════════════════════
