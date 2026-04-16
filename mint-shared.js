@@ -701,11 +701,12 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => { _domReady = true; tryBoot(); });
 } else {
   _domReady = true;
-  // KaTeX may have already fired and set the queued flag, or renderMathInElement
-  // may already be present on window — handle both cases.
   if (window._katexReadyQueued || window.renderMathInElement) _katexReady = true;
   tryBoot();
 }
+
+window.onKatexReady = function() { _katexReady = true; tryBoot(); };
+if (window._katexReadyQueued || window.renderMathInElement) { _katexReady = true; tryBoot(); }
 
 
 async function boot() {
@@ -1578,3 +1579,6 @@ async function submitTakeaway() {
   renderDetailItems(); renderPostForm();
   window.scrollTo({ top:document.getElementById('dtab-takeaways').offsetTop-80, behavior:'smooth' });
 }
+window._mintBoot = function() { _katexReady = true; tryBoot(); };
+if (window._katexReadyQueued || window.renderMathInElement) { _katexReady = true; tryBoot(); }
+if (!document.body.classList.contains('ready')) boot();
