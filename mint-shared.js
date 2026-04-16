@@ -1582,3 +1582,4 @@ async function submitTakeaway() {
 window._mintBoot = function() { _katexReady = true; tryBoot(); };
 if (window._katexReadyQueued || window.renderMathInElement) { _katexReady = true; tryBoot(); }
 if (!document.body.classList.contains('ready')) boot();
+boot();
