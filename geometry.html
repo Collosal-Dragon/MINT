@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Geometry — MINT</title>
+<<<<<<< HEAD
 
 <script>
 window.TOPIC_NAME  = 'Geometry';
@@ -64,3 +65,331 @@ window.SSC = {
 <script src="topicpage.js"></script>
 </head>
 </html>
+=======
+<link rel="icon" type="image/svg+xml" href="logo.svg" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400;1,700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=JetBrains+Mono:wght@400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
+<link rel="stylesheet" href="mint-shared.css" />
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="onKatexReady()"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- ═══════════════════════════════════════
+     PAGE CONFIG — only thing you edit per topic
+════════════════════════════════════════ -->
+<script>
+const TOPIC_NAME = 'Geometry';
+const SUBS = ['Angle Chasing', 'Circles', 'Triangle', 'Quadrilaterals', 'Length chasing', 'Symmetry', 'Transformations', 'Computational', 'Projective tools', 'Construction', 'Simplification', 'Others'];
+
+const SSC = {
+  'Angle Chasing': {
+    structure: ['Parallel lines', 'Tangents', 'Directed angles'],
+    technique: ['Good lines/bad lines', 'Spiral similarity'],
+  },
+  'Circles': {
+    structure: ['Coaxial circles', 'Concurrent circles', 'Radical axis'],
+    technique: [],
+  },
+  'Triangle': {
+    structure: ['Centers','Configurations','Isogonal lines/points'],
+    technique: [],
+  },
+  'Quadrilaterals': {
+    structure: ['Complete quadrilaterals'],
+    technique: [],
+  },
+  'Length chasing': {
+    structure: [],
+    technique: ['Power of point','Trigonometry','Ceva/Menelaus'],
+  },
+  'Symmetry': {
+    structure: [],
+    technique: [],
+  },
+  'Transformations': {
+    structure: [],
+    technique: ['Homothety','Inversion'],
+  },
+  'Computational': {
+    structure: [],
+    technique: ['Cartesian coordinates','Complex numbers','Barycentric coordinates','Method of Moving Points'],
+  },
+  'Projective tools': {
+    structure: [],
+    technique: [],
+  },
+  'Construction': {
+    structure: [],
+    technique: ['Adding points'],
+  },
+  'Simplification': {
+    structure: [],
+    technique: ['Removing points'],
+  },
+  'Others': {
+    structure: ['Concurrent lines'],
+    technique: [],
+  }
+};
+</script>
+</head>
+<body>
+
+<!-- BACKGROUND TRIANGLES -->
+<div id="bg-triangles" aria-hidden="true">
+  <div class="tri tri-1"></div><div class="tri tri-2"></div>
+  <div class="tri tri-3"></div><div class="tri tri-4"></div><div class="tri tri-5"></div>
+</div>
+
+<header>
+  <div class="header-inner">
+    <a class="logo" href="index.html">
+      <svg class="logo-mark-svg" width="38" height="38" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <clipPath id="clipTriangle">
+            <polygon points="250,30 475,420 25,420"/>
+          </clipPath>
+        </defs>
+        <g clip-path="url(#clipTriangle)">
+          <polygon points="250,30 475,420 25,420" fill="#7ec7b4"/>
+          <polygon points="250,30 362,225 250,160 138,225" fill="#9fd8c8"/>
+          <polygon points="25,420 138,225 250,420" fill="#8ccbb9"/>
+          <polygon points="475,420 362,225 250,420" fill="#6fb3a3"/>
+          <polygon points="250,160 362,225 250,290 138,225" fill="#c9efe3"/>
+          <polygon points="138,225 250,290 250,420 138,355" fill="#8fd0b6"/>
+          <polygon points="362,225 250,290 250,420 362,355" fill="#76bca8"/>
+          <polygon points="25,420 138,355 250,420" fill="#5aa094"/>
+          <polygon points="475,420 362,355 250,420" fill="#4f9186"/>
+        </g>
+      </svg>
+      <div class="logo-text">
+        <span class="logo-name">MINT</span>
+        <span class="logo-tagline">Math Olympiad Intuition</span>
+      </div>
+    </a>
+    <div class="header-right">
+      <button class="theme-btn" id="themeBtn" title="Toggle theme">
+        <svg id="iconDark" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg id="iconLight" class="hidden" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      </button>
+      <div class="user-pill hidden" id="userPill"><span class="user-pill-dot"></span><span id="pillName"></span></div>
+      <button class="btn btn-ghost btn-sm" id="authBtn">Log in</button>
+      <div class="post-dropdown-wrap" id="postDropdownWrap">
+        <button class="btn-post-main" id="postDropdownBtn">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Post
+          <span class="btn-post-chevron"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </button>
+        <div class="post-dropdown-menu" id="postDropdownMenu">
+          <button class="post-menu-item" id="menuPostIntuition">
+            <span class="post-menu-icon intuition">💡</span>
+            <span><div class="post-menu-label">Post an Intuition</div><div class="post-menu-sub">Attach your insight to any topic</div></span>
+          </button>
+          <button class="post-menu-item" id="menuPostTakeaway">
+            <span class="post-menu-icon takeaway">📝</span>
+            <span><div class="post-menu-label">Post a Takeaway</div><div class="post-menu-sub">Share what you learned</div></span>
+          </button>
+          <button class="post-menu-item" id="menuPostSubtopic">
+            <span class="post-menu-icon subtopic">🗂</span>
+            <span><div class="post-menu-label">Post a Topic</div><div class="post-menu-sub">Investigate a new topic</div></span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- LIST VIEW -->
+<main id="listView">
+  <div class="breadcrumb"><a href="index.html">Home</a><span>›</span><span>Geometry</span></div>
+  <div class="topic-header">
+    <div class="topic-left">
+      <span class="topic-glyph">△</span>
+      <div><div class="topic-name">Geometry</div><div class="topic-desc"></div></div>
+    </div>
+  </div>
+  <div class="topic-layout">
+    <div class="sidebar"><div class="sidebar-title">Topics</div><div id="subtopicList"></div></div>
+    <div>
+      <div class="toolbar">
+        <div class="search-wrap">
+          <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input class="search-input" id="questionSearch" type="text" placeholder="Search topics, and tags" autocomplete="off" autocorrect="off" spellcheck="false" />
+          <button class="search-clear hidden" id="searchClear"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        </div>
+        <div class="tabs-list">
+          <button class="tab-btn active" data-sort="relevance">Relevance</button>
+          <button class="tab-btn" data-sort="recent">Recent</button>
+          <button class="tab-btn" data-sort="top">Top</button>
+        </div>
+      </div>
+      <div class="results-meta"><div class="q-count" id="qCount"></div><div id="activeFilterPill"></div></div>
+      <div id="questionsList"><div class="loading-state"><div class="spinner"></div>Loading topics…</div></div>
+    </div>
+  </div>
+</main>
+
+<!-- DETAIL VIEW -->
+<main id="detailView" style="display:none">
+  <button class="back-btn" id="backBtn">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    Back to Topics
+  </button>
+  <div class="detail-card">
+    <div class="detail-card-inner">
+      <div class="vote-col" id="detailVoteCol"></div>
+      <div class="detail-content" id="detailContent"></div>
+    </div>
+  </div>
+  <div class="sort-bar">
+    <div class="tabs-list">
+      <button class="tab-btn active" data-dtab="intuitions">Intuitions (<span id="intCount">0</span>)</button>
+      <button class="tab-btn" data-dtab="takeaways">Takeaways (<span id="takCount">0</span>)</button>
+    </div>
+    <div class="sort-btns">
+      <button class="sort-btn active" data-dsort="relevance">Relevance</button>
+      <button class="sort-btn" data-dsort="top">Top</button>
+      <button class="sort-btn" data-dsort="recent">Recent</button>
+    </div>
+  </div>
+  <div id="dtab-intuitions" class="tab-content active"></div>
+  <div id="dtab-takeaways" class="tab-content"></div>
+  <div id="postForm"></div>
+</main>
+
+<!-- POST INTUITION MODAL -->
+<div class="modal-overlay" id="postIntModal">
+  <div class="modal" style="max-width:600px">
+    <div class="modal-title">💡 Post an Intuition</div>
+    <div class="modal-sub">Attach your intuition to one or more topics</div>
+    <div id="postIntError"></div>
+    <div class="form-group">
+      <label class="form-label">Attach to Topic(s)</label>
+      <div class="q-search-wrap" style="position:relative;margin-bottom:0">
+        <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input class="q-search-input" id="intQSearch" placeholder="Type to search topics…" autocomplete="off" />
+        <div class="q-picker-list" id="intQList" style="position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:50;display:none;max-height:200px;overflow-y:auto"></div>
+      </div>
+      <div class="q-selected-chips" id="intQChips" style="margin-top:8px"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Intuition Statement</label><input class="form-input" id="intStatement" placeholder="e.g. Primes become increasingly sparse" /></div>
+    <div class="form-group">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <label class="form-label" style="margin:0">Explanation</label>
+        <span id="intWordCount" class="word-count">0 / 1500 words</span>
+      </div>
+      <div class="preview-toggle">
+        <button class="preview-tab active" id="intExpWriteTabModal">Write</button>
+        <button class="preview-tab" id="intExpPreviewTabModal">Preview</button>
+      </div>
+      <div class="preview-pane active" id="intExpWritePaneModal">
+        <textarea class="form-textarea" id="intExplanation" style="min-height:120px" placeholder="Explain your intuition… ($LaTeX$ and ||spoiler|| supported)"></textarea>
+      </div>
+      <div class="preview-pane" id="intExpPreviewPaneModal">
+        <div class="preview-rendered kr" id="intExpPreviewContentModal" style="min-height:120px"></div>
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Links (optional, max 3)</label><div class="link-input-row"><input class="form-input" id="intLinkInput" placeholder="https://…" style="flex:1" /><button class="btn btn-ghost btn-sm" id="intAddLink">Add</button></div><div class="link-list" id="intLinkList"></div></div>
+    <div class="form-group"><label class="form-label">Add Image (optional)</label>
+      <input type="file" id="intImage" accept="image/*" style="color:var(--text2);font-size:13px" />
+      <div class="img-preview-box" id="intImagePreviewBox" style="display:none"><img id="intImagePreview" src="" alt="Preview" /><button class="img-preview-remove" id="intImageRemove"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    </div>
+    <hr class="form-divider"/>
+    <div class="form-group"><label class="form-label">Problems (optional)</label><input class="form-input" id="intExampleLink" placeholder="https://…" /></div>
+    <div class="form-group"><label class="form-label">Additional Context (optional)</label><textarea class="form-textarea" id="intExampleExp" style="min-height:70px"></textarea></div>
+    <div class="modal-footer"><button class="btn btn-ghost" id="postIntCancelBtn">Cancel</button><button class="btn btn-primary" id="postIntSubmitBtn">Post Intuition</button></div>
+  </div>
+</div>
+
+<!-- POST TAKEAWAY MODAL -->
+<div class="modal-overlay" id="postTakModal">
+  <div class="modal" style="max-width:600px">
+    <div class="modal-title">📝 Post a Takeaway</div>
+    <div class="modal-sub">Share what you learned across one or more topics</div>
+    <div id="postTakError"></div>
+    <div class="form-group">
+      <label class="form-label">Attach to Topic(s)</label>
+      <div class="q-search-wrap" style="position:relative;margin-bottom:0">
+        <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input class="q-search-input" id="takQSearch" placeholder="Type to search topics…" autocomplete="off" />
+        <div class="q-picker-list" id="takQList" style="position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:50;display:none;max-height:200px;overflow-y:auto"></div>
+      </div>
+      <div class="q-selected-chips" id="takQChips" style="margin-top:8px"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Your Takeaway</label>
+      <div class="preview-toggle"><button class="preview-tab active" id="takExpWriteTabModal">Write</button><button class="preview-tab" id="takExpPreviewTabModal">Preview</button></div>
+      <div class="preview-pane active" id="takExpWritePaneModal"><textarea class="form-textarea" id="takContent" style="min-height:130px" placeholder="Share your insights… ($LaTeX$ and ||spoiler|| supported)"></textarea></div>
+      <div class="preview-pane" id="takExpPreviewPaneModal"><div class="preview-rendered kr" id="takExpPreviewContentModal" style="min-height:130px"></div></div>
+    </div>
+    <div class="form-group"><label class="form-label">Add Image (optional)</label>
+      <input type="file" id="takImage" accept="image/*" style="color:var(--text2);font-size:13px" />
+      <div class="img-preview-box" id="takImagePreviewBox" style="display:none"><img id="takImagePreview" src="" alt="Preview" /><button class="img-preview-remove" id="takImageRemove"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    </div>
+    <div class="form-group"><label class="form-label">Links (optional)</label><div class="link-input-row"><input class="form-input" id="takLinkInput" placeholder="https://…" style="flex:1" /><button class="btn btn-ghost btn-sm" id="takAddLink">Add</button></div><div class="link-list" id="takLinkList"></div></div>
+    <div class="modal-footer"><button class="btn btn-ghost" id="postTakCancelBtn">Cancel</button><button class="btn btn-primary" id="postTakSubmitBtn">Post Takeaway</button></div>
+  </div>
+</div>
+
+<!-- POST TOPIC MODAL -->
+<div class="modal-overlay" id="postSubModal">
+  <div class="modal" style="max-width:600px">
+    <div class="modal-title">🗂 Investigate a new Topic</div>
+    <div class="modal-sub">Add a new topic that others can post intuitions and takeaways under</div>
+    <div id="postSubError"></div>
+    <div class="form-group">
+      <label class="form-label">Topics <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text3)">(select one or more)</span></label>
+      <div class="topic-picker-grid" id="topicPickerGrid"></div>
+      <div id="subTopicChips" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px"></div>
+    </div>
+    <div id="newQSscWrap" style="display:none">
+      <div class="form-group">
+        <label class="form-label">Tags <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text3)">(optional)</span></label>
+        <div class="ssc-accordion" id="sscAccordion"></div>
+        <div id="newQSelectedTags" style="display:flex;flex-wrap:wrap;gap:5px;margin-top:8px"></div>
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Topic Title</label>
+      <div class="preview-toggle"><button class="preview-tab active" id="qTitleWriteTab">Write</button><button class="preview-tab" id="qTitlePreviewTab">Preview</button></div>
+      <div class="preview-pane active" id="qTitleWritePane"><input class="form-input" id="newQTitle" placeholder="e.g. Find all $f: \mathbb{R} \to \mathbb{R}$ such that…" /></div>
+      <div class="preview-pane" id="qTitlePreviewPane"><div class="preview-rendered kr" id="qTitlePreviewContent" style="min-height:44px"></div></div>
+    </div>
+    <div class="form-group"><label class="form-label">About <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text3)">(brief description)</span></label>
+      <div class="preview-toggle"><button class="preview-tab active" id="qAboutWriteTab">Write</button><button class="preview-tab" id="qAboutPreviewTab">Preview</button></div>
+      <div class="preview-pane active" id="qAboutWritePane"><textarea class="form-textarea" id="newQAbout" style="min-height:70px" placeholder="What is this topic about?"></textarea></div>
+      <div class="preview-pane" id="qAboutPreviewPane"><div class="preview-rendered kr" id="qAboutPreviewContent"></div></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-ghost" id="postSubCancelBtn">Cancel</button><button class="btn btn-primary" id="postSubSubmitBtn">Post Topic</button></div>
+  </div>
+</div>
+
+<!-- AUTH MODAL -->
+<div class="modal-overlay" id="authOverlay">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-title">Welcome to MINT</div>
+    <div class="modal-sub">Sign in to post topics, share intuitions, and vote</div>
+    <button class="btn-google-modal" id="googleSignInBtn">
+      <svg width="18" height="18" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+      Continue with Google
+    </button>
+    <div class="divider">or continue with email</div>
+    <div class="auth-tabs"><button class="auth-tab active" id="loginTab">Log in</button><button class="auth-tab" id="signupTab">Sign up</button></div>
+    <div class="auth-msg err" id="authErr"></div>
+    <div class="auth-msg ok" id="authOk"></div>
+    <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="authEmail" type="email" placeholder="you@example.com" autocomplete="email" /></div>
+    <div class="form-group"><label class="form-label">Password</label><input class="form-input" id="authPass" type="password" placeholder="••••••••" autocomplete="current-password" /></div>
+    <div class="modal-footer"><button class="btn btn-ghost" id="authCancelBtn">Cancel</button><button class="btn btn-primary" id="authSubmitBtn">Log in</button></div>
+  </div>
+</div>
+
+<script src="mint-shared.js"></script>
+
+<footer>
+  <p>Report issues, make suggestions, or join the team by contacting
+    <a href="mailto:mint.forum.contact@gmail.com">mint.forum.contact@gmail.com</a>
+  </p>
+</footer>
+</body>
+</html>
+>>>>>>> ab71e1d26f06241a93a592bc1d7e55ab67bf4f05

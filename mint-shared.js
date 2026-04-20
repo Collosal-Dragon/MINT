@@ -296,7 +296,11 @@ function renderTopicPickerGrid() {
     });
   });
 }
+<<<<<<< HEAD
 const MAX_TOPIC_TAGS = 5;
+=======
+
+>>>>>>> ab71e1d26f06241a93a592bc1d7e55ab67bf4f05
 function renderNewQSscTags() {
   const wrap      = document.getElementById('newQSscWrap');
   const accordion = document.getElementById('sscAccordion');
@@ -324,6 +328,7 @@ function renderNewQSscTags() {
   accordion.querySelectorAll('[data-tagkey]').forEach(el => {
     el.addEventListener('click', () => {
       const key = el.dataset.tagkey;
+<<<<<<< HEAD
       if (selectedNewQTags.has(key)) {
         selectedNewQTags.delete(key);
       } else {
@@ -333,13 +338,20 @@ function renderNewQSscTags() {
         }
         selectedNewQTags.add(key);
       }
+=======
+      if (selectedNewQTags.has(key)) selectedNewQTags.delete(key); else selectedNewQTags.add(key);
+>>>>>>> ab71e1d26f06241a93a592bc1d7e55ab67bf4f05
       renderNewQSscTags();
     });
   });
   const selectedEl = document.getElementById('newQSelectedTags');
   if (selectedNewQTags.size === 0) { selectedEl.innerHTML=''; return; }
+<<<<<<< HEAD
   const countLabel = `<div style="font-size:11px;color:var(--text3);margin-bottom:4px">${selectedNewQTags.size} / ${MAX_TOPIC_TAGS} tags selected</div>`;
   selectedEl.innerHTML = countLabel + [...selectedNewQTags].map(key => {
+=======
+  selectedEl.innerHTML = [...selectedNewQTags].map(key => {
+>>>>>>> ab71e1d26f06241a93a592bc1d7e55ab67bf4f05
     const p = parseSscTag(key); if (!p) return '';
     const tc = p.type==='technique' ? 'var(--gold)' : 'var(--blue)';
     return `<span style="display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:10px;font-size:11px;font-weight:600;background:${p.type==='technique'?'rgba(240,192,96,.12)':'rgba(122,176,245,.12)'};color:${tc};border:1px solid ${p.type==='technique'?'rgba(240,192,96,.25)':'rgba(122,176,245,.25)'}">
