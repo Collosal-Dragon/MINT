@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+<meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MINT — Math Olympiad Intuition Forum</title>
+<link rel="icon" type="image/svg+xml" href="logo.svg" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400;1,700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=JetBrains+Mono:wght@400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false})"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--bg:#0b0c10;--bg2:#0f1116;--bg3:#161820;--bg4:#1c1f2b;--border:#1e2130;--border2:#262a3a;--border3:#303550;--text:#eceef5;--text2:#8e95b0;--text3:#4a5070;--primary:#6ee7a0;--primary2:#3db870;--green:#6ee7a0;--red:#f07070;--gold:#f0c060;--blue:#7ab0f5;--purple:#b090f5;--teal:#5dd8d0;--card-bg:#0f1116;--card-hover:#141720;--shadow:0 1px 3px rgba(0,0,0,.5),0 4px 16px rgba(0,0,0,.4);--shadow-lg:0 8px 40px rgba(0,0,0,.6);--radius:12px;--font-disp:'Playfair Display',Georgia,serif;--font-body:'DM Sans',sans-serif;--font-serif:'Crimson Pro',Georgia,serif;--font-mono:'JetBrains Mono',monospace}
+html.light{--bg:#f7f6f1;--bg2:#ffffff;--bg3:#f0ede6;--bg4:#e8e4db;--border:#ddd9d0;--border2:#ccc8be;--border3:#b8b3a8;--text:#1a1814;--text2:#4a4640;--text3:#8a8680;--primary:#1e7a48;--primary2:#155c36;--green:#1e7a48;--red:#c0392b;--gold:#b07820;--blue:#2060c0;--purple:#6040b0;--teal:#0a7a74;--card-bg:#ffffff;--card-hover:#faf9f6;--shadow:0 1px 3px rgba(0,0,0,.06),0 4px 12px rgba(0,0,0,.08);--shadow-lg:0 8px 32px rgba(0,0,0,.12)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;line-height:1.6;transition:background .25s,color .25s;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 50% at 20% -10%,rgba(110,231,160,.04) 0%,transparent 60%),radial-gradient(ellipse 60% 40% at 80% 110%,rgba(122,176,245,.03) 0%,transparent 55%);pointer-events:none;z-index:0}
+html.light body::before{background:radial-gradient(ellipse 80% 50% at 20% -10%,rgba(30,122,72,.04) 0%,transparent 60%),radial-gradient(ellipse 60% 40% at 80% 110%,rgba(32,96,192,.03) 0%,transparent 55%)}
+header{position:sticky;top:0;z-index:100;background:rgba(11,12,16,.85);border-bottom:1px solid var(--border);backdrop-filter:blur(20px) saturate(1.2);-webkit-backdrop-filter:blur(20px) saturate(1.2)}
+html.light header{background:rgba(247,246,241,.9)}
+.header-inner{max-width:1040px;margin:0 auto;padding:0 28px;height:62px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.logo{display:flex;align-items:center;gap:12px;text-decoration:none;flex-shrink:0}
+.logo-mark{width:38px;height:38px;background:linear-gradient(135deg,var(--primary) 0%,var(--primary2) 100%);border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:var(--font-disp);font-size:20px;font-weight:900;color:#0b0c10;box-shadow:0 0 20px rgba(110,231,160,.25);flex-shrink:0}
+.logo-mark-svg{width:38px;height:38px;flex-shrink:0;filter:drop-shadow(0 0 10px rgba(110,231,160,.35));}
+html.light .logo-mark{color:#fff;box-shadow:0 0 20px rgba(30,122,72,.2)}
+.logo-text{display:flex;flex-direction:column;line-height:1.1}
+.logo-name{font-family:var(--font-disp);font-size:1.15rem;font-weight:700;color:var(--text);letter-spacing:.02em}
+.logo-tagline{font-size:10.5px;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;font-weight:500}
+.header-right{display:flex;align-items:center;gap:14px}
+.theme-btn{width:34px;height:34px;border-radius:8px;border:1px solid var(--border2);background:var(--bg3);color:var(--text2);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;flex-shrink:0}
+.theme-btn:hover{border-color:var(--border3);color:var(--text);background:var(--bg4)}
+.user-pill{display:flex;align-items:center;gap:7px;padding:5px 12px 5px 7px;background:var(--bg3);border:1px solid var(--border2);border-radius:20px;font-size:12.5px;color:var(--text2);font-weight:500}
+.user-pill-dot{width:8px;height:8px;background:var(--green);border-radius:50%;flex-shrink:0;box-shadow:0 0 6px rgba(110,231,160,.6)}
+html.light .user-pill-dot{box-shadow:0 0 6px rgba(30,122,72,.4)}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border-radius:8px;border:none;font-family:var(--font-body);font-size:13.5px;font-weight:500;cursor:pointer;transition:all .15s;white-space:nowrap;text-decoration:none}
+.btn-primary{background:var(--primary);color:#0b0c10;font-weight:600;box-shadow:0 0 20px rgba(110,231,160,.2)}
+.btn-primary:hover{filter:brightness(1.08);transform:translateY(-1px);box-shadow:0 0 28px rgba(110,231,160,.3)}
+html.light .btn-primary{color:#fff}
+.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border2)}
+.btn-ghost:hover{background:var(--bg3);color:var(--text);border-color:var(--border3)}
+.btn-sm{padding:6px 13px;font-size:12.5px}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important}
+.btn-google{background:var(--bg3);color:var(--text);border:1px solid var(--border2);width:100%;justify-content:center;padding:11px 16px;font-size:14px;border-radius:9px}
+.btn-google:hover{border-color:var(--primary);background:var(--bg4)}
+main{max-width:1040px;margin:0 auto;padding:0 28px 60px;position:relative;z-index:1}
+.hero{text-align:center;padding:72px 24px 52px;position:relative}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;padding:5px 14px;background:rgba(110,231,160,.07);border:1px solid rgba(110,231,160,.15);border-radius:20px;font-size:11.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--primary);margin-bottom:24px}
+html.light .hero-eyebrow{background:rgba(30,122,72,.06);border-color:rgba(30,122,72,.15)}
+.eyebrow-dot{width:6px;height:6px;background:var(--primary);border-radius:50%;animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.7)}}
+.hero-title{font-family:var(--font-disp);font-size:clamp(2.1rem,5vw,3.2rem);font-weight:900;line-height:1.12;letter-spacing:-.02em;margin-bottom:18px;color:var(--text)}
+.hero-title em{font-style:italic;color:var(--primary)}
+.hero-title .sub{display:block;color:var(--text2);font-weight:400;font-style:italic;font-size:.68em;margin-top:8px;letter-spacing:0}
+.hero-body{font-family:var(--font-serif);font-size:1.1rem;color:var(--text2);max-width:500px;margin:0 auto 36px;line-height:1.75}
+.search-wrap{position:relative;max-width:520px;margin:0 auto 10px}
+.search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none}
+.search-input{width:100%;padding:13px 40px 13px 42px;background:var(--bg2);border:1px solid var(--border2);border-radius:12px;color:var(--text);font-family:var(--font-body);font-size:14.5px;outline:none;transition:all .2s;box-shadow:var(--shadow)}
+.search-input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(110,231,160,.1),var(--shadow)}
+html.light .search-input:focus{box-shadow:0 0 0 3px rgba(30,122,72,.1),var(--shadow)}
+.search-input::placeholder{color:var(--text3)}
+.search-clear{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text3);cursor:pointer;padding:4px;border-radius:6px;display:flex;align-items:center}
+.search-clear:hover{color:var(--text)}
+.sec-hd{display:flex;align-items:baseline;gap:12px;margin-bottom:22px}
+.sec-title{font-family:var(--font-disp);font-size:1.2rem;font-weight:700;color:var(--text);letter-spacing:-.01em;white-space:nowrap}
+.sec-line{flex:1;height:1px;background:var(--border)}
+.topic-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:52px}
+.topic-card{position:relative;background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:22px 20px 18px;cursor:pointer;transition:transform .2s,box-shadow .2s,border-color .2s,background .2s;text-decoration:none;display:block;overflow:hidden}
+.topic-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--tc,var(--primary));opacity:0;transition:opacity .2s}
+.topic-card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,.5);border-color:var(--border3);background:var(--card-hover)}
+html.light .topic-card:hover{box-shadow:0 12px 32px rgba(0,0,0,.1)}
+.topic-card:hover::before{opacity:1}
+.t-glyph{font-size:2rem;line-height:1;margin-bottom:12px;display:block;filter:drop-shadow(0 0 10px var(--tc,var(--primary)));transition:filter .2s}
+.topic-card:hover .t-glyph{filter:drop-shadow(0 0 20px var(--tc,var(--primary)))}
+.t-name{font-family:var(--font-disp);font-size:1rem;font-weight:700;margin-bottom:6px;line-height:1.2}
+.t-desc{font-size:12.5px;color:var(--text2);line-height:1.55;margin-bottom:14px;font-family:var(--font-serif)}
+.t-tags{display:flex;flex-wrap:wrap;gap:5px}
+.t-tag{padding:2px 8px;border-radius:10px;font-size:10.5px;font-weight:500;background:var(--bg3);color:var(--text3);border:1px solid var(--border);letter-spacing:.02em}
+.q-list{display:flex;flex-direction:column;gap:10px}
+.q-card{position:relative;background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);display:flex;overflow:hidden;text-decoration:none;color:inherit;transition:transform .15s,box-shadow .15s,border-color .15s,background .15s;animation:fadeUp .4s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.q-card:hover{background:var(--card-hover);border-color:var(--border3);transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.4)}
+html.light .q-card:hover{box-shadow:0 8px 24px rgba(0,0,0,.08)}
+.v-col{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:18px 16px;min-width:62px;border-right:1px solid var(--border);flex-shrink:0}
+.v-score{font-family:var(--font-mono);font-size:14px;font-weight:600;color:var(--text2);line-height:1}
+.v-score.pos{color:var(--green)}.v-score.neg{color:var(--red)}
+.bulb{display:flex;align-items:center;gap:3px;font-size:10.5px;color:var(--text3);margin-top:5px;font-family:var(--font-mono)}
+.q-body{flex:1;padding:16px 20px;min-width:0}
+.q-title{font-family:var(--font-disp);font-size:1rem;font-weight:600;color:var(--text);margin-bottom:5px;line-height:1.4}
+.q-about{font-size:13px;color:var(--text2);margin-bottom:10px;font-family:var(--font-serif);line-height:1.5}
+.q-lbl{font-weight:600;color:var(--text3);font-family:var(--font-body);font-size:11px;letter-spacing:.04em;text-transform:uppercase}
+.q-tags{display:flex;flex-wrap:wrap;gap:5px}
+.qtag{padding:2px 9px;border-radius:10px;font-size:11px;font-weight:600;letter-spacing:.02em}
+.qtag-0{background:rgba(110,231,160,.1);color:var(--green);border:1px solid rgba(110,231,160,.2)}
+.qtag-1{background:var(--bg3);color:var(--text3);border:1px solid var(--border);font-weight:500}
+html.light .qtag-0{background:rgba(30,122,72,.08);border-color:rgba(30,122,72,.2)}
+.q-meta{font-size:11.5px;color:var(--text3);margin-top:9px;font-family:var(--font-mono)}
+.search-count{font-size:13px;color:var(--text3);margin-bottom:16px;font-family:var(--font-serif);font-style:italic}
+.search-count strong{color:var(--text);font-style:normal;font-family:var(--font-body)}
+.loading-state{text-align:center;padding:56px 24px;color:var(--text3);font-family:var(--font-serif);font-style:italic;font-size:1rem}
+.spinner{width:28px;height:28px;border:2px solid var(--border2);border-top-color:var(--primary);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty-state{text-align:center;padding:56px 24px;color:var(--text3);font-family:var(--font-serif);font-style:italic;font-size:1rem}
+.empty-icon{font-size:2.2rem;margin-bottom:12px;display:block;opacity:.6}
+.err-box{background:rgba(240,112,112,.08);border:1px solid rgba(240,112,112,.25);border-radius:10px;padding:14px 18px;color:var(--red);font-size:13.5px;margin-bottom:16px}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);z-index:500;align-items:center;justify-content:center;padding:24px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;padding:30px;width:100%;max-width:420px;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg);animation:modalIn .22s cubic-bezier(.22,1,.36,1)}
+@keyframes modalIn{from{opacity:0;transform:scale(.93) translateY(16px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.modal-title{font-family:var(--font-disp);font-size:1.25rem;font-weight:700;margin-bottom:4px}
+.modal-sub{font-family:var(--font-serif);font-size:.95rem;color:var(--text2);margin-bottom:20px;line-height:1.5}
+.auth-tabs{display:flex;gap:3px;background:var(--bg3);border-radius:9px;padding:3px;margin-bottom:18px}
+.auth-tab{flex:1;padding:7px;border-radius:7px;border:none;font-family:var(--font-body);font-size:13px;font-weight:500;cursor:pointer;background:transparent;color:var(--text2);transition:all .15s}
+.auth-tab.active{background:var(--bg2);color:var(--text);box-shadow:var(--shadow)}
+.form-group{margin-bottom:15px}
+.form-label{display:block;font-size:12px;font-weight:600;color:var(--text3);margin-bottom:6px;letter-spacing:.04em;text-transform:uppercase}
+.form-input{width:100%;padding:10px 13px;background:var(--bg3);border:1px solid var(--border2);border-radius:9px;color:var(--text);font-family:var(--font-body);font-size:14px;outline:none;transition:all .15s}
+.form-input:focus{border-color:var(--primary);background:var(--bg2);box-shadow:0 0 0 3px rgba(110,231,160,.1)}
+html.light .form-input:focus{box-shadow:0 0 0 3px rgba(30,122,72,.1)}
+.form-input::placeholder{color:var(--text3)}
+.auth-msg{padding:9px 13px;border-radius:8px;font-size:13px;margin-bottom:14px;display:none}
+.auth-msg.err{background:rgba(240,112,112,.08);border:1px solid rgba(240,112,112,.3);color:var(--red)}
+.auth-msg.ok{background:rgba(110,231,160,.08);border:1px solid rgba(110,231,160,.3);color:var(--green)}
+html.light .auth-msg.ok{background:rgba(30,122,72,.06);border-color:rgba(30,122,72,.2)}
+.divider{display:flex;align-items:center;gap:10px;color:var(--text3);font-size:12px;margin:14px 0}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.modal-footer{display:flex;justify-content:flex-end;gap:10px;margin-top:22px}
+.toast{position:fixed;bottom:24px;right:24px;z-index:999;background:var(--bg2);border:1px solid var(--border2);border-radius:11px;padding:12px 18px;font-size:13.5px;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:10px;animation:toastIn .25s ease;max-width:320px}
+.toast.success{border-color:var(--green);color:var(--green)}
+.toast.error{border-color:var(--red);color:var(--red)}
+.qtag-structure{background:rgba(122,176,245,.1);color:var(--blue);border:1px solid rgba(122,176,245,.2)}
+.qtag-technique{background:rgba(176,144,245,.1);color:var(--purple);border:1px solid rgba(176,144,245,.2)}
+.qtag-default{background:rgba(110,231,160,.1);color:var(--green);border:1px solid rgba(110,231,160,.2)}
+@keyframes toastIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+body{opacity:0;transition:opacity .18s ease}
+body.ready{opacity:1}
+.hidden{display:none!important}
+@media(max-width:680px){
+  .header-inner{padding:0 18px}
+  main{padding:0 18px 48px}
+  .logo-tagline{display:none}
+  .hero{padding:52px 16px 40px}
+  .topic-grid{grid-template-columns:repeat(5,1fr);gap:10px}
+  .topic-card{padding:18px 16px 14px}
+  .t-glyph{font-size:1.6rem}
+}
+@media(max-width:380px){.topic-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <a class="logo" href="index.html">
+      <svg class="logo-mark-svg" width="38" height="38" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <clipPath id="clipTriangle">
+            <polygon points="250,30 475,420 25,420"/>
+          </clipPath>
+        </defs>
+        <g clip-path="url(#clipTriangle)">
+          <polygon points="250,30 475,420 25,420" fill="#7ec7b4"/>
+          <polygon points="250,30 362,225 250,160 138,225" fill="#9fd8c8"/>
+          <polygon points="25,420 138,225 250,420" fill="#8ccbb9"/>
+          <polygon points="475,420 362,225 250,420" fill="#6fb3a3"/>
+          <polygon points="250,160 362,225 250,290 138,225" fill="#c9efe3"/>
+          <polygon points="138,225 250,290 250,420 138,355" fill="#8fd0b6"/>
+          <polygon points="362,225 250,290 250,420 362,355" fill="#76bca8"/>
+          <polygon points="25,420 138,355 250,420" fill="#5aa094"/>
+          <polygon points="475,420 362,355 250,420" fill="#4f9186"/>
+        </g>
+      </svg>
+      <div class="logo-text">
+        <span class="logo-name">MINT</span>
+        <span class="logo-tagline">Math Olympiad Intuition</span>
+      </div>
+    </a>
+    <div class="header-right">
+      <button class="theme-btn" id="themeBtn" title="Toggle theme">
+        <svg id="iconLight" class="hidden" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        <svg id="iconDark" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+      <div class="user-pill hidden" id="userPill">
+        <span class="user-pill-dot"></span>
+        <span id="pillName"></span>
+      </div>
+      <button class="btn btn-ghost btn-sm" id="authBtn">Log in</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-eyebrow"><span class="eyebrow-dot"></span>Community Forum</div>
+    <h1 class="hero-title">
+      Build <em>M</em>athematical <em>Int</em>uition
+      <span class="sub">Together, one insight at a time.</span>
+    </h1>
+    <p class="hero-body">Share the intuitions and insights behind Olympiad mathematics. Ask questions, post your thinking, and sharpen your understanding alongside others.</p>
+    <div class="search-wrap">
+      <svg class="search-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input class="search-input" id="globalSearch" type="search" placeholder="Search across all topics…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" oninput="handleSearch()" />
+      <button class="search-clear hidden" id="searchClear" onclick="clearSearch()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- SEARCH RESULTS -->
+  <div id="searchSec" class="hidden">
+    <div class="sec-hd"><span class="sec-title">Search Results</span><span class="sec-line"></span></div>
+    <p class="search-count" id="searchCount"></p>
+    <div id="searchList" class="q-list"></div>
+  </div>
+
+  <!-- BROWSE -->
+  <div id="browseSec">
+    <div class="sec-hd"><span class="sec-title">Browse by Subject</span><span class="sec-line"></span></div>
+    <div class="topic-grid" id="topicGrid"></div>
+    <div class="sec-hd"><span class="sec-title">Recent Topics</span><span class="sec-line"></span></div>
+    <div id="recentList" class="q-list">
+      <div class="loading-state"><div class="spinner"></div>Loading topics…</div>
+    </div>
+  </div>
+</main>
+
+<!-- AUTH MODAL -->
+<div class="modal-overlay" id="authOverlay" onclick="if(event.target===this)closeAuth()">
+  <div class="modal">
+    <div class="modal-title">Welcome to MINT</div>
+    <div class="modal-sub">Sign in to post topics, share intuitions, and vote on answers.</div>
+    <button class="btn btn-google" onclick="googleSignIn()">
+      <svg width="18" height="18" viewBox="0 0 24 24" style="margin-right:6px"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+      Continue with Google
+    </button>
+    <div class="divider">or continue with email</div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tabLogin" onclick="switchTab('login')">Log in</button>
+      <button class="auth-tab" id="tabSignup" onclick="switchTab('signup')">Sign up</button>
+    </div>
+    <div class="auth-msg err" id="authErr"></div>
+    <div class="auth-msg ok"  id="authOk"></div>
+    <div class="form-group" id="identWrap">
+      <label class="form-label">Email</label>
+      <input class="form-input" id="authIdent" type="text" placeholder="you@example.com" autocomplete="username" />
+    </div>
+    <div class="form-group hidden" id="emailWrap">
+      <label class="form-label">Email</label>
+      <input class="form-input" id="authEmail" type="email" placeholder="you@example.com" autocomplete="email" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <input class="form-input" id="authPass" type="password" placeholder="••••••••" autocomplete="current-password" />
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeAuth()">Cancel</button>
+      <button class="btn btn-primary" id="authSubmit" onclick="submitAuth()">Log in</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://idlrmpecdvsofaykphfe.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlkbHJtcGVjZHZzb2ZheWtwaGZlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMzk5NTAsImV4cCI6MjA4OTgxNTk1MH0.FWSllmspL4twQ1aF2q20---HmoLxBM1NqFnQ2OPOoUg';
+
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const CATS = {
+  'Algebra':         { glyph:'𝑥²', color:'#7ab0f5', desc:'',        subs:[],   page:'algebra.html' },
+  'Combinatorics':   { glyph:'⊕', color:'#b090f5', desc:'',              subs:[],       page:'combinatorics.html' },
+  'Geometry':        { glyph:'△',color:'#6ee7a0', desc:'',                        subs:[],               page:'geometry.html' },
+  'Number Theory':   { glyph:'ℕ',  color:'#f0c060', desc:'',          subs:[],             page:'number-theory.html' },
+  'Problem Solving': { glyph:'✦',  color:'#f09060', desc:'',  subs:[],page:'problem-solving.html' },
+};
+
+let me = null, profile = null, authMode = 'login', searchCtrl = null, searchTimer = null;
+
+// ── BOOT SEQUENCE ────────────────────────────────────────────────────────────
+// Hide auth controls until we know the session state — prevents the "Log in"
+// flash on every reload for logged-in users.
+document.addEventListener('DOMContentLoaded', () => {
+  applyTheme(localStorage.getItem('theme') || 'dark');
+  buildGrid();
+  refreshHeader();
+});
+
+// Single source of truth for all auth state and data loading.
+// INITIAL_SESSION fires on every page load, SIGNED_IN/SIGNED_OUT for changes.
+db.auth.onAuthStateChange(async (ev, session) => {
+  me = session?.user ?? null;
+
+  if (me) {
+    if (!profile) {
+      profile = { username: me.user_metadata?.username || me.user_metadata?.full_name || me.email.split('@')[0], email: me.email };
+    }
+    refreshHeader();
+    fetchProfile(me); // non-blocking, updates username when done
+  } else {
+    profile = null;
+    refreshHeader();
+  }
+
+  if (ev === 'SIGNED_IN' && document.getElementById('authOverlay').classList.contains('open')) {
+    closeAuth();
+    toast('Welcome back!', 'success');
+  }
+
+  if (ev === 'INITIAL_SESSION' || ev === 'SIGNED_IN' || ev === 'SIGNED_OUT') {
+    loadRecent();
+  }
+});
+
+// Re-validate when the user returns to a backgrounded/suspended tab.
+document.addEventListener('visibilitychange', async () => {
+  if (document.visibilityState !== 'visible' || !me) return;
+  const { error } = await db.auth.refreshSession();
+  if (error) {
+    me = null; profile = null;
+    refreshHeader();
+    loadRecent();
+    toast('Session expired. Please log in again.', 'error');
+  }
+});
+
+function onKatexReady() { document.querySelectorAll('.kr').forEach(renderMath); }
+
+// ── PROFILE ──────────────────────────────────────────────────────────────────
+async function fetchProfile(user) {
+  const { data } = await db.from('profiles').select('username,email').eq('id', user.id).maybeSingle();
+  if (data) { profile = data; refreshHeader(); return; }
+  const base = (user.user_metadata?.full_name || user.email.split('@')[0])
+    .replace(/[^a-zA-Z0-9_]/g, '_').slice(0, 16);
+  const username = base + '_' + Math.random().toString(36).slice(2, 5);
+  const { data: ins } = await db.from('profiles')
+    .insert({ id: user.id, username, email: user.email })
+    .select('username,email').maybeSingle();
+  profile = ins ?? null;
+  refreshHeader();
+}
+
+function refreshHeader() {
+  const pill = document.getElementById('userPill');
+  const btn  = document.getElementById('authBtn');
+  if (me) {
+    document.getElementById('pillName').textContent = profile?.username || me.email.split('@')[0];
+    pill.classList.remove('hidden');
+    btn.textContent = 'Log out';
+    btn.onclick = () => { profile = null; db.auth.signOut().then(() => toast('Logged out', 'success')); };
+  } else {
+    pill.classList.add('hidden');
+    btn.textContent = 'Log in';
+    btn.onclick = openAuth;
+  }
+}
+
+// ── GOOGLE OAUTH ─────────────────────────────────────────────────────────────
+async function googleSignIn() {
+  const { error } = await db.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: location.origin + location.pathname, queryParams: { access_type: 'offline', prompt: 'consent' } }
+  });
+  if (error) toast('Google sign-in failed: ' + error.message, 'error');
+}
+
+// ── AUTH MODAL ────────────────────────────────────────────────────────────────
+function openAuth() {
+  document.getElementById('authOverlay').classList.add('open');
+  switchTab('login');
+  setTimeout(() => document.getElementById('authIdent').focus(), 80);
+}
+function closeAuth() {
+  document.getElementById('authOverlay').classList.remove('open');
+  ['authIdent','authEmail','authUser','authPass'].forEach(id => { document.getElementById(id).value = ''; });
+  setMsg('err', ''); setMsg('ok', '');
+  const btn = document.getElementById('authSubmit');
+  btn.disabled = false;
+  btn.textContent = authMode === 'login' ? 'Log in' : 'Create account';
+}
+function switchTab(mode) {
+  authMode = mode;
+  document.getElementById('tabLogin').classList.toggle('active', mode === 'login');
+  document.getElementById('tabSignup').classList.toggle('active', mode === 'signup');
+  document.getElementById('authSubmit').textContent = mode === 'login' ? 'Log in' : 'Create account';
+  document.getElementById('identWrap').classList.toggle('hidden', mode === 'signup');
+  document.getElementById('emailWrap').classList.toggle('hidden', mode === 'login');
+  document.getElementById('userWrap').classList.toggle('hidden', mode === 'login');
+  document.getElementById('authPass').autocomplete = mode === 'login' ? 'current-password' : 'new-password';
+  setMsg('err', ''); setMsg('ok', '');
+}
+function setMsg(t, txt) {
+  const el = document.getElementById(t === 'err' ? 'authErr' : 'authOk');
+  el.textContent = txt; el.style.display = txt ? 'block' : 'none';
+  document.getElementById(t === 'err' ? 'authOk' : 'authErr').style.display = 'none';
+}
+async function resolveEmail(ident) {
+  if (ident.includes('@')) return { email: ident };
+  const { data } = await db.from('profiles').select('email').eq('username', ident).maybeSingle();
+  if (!data?.email) return { err: 'No account found with that username.' };
+  return { email: data.email };
+}
+async function submitAuth() {
+  const pass = document.getElementById('authPass').value;
+  const btn  = document.getElementById('authSubmit');
+  if (!pass || pass.length < 6) { setMsg('err', 'Password must be at least 6 characters.'); return; }
+  btn.disabled = true;
+  if (authMode === 'login') {
+    const ident = document.getElementById('authIdent').value.trim();
+    if (!ident) { setMsg('err', 'Please enter your email or username.'); btn.disabled = false; return; }
+    btn.textContent = 'Logging in...';
+    const { email, err } = await resolveEmail(ident);
+    if (err) { setMsg('err', err); btn.disabled = false; btn.textContent = 'Log in'; return; }
+    const { error } = await db.auth.signInWithPassword({ email, password: pass });
+    if (error) { setMsg('err', niceErr(error.message)); btn.disabled = false; btn.textContent = 'Log in'; return; }
+    // closeAuth + toast handled in onAuthStateChange SIGNED_IN
+  } else {
+    const email    = document.getElementById('authEmail').value.trim();
+    const username = document.getElementById('authUser').value.trim();
+    if (!email)    { setMsg('err', 'Please enter your email.');    btn.disabled = false; btn.textContent = 'Create account'; return; }
+    if (!username) { setMsg('err', 'Please choose a username.');   btn.disabled = false; btn.textContent = 'Create account'; return; }
+    if (!/^[a-zA-Z0-9_]{3,20}$/.test(username)) {
+      setMsg('err', 'Username: 3-20 chars, letters/numbers/underscores.');
+      btn.disabled = false; btn.textContent = 'Create account'; return;
+    }
+    btn.textContent = 'Creating account...';
+    const { data: ex } = await db.from('profiles').select('id').eq('username', username).maybeSingle();
+    if (ex) { setMsg('err', 'Username already taken.'); btn.disabled = false; btn.textContent = 'Create account'; return; }
+    const { data: sd, error } = await db.auth.signUp({ email, password: pass, options: { data: { username } } });
+    if (error) { setMsg('err', niceErr(error.message)); btn.disabled = false; btn.textContent = 'Create account'; return; }
+    if (sd?.user) await db.from('profiles').upsert({ id: sd.user.id, username, email }, { onConflict: 'id' });
+    if (sd?.session) { closeAuth(); toast('Welcome to MINT!', 'success'); }
+    else { setMsg('ok', 'Check your email to confirm, then log in.'); btn.disabled = false; btn.textContent = 'Create account'; }
+  }
+}
+function niceErr(m) {
+  if (!m) return 'Something went wrong.';
+  if (m.includes('Invalid login credentials')) return 'Incorrect email or password.';
+  if (m.includes('Email not confirmed'))       return 'Please confirm your email first.';
+  if (m.includes('User already registered'))   return 'An account with that email already exists.';
+  if (m.includes('Password should be'))        return 'Password must be at least 6 characters.';
+  return m;
+}
+
+// ── THEME ─────────────────────────────────────────────────────────────────────
+function applyTheme(t) {
+  document.documentElement.className = t;
+  document.getElementById('iconDark').classList.toggle('hidden',  t === 'dark');
+  document.getElementById('iconLight').classList.toggle('hidden', t === 'light');
+}
+document.getElementById('themeBtn').addEventListener('click', () => {
+  const t = document.documentElement.className === 'dark' ? 'light' : 'dark';
+  localStorage.setItem('theme', t); applyTheme(t);
+});
+
+// ── UTILITIES ─────────────────────────────────────────────────────────────────
+function ago(ts) {
+  const d = Date.now() - new Date(ts), m = ~~(d/6e4), h = ~~(d/36e5), dy = ~~(d/864e5);
+  return m < 1 ? 'just now' : m < 60 ? `${m}m ago` : h < 24 ? `${h}h ago` : dy < 7 ? `${dy}d ago` : `${~~(dy/7)}w ago`;
+}
+function esc(s) { return s ? s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') : ''; }
+function renderMath(el) {
+  if (window.renderMathInElement) renderMathInElement(el, {
+    delimiters: [{ left:'$$', right:'$$', display:true }, { left:'$', right:'$', display:false }],
+    throwOnError: false
+  });
+}
+async function getVotes(ids, type) {
+  if (!ids.length) return {};
+  const { data } = await db.from('vote_counts').select('target_id,upvotes,downvotes').eq('target_type', type).in('target_id', ids);
+  const m = {};
+  (data || []).forEach(v => { m[v.target_id] = { up: +v.upvotes, dn: +v.downvotes }; });
+  return m;
+}
+
+// ── GRID ──────────────────────────────────────────────────────────────────────
+function buildGrid() {
+  document.getElementById('topicGrid').innerHTML = Object.entries(CATS).map(([name, c]) => `
+    <a class="topic-card" href="${c.page}" style="--tc:${c.color}">
+      <span class="t-glyph" style="color:${c.color}">${c.glyph}</span>
+      <div class="t-name" style="color:${c.color}">${name}</div>
+      <div class="t-desc">${c.desc}</div>
+      <div class="t-tags">
+        ${c.subs.slice(0,3).map(s => `<span class="t-tag">${s}</span>`).join('')}
+        ${c.subs.length > 3 ? `<span class="t-tag">+${c.subs.length - 3}</span>` : ''}
+      </div>
+    </a>`).join('');
+}
+
+// ── QUESTIONS ─────────────────────────────────────────────────────────────────
+async function loadRecent(retry = true) {
+  document.getElementById('recentList').innerHTML =
+    '<div class="loading-state"><div class="spinner"></div>Loading topics...</div>';
+  const { data, error } = await db.from('questions')
+    .select('id,title,about,created_at,question_tags(tags(name,category)),intuitions(id)')
+    .order('created_at', { ascending: false }).limit(10);
+  if (error) {
+    // Lock contention on rapid reloads — wait briefly and retry once
+    if (retry && error.message && error.message.includes('lock')) {
+      setTimeout(() => loadRecent(false), 800);
+      return;
+    }
+    document.getElementById('recentList').innerHTML = `<div class="err-box">Could not load: ${error.message}</div>`;
+    return;
+  }
+  let qs = data.map(q => ({
+    id: q.id, title: q.title, about: q.about, at: ago(q.created_at),
+    tags: [...new Map(q.question_tags.map(t => t.tags?.name).filter(Boolean).map(n => {
+      const p = n.split('::');
+      return [p[1]||p[0], { label: p[1]||p[0], type: p[2]||'default' }];
+    })).values()],
+    category: q.question_tags.map(t => t.tags?.category).find(c => c && c in CATS) || null,
+    n: q.intuitions.length, up: 0, dn: 0
+  }));
+  const vm = await getVotes(qs.map(q => q.id), 'question');
+  qs.forEach(q => { const v = vm[q.id] || {}; q.up = v.up || 0; q.dn = v.dn || 0; });
+  const el = document.getElementById('recentList');
+  if (!qs.length) {
+    el.innerHTML = '<div class="empty-state"><span class="empty-icon">No topics yet - be the first to post!</div>';
+    return;
+  }
+    el.innerHTML = qs.map((q, i) => cardHTML(q, i)).filter(Boolean).join('');
+  el.querySelectorAll('.kr').forEach(renderMath);
+}
+
+function cardHTML(q, i = 0) {
+  const score = q.up - q.dn, sc = score > 0 ? 'pos' : score < 0 ? 'neg' : 'zero';
+  
+  // Sort tags: known category names first, subtopic tags second
+  const sortedTags = [...(q.tags || [])].sort((a, b) => {
+    const aIsCat = Object.keys(CATS).some(k => k.toLowerCase() === String(a)?.toLowerCase()) ? 0 : 1;
+    const bIsCat = Object.keys(CATS).some(k => k.toLowerCase() === String(b)?.toLowerCase()) ? 0 : 1;
+    return aIsCat - bIsCat;
+  });
+  
+  const catPage = (q.category && CATS[q.category]) ? CATS[q.category].page : 'problem-solving.html';
+  if (!q.title) return '';
+  return `<a class="q-card" href="${catPage}?q=${q.id}" style="animation-delay:${i*55}ms">
+    <div class="v-col">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text3)"><polyline points="18 15 12 9 6 15"/></svg>
+      <span class="v-score ${sc}">${score}</span>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text3)"><polyline points="6 9 12 15 18 9"/></svg>
+      <div class="bulb">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 1 7 7c0 2.5-1.3 4.7-3.3 6l-.7.6V18H9v-2.4l-.7-.6A7 7 0 0 1 12 2z"/></svg>
+        ${q.n}
+      </div>
+    </div>
+    <div class="q-body">
+      <div class="q-title kr">${esc(q.title)}</div>
+      <div class="q-about"><span class="q-lbl">About </span><span class="kr">${esc(q.about)}</span></div>
+      <div class="q-tags">${sortedTags.map(t => `<span class="qtag qtag-${t.type}">${esc(t.label)}</span>`).join('')}</div>
+      <div class="q-meta">${q.at}</div>
+    </div>
+  </a>`;
+}
+
+// ── SEARCH ────────────────────────────────────────────────────────────────────
+function handleSearch() {
+  const v = document.getElementById('globalSearch').value;
+  document.getElementById('searchClear').classList.toggle('hidden', !v);
+  clearTimeout(searchTimer); searchTimer = setTimeout(doSearch, 280);
+}
+function clearSearch() {
+  document.getElementById('globalSearch').value = '';
+  document.getElementById('searchClear').classList.add('hidden');
+  document.getElementById('browseSec').classList.remove('hidden');
+  document.getElementById('searchSec').classList.add('hidden');
+}
+async function doSearch() {
+  const q = document.getElementById('globalSearch').value.trim();
+  if (!q) { clearSearch(); return; }
+  document.getElementById('browseSec').classList.add('hidden');
+  document.getElementById('searchSec').classList.remove('hidden');
+  document.getElementById('searchList').innerHTML = '<div class="loading-state"><div class="spinner"></div>Searching...</div>';
+  if (searchCtrl) searchCtrl.abort(); searchCtrl = new AbortController();
+  try {
+    const { data, error } = await db.from('questions')
+      .select('id,title,about,created_at,question_tags(tags(name,category)),intuitions(id)')
+      .or(`title.ilike.%${q}%,about.ilike.%${q}%`)
+      .order('created_at', { ascending: false }).limit(20).abortSignal(searchCtrl.signal);
+    if (error) throw error;
+    let rs = data.map(r => ({
+      id: r.id, title: r.title, about: r.about, at: ago(r.created_at),
+      tags: [...new Map(r.question_tags.map(t => t.tags?.name).filter(Boolean).map(n => {
+        const p = n.split('::');
+        return [p[1]||p[0], { label: p[1]||p[0], type: p[2]||'default' }];
+      })).values()],
+      category: r.question_tags.map(t => t.tags?.category).find(c => c && c in CATS) || null,
+      n: r.intuitions.length, up: 0, dn: 0
+    }));
+    const vm = await getVotes(rs.map(r => r.id), 'question');
+    rs.forEach(r => { const v = vm[r.id] || {}; r.up = v.up || 0; r.dn = v.dn || 0; });
+    document.getElementById('searchCount').innerHTML =
+      `<strong>${rs.length}</strong> result${rs.length !== 1 ? 's' : ''} for "<em>${esc(q)}</em>"`;
+    const el = document.getElementById('searchList');
+    el.innerHTML = rs.length
+      ? rs.map((r, i) => cardHTML(r, i)).filter(Boolean).join('')
+      : '<div class="empty-state">No results found.</div>';
+    el.querySelectorAll('.kr').forEach(renderMath);
+  } catch(e) {
+    if (e.name !== 'AbortError')
+      document.getElementById('searchList').innerHTML = `<div class="err-box">Search error: ${e.message}</div>`;
+  }
+}
+
+// ── TOAST ─────────────────────────────────────────────────────────────────────
+let toastTimer;
+function toast(msg, type = 'success') {
+  document.querySelector('.toast')?.remove(); clearTimeout(toastTimer);
+  const t = document.createElement('div'); t.className = `toast ${type}`;
+  t.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">${
+    type === 'success' ? '<polyline points="20 6 9 17 4 12"/>' : '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>'
+  }</svg> ${msg}`;
+  document.body.appendChild(t); toastTimer = setTimeout(() => t.remove(), 3200);
+}
+
+// ── KEYBOARD ──────────────────────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    if (document.getElementById('authOverlay').classList.contains('open')) closeAuth();
+    else clearSearch();
+  }
+  if (e.key === 'Enter' && document.getElementById('authOverlay').classList.contains('open')) {
+    const b = document.getElementById('authSubmit'); if (!b.disabled) submitAuth();
+  }
+});
+document.addEventListener('DOMContentLoaded', () => {
+  document.body.classList.add('ready');
+});
+
+document.querySelectorAll('a').forEach(a => {
+  const href = a.getAttribute('href');
+  if (!href || href.startsWith('#') || href.startsWith('javascript') || a.target === '_blank') return;
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    document.body.style.opacity = '0';
+    setTimeout(() => { window.location.href = a.href; }, 180);
+  });
+});
+</script>
+</body>
+</html>
