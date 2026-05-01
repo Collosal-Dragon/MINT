@@ -942,14 +942,14 @@ function questionCardHTML(q, i=0, searchQuery='') {
     </div>
     <div class="card-content">
       <div class="card-title kr">${titleHTML}</div>
-      <div class="card-about"><span class="lbl">About </span><span class="kr">${aboutHTML}</span></div>
+      <div class="card-about"><span class="kr">${aboutHTML}</span></div>
       <div class="tags">${q.tags.map((t,idx)=>{
         const ssc=parseSscTag(t);
         if (ssc) {
           const col=ssc.type==='technique'?'rgba(240,192,96,.15)':'rgba(122,176,245,.15)';
           const bdr=ssc.type==='technique'?'rgba(240,192,96,.3)':'rgba(122,176,245,.3)';
           const tc =ssc.type==='technique'?'var(--gold)':'var(--blue)';
-          return `<span style="padding:2px 9px;border-radius:10px;font-size:10.5px;font-weight:600;background:${col};color:${tc};border:1px solid ${bdr};cursor:pointer" onclick="event.stopPropagation();setSearchQuery('${t.split('::')[1]}')">${ssc.name}</span>`;
+          return `<span style="text-align:center;padding:3px 11px;border-radius:20px;font-size:var(--text-about);font-weight:700;background:${col};color:${tc};border:1px solid ${bdr};cursor:pointer" onclick="event.stopPropagation();setSearchQuery('${t.split('::')[1]}')">${ssc.name}</span>`;
         }
         return `<span class="${idx===0?'tag-primary':'tag-secondary'}">${searchQuery?highlightText(t,searchQuery):esc(t)}</span>`;
       }).join('')}</div>
@@ -1040,10 +1040,10 @@ function renderDetailHeader() {
   document.getElementById('dvDown').addEventListener('click',()=>handleVote(q.id,'down','q'));
   document.getElementById('detailContent').innerHTML=`
     <div class="detail-title kr">${esc(q.title)}</div>
-    <div class="detail-about"><strong>About:</strong> <span class="kr">${esc(q.about)}</span></div>
+    <div class="detail-about"><span class="kr">${esc(q.about)}</span></div>
     <div class="tags" style="margin:10px 0">${q.tags.map((t,i)=>{
       const ssc=parseSscTag(t);
-      if(ssc){const col=ssc.type==='technique'?'rgba(240,192,96,.15)':'rgba(122,176,245,.15)';const bdr=ssc.type==='technique'?'rgba(240,192,96,.3)':'rgba(122,176,245,.3)';const tc=ssc.type==='technique'?'var(--gold)':'var(--blue)';return`<span style="padding:2px 9px;border-radius:10px;font-size:10.5px;font-weight:600;background:${col};color:${tc};border:1px solid ${bdr}">${ssc.name}</span>`;}
+      if(ssc){const col=ssc.type==='technique'?'rgba(240,192,96,.15)':'rgba(122,176,245,.15)';const bdr=ssc.type==='technique'?'rgba(240,192,96,.3)':'rgba(122,176,245,.3)';const tc=ssc.type==='technique'?'var(--gold)':'var(--blue)';return`<span style="padding:3px 11px;border-radius:20px;font-size:var(--text-about);font-weight:700;background:${col};color:${tc};border:1px solid ${bdr}">${ssc.name}</span>`;}
       return`<span class="${i===0?'tag-primary':'tag-secondary'}">${esc(t)}</span>`;
     }).join('')}</div>
     <div style="display:flex;align-items:center;justify-content:space-between">
