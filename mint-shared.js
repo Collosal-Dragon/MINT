@@ -401,7 +401,7 @@ function openGlobalIntModal(preselectedQId) {
   });
   const imgInput = document.getElementById('intImage'); if (imgInput) imgInput.value = '';
   const imgBox   = document.getElementById('intImagePreviewBox'); if (imgBox) imgBox.style.display = 'none';
-  document.getElementById('intWordCount').textContent = '0 / 1500 words';
+  document.getElementById('intWordCount').textContent = '0 / 2000 words';
   document.getElementById('postIntError').innerHTML = '';
   document.getElementById('intQSearch').value = '';
   const intList = document.getElementById('intQList'); if (intList) intList.style.display = 'none';
@@ -533,7 +533,7 @@ async function submitGlobalIntuition() {
   const exp  = document.getElementById('intExplanation').value.trim();
   if (!gIntState.selectedQIds.size) { document.getElementById('postIntError').innerHTML='<div class="err-box">Please select at least one topic.</div>'; return; }
   if (!stmt || !exp) { document.getElementById('postIntError').innerHTML='<div class="err-box">Please fill in the statement and explanation.</div>'; return; }
-  if (exp.split(/\s+/).filter(Boolean).length > 1500) { document.getElementById('postIntError').innerHTML='<div class="err-box">Explanation exceeds 1500 words.</div>'; return; }
+  if (exp.split(/\s+/).filter(Boolean).length > 2000) { document.getElementById('postIntError').innerHTML='<div class="err-box">Explanation exceeds 2000 words.</div>'; return; }
   const btn = document.getElementById('postIntSubmitBtn');
   btn.disabled=true; btn.textContent='Posting…';
   const exLink = document.getElementById('intExampleLink').value.trim() || null;
@@ -680,7 +680,7 @@ function bindEvents() {
   document.getElementById('intExplanation').addEventListener('input', () => {
     const c = document.getElementById('intExplanation').value.trim().split(/\s+/).filter(Boolean).length;
     const wc = document.getElementById('intWordCount');
-    wc.textContent=`${c} / 1500 words`; wc.classList.toggle('over', c>1500);
+    wc.textContent=`${c} / 2000 words`; wc.classList.toggle('over', c>2000);
   });
   document.getElementById('intAddLink').addEventListener('click', () => {
     const i=document.getElementById('intLinkInput'), v=i?.value.trim(); if (!v) return;
@@ -1119,7 +1119,7 @@ function intuitionCardHTML(item, idx=0) {
       <div class="form-group" style="margin-bottom:10px"><label class="form-label">Statement</label><input class="form-input" id="edit-stmt-${item.id}" value="${esc(item.statement)}" /></div>
       <div class="form-group" style="margin-bottom:4px">
         <div class="preview-toggle"><button class="preview-tab active" id="etab-write-i-${item.id}">Write</button><button class="preview-tab" id="etab-preview-i-${item.id}">Preview</button></div>
-        <div class="preview-pane active" id="epane-write-i-${item.id}"><textarea class="form-textarea" id="edit-exp-${item.id}" style="min-height:100px">${esc(item.explanation)}</textarea><div class="edit-word-count" id="edit-wc-i-${item.id}">0 / 1500 words</div></div>
+        <div class="preview-pane active" id="epane-write-i-${item.id}"><textarea class="form-textarea" id="edit-exp-${item.id}" style="min-height:100px">${esc(item.explanation)}</textarea><div class="edit-word-count" id="edit-wc-i-${item.id}">0 / 2000 words</div></div>
         <div class="preview-pane" id="epane-preview-i-${item.id}"><div class="preview-rendered kr" id="epreview-i-${item.id}"></div></div>
       </div>
       <div class="edit-actions"><button class="btn btn-ghost btn-sm" data-cancelid="${item.id}" data-canceltype="i">Cancel</button><button class="btn btn-primary btn-sm" data-saveid="${item.id}" data-savetype="i">Save</button></div>
@@ -1187,7 +1187,7 @@ document.addEventListener('click', e => {
         if (type==='i') {
           const ta=document.getElementById(`edit-exp-${id}`);
           const wc=document.getElementById(`edit-wc-i-${id}`);
-          const updateWC=()=>{ const c=ta.value.trim().split(/\s+/).filter(Boolean).length; wc.textContent=`${c} / 1500 words`; wc.classList.toggle('over',c>1500); };
+          const updateWC=()=>{ const c=ta.value.trim().split(/\s+/).filter(Boolean).length; wc.textContent=`${c} / 2000 words`; wc.classList.toggle('over',c>2000); };
           ta.addEventListener('input',updateWC); updateWC();
           document.getElementById(`etab-write-i-${id}`)?.addEventListener('click',()=>toggleEditTab(id,'i','write'));
           document.getElementById(`etab-preview-i-${id}`)?.addEventListener('click',()=>toggleEditTab(id,'i','preview'));
@@ -1248,7 +1248,7 @@ async function saveEdit(id, type) {
     const stmt=document.getElementById(`edit-stmt-${id}`)?.value.trim();
     const exp =document.getElementById(`edit-exp-${id}`)?.value.trim();
     if (!stmt||!exp) { showToast('Statement and explanation cannot be empty.','error'); if(saveBtn){saveBtn.disabled=false;saveBtn.textContent='Save';} return; }
-    if (exp.split(/\s+/).filter(Boolean).length>1500) { showToast('Explanation exceeds 1500 words.','error'); if(saveBtn){saveBtn.disabled=false;saveBtn.textContent='Save';} return; }
+    if (exp.split(/\s+/).filter(Boolean).length>2000) { showToast('Explanation exceeds 2000 words.','error'); if(saveBtn){saveBtn.disabled=false;saveBtn.textContent='Save';} return; }
     const { error }=await db.from('intuitions').update({ statement:stmt, explanation:exp }).eq('id',id).eq('author_id',me.id);
     if (error) { showToast('Save failed: '+error.message,'error'); if(saveBtn){saveBtn.disabled=false;saveBtn.textContent='Save';} return; }
     const item=(intuitions[selectedQuestion.id]||[]).find(x=>x.id===id);
@@ -1358,7 +1358,7 @@ function intuitionFormHTML() {
     ${!li?`<div class="login-notice">You need to <button class="btn-link" id="loginPrompt">log in</button> to post an intuition.</div>`:''}
     <div class="form-group"><label class="form-label">Intuition Statement</label><input class="form-input" id="pf-statement" placeholder="e.g. It factors because of a common root" ${!li?'disabled':''} /></div>
     <div class="form-group">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><label class="form-label" style="margin:0">Explanation</label><span id="wordCount" class="word-count">0 / 1500 words</span></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><label class="form-label" style="margin:0">Explanation</label><span id="wordCount" class="word-count">0 / 2000 words</span></div>
       <div class="preview-toggle"><button class="preview-tab active" id="intExpWriteTab">Write</button><button class="preview-tab" id="intExpPreviewTab">Preview</button></div>
       <div class="preview-pane active" id="intExpWritePane"><textarea class="form-textarea" id="pf-explanation" style="min-height:120px" ${!li?'disabled':''} placeholder="Explain your intuition… ($LaTeX$ and ||spoiler|| supported)"></textarea></div>
       <div class="preview-pane" id="intExpPreviewPane"><div class="preview-rendered kr" id="intExpPreviewContent" style="min-height:120px"></div></div>
@@ -1398,9 +1398,9 @@ function updateWordCount() {
   const el=document.getElementById('pf-explanation'), wc=document.getElementById('wordCount');
   if (!el||!wc) return;
   const c=el.value.trim().split(/\s+/).filter(Boolean).length;
-  wc.textContent=`${c} / 1500 words`; wc.classList.toggle('over',c>1500);
+  wc.textContent=`${c} / 2000 words`; wc.classList.toggle('over',c>2000);
   const btn=document.getElementById('pf-submitInt');
-  if (btn) btn.disabled=c>1500||!formState.statement.trim()||!formState.explanation.trim();
+  if (btn) btn.disabled=c>2000||!formState.statement.trim()||!formState.explanation.trim();
 }
 
 function addIntLink() {
@@ -1430,7 +1430,7 @@ async function submitIntuition() {
   const stmt=document.getElementById('pf-statement')?.value.trim();
   const exp =document.getElementById('pf-explanation')?.value.trim();
   if (!stmt||!exp) { showToast('Please fill in both the statement and explanation.','error'); return; }
-  if (exp.split(/\s+/).filter(Boolean).length>1500) { showToast('Explanation exceeds 1500 words.','error'); return; }
+  if (exp.split(/\s+/).filter(Boolean).length>2000) { showToast('Explanation exceeds 2000 words.','error'); return; }
   const btn=document.getElementById('pf-submitInt');
   btn.disabled=true; btn.textContent='Posting…';
   const exLink=document.getElementById('pf-exampleLink')?.value.trim()||null;

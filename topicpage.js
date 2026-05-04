@@ -188,7 +188,7 @@
       <div class="form-group">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
           <label class="form-label" style="margin:0">Explanation</label>
-          <span id="intWordCount" class="word-count">0 / 1500 words</span>
+          <span id="intWordCount" class="word-count">0 / 2000 words</span>
         </div>
         <div class="preview-toggle">
           <button class="preview-tab active" id="intExpWriteTabModal">Write</button>
