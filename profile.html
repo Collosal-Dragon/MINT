@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+<meta charset="UTF-8" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: blob: https://sgp.cloud.appwrite.io; connect-src 'self' https://sgp.cloud.appwrite.io wss://sgp.cloud.appwrite.io; object-src 'none'; base-uri 'self'; form-action 'self'" />
+<meta name="referrer" content="strict-origin-when-cross-origin" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<title>Profile — MINT</title>
+<!-- Link previews (WhatsApp, Discord, etc.) -->
+<meta name="description" content="A MINT member and their posts." />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="MINT" />
+<meta property="og:title" content="Profile — MINT" />
+<meta property="og:description" content="A MINT member and their posts." />
+<meta property="og:url" content="https://math-intuitions.org/profile.html" />
+<meta property="og:image" content="https://math-intuitions.org/og-image.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta name="twitter:card" content="summary_large_image" />
+<!-- Pick the theme and paint the background before anything loads (no white flash) -->
+<script>try{document.documentElement.className=localStorage.getItem('theme')==='light'?'light':'dark'}catch(e){}</script>
+<style>html{background:#0f1724;color-scheme:dark}html.light{background:#f5f1e6;color-scheme:light}</style>
+<link rel="icon" type="image/svg+xml" href="logo.svg" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400;1,700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&family=Roboto+Slab:wght@400;700;900&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous" />
+<link rel="stylesheet" href="mint-shared.css" />
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/appwrite@16.1.0" integrity="sha384-2SlRm45+3L4tLlQD0d0MZ0SZb9sJIHAnO3IPJifBX5gEg7m8fdj/GBUXVClL8DKq" crossorigin="anonymous"></script>
+<script src="mint-auth.js"></script>
+<script src="mint-page.js"></script>
+</head>
+<body class="ready">
+<header id="siteHeader"></header>
+<main>
+  <div id="profileHead" class="topic-header"><div><span class="skel" style="width:220px;height:30px"></span></div></div>
+  <div class="tabs-list" role="tablist" style="display:inline-flex;margin-bottom:16px">
+    <button class="tab-btn active" data-ptab="intuitions" role="tab">Intuitions (<span id="pIntCount">…</span>)</button>
+    <button class="tab-btn" data-ptab="takeaways" role="tab">Takeaways (<span id="pTakCount">…</span>)</button>
+  </div>
+  <div id="pList" class="activity-list"></div>
+</main>
+<script>
+let pData = { intuitions: [], takeaways: [] }, pTab = 'intuitions';
+
+function activityRow(item, links, titles, totals) {
+  const t = totals[item.$id] || { up: 0, down: 0 }, score = t.up - t.down;
+  const text = item.statement || item.content || '';
+  const href = links[item.question_id];
+  return `<div class="activity-row">
+    <div class="activity-score ${score > 0 ? 'positive' : score < 0 ? 'negative' : ''}" title="Score">${score}</div>
+    <div class="activity-body">
+      <div class="activity-text kr">${esc(text.length > 220 ? text.slice(0, 220) + '…' : text)}</div>
+      <div class="activity-meta">on ${href ? `<a href="${esc(href)}">${esc(titles[item.question_id] || 'a question')}</a>` : 'a deleted question'} · ${ago(item.$createdAt)}</div>
+    </div></div>`;
+}
+async function renderTab() {
+  document.querySelectorAll('[data-ptab]').forEach(b => { b.classList.toggle('active', b.dataset.ptab === pTab); b.setAttribute('aria-selected', b.dataset.ptab === pTab); });
+  const items = pData[pTab], el = document.getElementById('pList');
+  el.innerHTML = items.length ? items.map(i => activityRow(i, pData.links, pData.titles, pData.totals)).join('')
+    : `<div class="empty-state">No ${pTab} yet.</div>`;
+  renderMath(el);
+}
+document.querySelectorAll('[data-ptab]').forEach(b => b.addEventListener('click', () => { pTab = b.dataset.ptab; renderTab(); }));
+
+(async () => {
+  document.getElementById('pList').innerHTML = '<div class="empty-state">Loading…</div>';
+  startPage();
+  const username = new URLSearchParams(location.search).get('u') || '';
+  const head = document.getElementById('profileHead');
+  try {
+    const res = await databases.listDocuments(DB_ID, COLLECTIONS.profiles, [Query.equal('username', username), Query.limit(1)]);
+    const p = res.documents.find(d => ownedRow(d, d.$id));
+    if (!p) { head.innerHTML = `<div><h1 class="topic-name">No such user</h1><div class="topic-desc">Nobody is called “${esc(username)}”.</div></div>`; document.getElementById('pList').innerHTML = ''; return; }
+    document.title = `${p.username} — MINT`;
+    const [ints, taks] = await Promise.all(['intuitions', 'takeaways'].map(t =>
+      databases.listDocuments(DB_ID, t, [Query.equal('author_id', p.$id), Query.orderDesc('$createdAt'), Query.limit(100)])));
+    pData.intuitions = ints.documents.filter(i => ownedRow(i, p.$id));
+    pData.takeaways  = taks.documents.filter(i => ownedRow(i, p.$id));
+    const all = [...pData.intuitions, ...pData.takeaways], qIds = [...new Set(all.map(i => i.question_id))];
+    const [links, totals, qs] = await Promise.all([
+      questionLinks(qIds), fetchVoteTotals(all.map(i => i.$id)),
+      qIds.length ? databases.listDocuments(DB_ID, COLLECTIONS.questions, [Query.equal('$id', qIds.slice(0, 100)), Query.limit(100)]) : { documents: [] },
+    ]);
+    pData.links = links; pData.totals = totals;
+    pData.titles = Object.fromEntries(qs.documents.map(q => [q.$id, q.title.replace(/\$\$?[^$]*\$\$?/g, '').trim() || q.title]));
+    const score = Object.values(totals).reduce((s, t) => s + t.up - t.down, 0);
+    head.innerHTML = `<div class="topic-left"><div>
+      <h1 class="topic-name">${esc(p.username)}</h1>
+      <div class="topic-desc">Joined ${ago(p.$createdAt)} · ${all.length} post${all.length === 1 ? '' : 's'} · ${score} total score</div></div></div>`;
+    document.getElementById('pIntCount').textContent = pData.intuitions.length;
+    document.getElementById('pTakCount').textContent = pData.takeaways.length;
+    renderTab();
+  } catch (e) {
+    document.getElementById('pList').innerHTML = `<div class="err-box">Could not load this profile: ${esc(e.message)}</div>`;
+  }
+})();
+</script>
+</body>
+</html>

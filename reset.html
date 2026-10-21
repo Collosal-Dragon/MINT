@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+<meta charset="UTF-8" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: blob: https://sgp.cloud.appwrite.io; connect-src 'self' https://sgp.cloud.appwrite.io wss://sgp.cloud.appwrite.io; object-src 'none'; base-uri 'self'; form-action 'self'" />
+<meta name="referrer" content="strict-origin-when-cross-origin" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex" />
+<title>Reset password — MINT</title>
+<!-- Pick the theme and paint the background before anything loads (no white flash) -->
+<script>try{document.documentElement.className=localStorage.getItem('theme')==='light'?'light':'dark'}catch(e){}</script>
+<style>html{background:#0f1724;color-scheme:dark}html.light{background:#f5f1e6;color-scheme:light}</style>
+<link rel="icon" type="image/svg+xml" href="logo.svg" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400;1,700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&family=Roboto+Slab:wght@400;700;900&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous" />
+<link rel="stylesheet" href="mint-shared.css" />
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/appwrite@16.1.0" integrity="sha384-2SlRm45+3L4tLlQD0d0MZ0SZb9sJIHAnO3IPJifBX5gEg7m8fdj/GBUXVClL8DKq" crossorigin="anonymous"></script>
+<script src="mint-auth.js"></script>
+<script src="mint-page.js"></script>
+</head>
+<body class="ready">
+<header id="siteHeader"></header>
+<main class="narrow-page">
+  <div class="form-card" style="margin-top:40px">
+    <h1 class="form-title">Choose a new password</h1>
+    <div class="auth-msg err" id="resetErr" role="alert"></div>
+    <div class="auth-msg ok" id="resetOk" role="status"></div>
+    <div id="resetForm">
+      <div class="modal-sub" style="margin-bottom:16px">At least 8 characters, with an uppercase letter, a lowercase letter and a number.</div>
+      <div class="form-group"><label class="form-label" for="newPass">New password</label>
+        <input class="form-input" id="newPass" type="password" autocomplete="new-password" minlength="8" /></div>
+      <div class="form-group"><label class="form-label" for="newPass2">Repeat new password</label>
+        <input class="form-input" id="newPass2" type="password" autocomplete="new-password" minlength="8" /></div>
+      <button class="btn btn-primary" id="resetBtn">Save new password</button>
+    </div>
+  </div>
+</main>
+<script>
+const params = new URLSearchParams(location.search);
+const userId = params.get('userId'), secret = params.get('secret');
+const msg = (id, text) => { const el = document.getElementById(id); el.textContent = text; el.style.display = text ? 'block' : 'none'; };
+// Keep the one-time secret out of the address bar and history
+history.replaceState(null, '', location.pathname);
+
+if (!userId || !secret) {
+  msg('resetErr', 'This reset link is missing information. Ask for a new one from the login box ("Forgot password?").');
+  document.getElementById('resetForm').hidden = true;
+}
+document.getElementById('resetBtn').addEventListener('click', async () => {
+  const p1 = document.getElementById('newPass').value, p2 = document.getElementById('newPass2').value;
+  msg('resetErr', ''); msg('resetOk', '');
+  if (passwordProblem(p1)) return msg('resetErr', passwordProblem(p1));
+  if (p1 !== p2) return msg('resetErr', 'The two passwords do not match.');
+  const btn = document.getElementById('resetBtn'); btn.disabled = true; btn.textContent = 'Saving…';
+  try {
+    await account.updateRecovery(userId, secret, p1);
+    document.getElementById('resetForm').hidden = true;
+    msg('resetOk', 'Password changed. You can now log in from the home page with your new password.');
+  } catch (e) {
+    btn.disabled = false; btn.textContent = 'Save new password';
+    msg('resetErr', e?.code === 401 || e?.code === 404
+      ? 'This reset link has expired or was already used. Ask for a new one from the login box.'
+      : niceErr(e));
+  }
+});
+startPage();
+</script>
+</body>
+</html>

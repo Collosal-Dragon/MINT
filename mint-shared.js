@@ -1,13 +1,33 @@
-
 'use strict';
+/* ── APPWRITE ─────────────────────────────────────────── */
+const PROJECT_ID = '69f87cc5001ba9cd97e5';
+const DB_ID      = 'public';
+const BUCKET_ID  = '6a14f7a546a2dafa90b3';
 
-/* ── SUPABASE ─────────────────────────────────────────── */
-const SUPABASE_URL = 'https://idlrmpecdvsofaykphfe.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlkbHJtcGVjZHZzb2ZheWtwaGZlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMzk5NTAsImV4cCI6MjA4OTgxNTk1MH0.FWSllmspL4twQ1aF2q20---HmoLxBM1NqFnQ2OPOoUg';
-const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const client = new Appwrite.Client()
+  .setEndpoint('https://sgp.cloud.appwrite.io/v1')
+  .setProject(PROJECT_ID);
+
+const account   = new Appwrite.Account(client);
+const databases  = new Appwrite.Databases(client);
+const storage    = new Appwrite.Storage(client);
+const { ID, Query } = Appwrite;
+
+/* Collection IDs – adjust if your collection names differ */
+const COLLECTIONS = {
+  profiles:       'profiles',
+  questions:      'questions',
+  tags:           'tags',
+  question_tags:  'question_tags',
+  intuitions:     'intuitions',
+  takeaways:      'takeaways',
+  links:          'links',
+  votes:          'votes',
+  comments:       'comments',
+  reports:        'reports',
+};
 
 /* ── STATE ────────────────────────────────────────────── */
-let me = null, profile = null, authMode = 'login';
 let questions = [], intuitions = {}, takeaways = {};
 let questionVotes = {}, intuitionVotes = {}, takeawayVotes = {};
 let selectedQuestion = null, activeSubtopic = null, activeSsc = null, activeSscType = null;
@@ -38,17 +58,40 @@ function ago(ts) {
 function esc(s) {
   return s ? s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;') : '';
 }
+/* ||text|| becomes a Discord-style spoiler: each block hides on its own and a click reveals just that one */
 function processText(raw) {
   if (!raw) return '';
-  return esc(raw).replace(/\|\|([^|]+)\|\|/g, (_,c) => `<span class="spoiler" onclick="this.classList.toggle('revealed')">${c}</span>`);
+  return esc(raw).replace(/\|\|([\s\S]+?)\|\|/g, (_,c) =>
+    `<span class="spoiler" role="button" tabindex="0" aria-label="Hidden text. Click to reveal.">${c}</span>`);
 }
+/* Shorten long text for a preview without cutting a spoiler or a $math$ block open */
+function previewText(text, max = 300) {
+  if (!text || text.length <= max) return text || '';
+  let cut = text.slice(0, max);
+  if ((cut.match(/\$\$/g) || []).length % 2) cut = cut.slice(0, cut.lastIndexOf('$$'));             // inside $$math$$
+  if ((cut.replace(/\$\$/g, '').match(/(?<!\\)\$/g) || []).length % 2) cut = cut.slice(0, cut.lastIndexOf('$'));   // inside $math$
+  if ((cut.match(/\|\|/g) || []).length % 2) cut += '||';                                        // inside a spoiler: keep it hidden
+  return cut.trimEnd() + '…';
+}
+function revealSpoiler(el) {
+  el.classList.add('revealed');
+  el.removeAttribute('role'); el.removeAttribute('tabindex'); el.removeAttribute('aria-label');
+}
+document.addEventListener('click', e => {
+  const sp = e.target.closest('.spoiler:not(.revealed)');
+  if (sp) { e.stopPropagation(); e.preventDefault(); revealSpoiler(sp); }
+}, true);
+document.addEventListener('keydown', e => {
+  const sp = e.target.closest?.('.spoiler:not(.revealed)');
+  if (sp && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); revealSpoiler(sp); }
+});
 function renderMath(el) {
   if (window.renderMathInElement) renderMathInElement(el, {
     delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],
     throwOnError:false
   });
 }
-function isValidURL(s) { try { new URL(s); return true; } catch { return false; } }
+function isValidURL(s) { return !!safeUrl(s); }
 function getParam(n) { return new URLSearchParams(window.location.search).get(n); }
 function showToast(msg, type='success') {
   document.querySelector('.toast')?.remove();
@@ -56,7 +99,8 @@ function showToast(msg, type='success') {
   const icon = type==='success'
     ? '<polyline points="20 6 9 17 4 12"/>'
     : '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>';
-  t.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">${icon}</svg> ${msg}`;
+  t.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">${icon}</svg> `;
+  t.append(String(msg));   // text only, never HTML
   document.body.appendChild(t);
   setTimeout(() => t.remove(), 3200);
 }
@@ -65,22 +109,16 @@ function highlightText(text, query) {
   const re = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi');
   return esc(text).replace(re, '<span class="hl">$1</span>');
 }
-async function fetchVoteCounts(ids, type) {
-  if (!ids.length) return {};
-  try {
-    const { data } = await db.from('vote_counts').select('target_id,upvotes,downvotes')
-      .eq('target_type',type).in('target_id',ids);
-    const m = {};
-    (data||[]).forEach(v => { m[v.target_id] = { upvotes:+v.upvotes, downvotes:+v.downvotes }; });
-    return m;
-  } catch { return {}; }
+
+async function fetchVoteCounts(ids) {
+  const totals = await fetchVoteTotals(ids), m = {};
+  for (const [id, t] of Object.entries(totals)) m[id] = { upvotes: t.up, downvotes: t.down };
+  return m;
 }
+
 async function uploadImage(file) {
-  const fileName = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g,'_')}`;
-  const { error } = await db.storage.from('post-images').upload(fileName, file, { cacheControl:'3600', upsert:false });
-  if (error) throw error;
-  const { data: urlData } = db.storage.from('post-images').getPublicUrl(fileName);
-  return urlData.publicUrl;
+  const res = await storage.createFile(BUCKET_ID, ID.unique(), file);
+  return `https://sgp.cloud.appwrite.io/v1/storage/buckets/${BUCKET_ID}/files/${res.$id}/view?project=${PROJECT_ID}`;
 }
 
 /* ── THEME ────────────────────────────────────────────── */
@@ -91,121 +129,9 @@ function applyTheme(t) {
 }
 
 /* ── AUTH ─────────────────────────────────────────────── */
-db.auth.onAuthStateChange(async (ev, session) => {
-  me = session?.user ?? null;
-  if (me) {
-    if (!profile) profile = { username: me.user_metadata?.username || me.user_metadata?.full_name || me.email.split('@')[0] };
-    refreshHeader();
-    fetchProfile(me);
-  } else { profile = null; refreshHeader(); }
-  if (ev === 'SIGNED_IN' && document.getElementById('authOverlay').classList.contains('open')) {
-    closeAuthModal(); showToast('Welcome back!', 'success');
-  }
+/* Login lives in mint-auth.js; re-draw the post form when login state changes */
+function onAuthChange() {
   if (selectedQuestion) renderPostForm();
-});
-
-async function fetchProfile(user) {
-  const { data } = await db.from('profiles').select('username,email').eq('id', user.id).maybeSingle();
-  if (data) { profile = data; refreshHeader(); return; }
-  const base = (user.user_metadata?.full_name || user.email.split('@')[0]).replace(/[^a-zA-Z0-9_]/g,'_').slice(0,16);
-  const username = base + '_' + Math.random().toString(36).slice(2,5);
-  const { data: ins } = await db.from('profiles').insert({ id:user.id, username, email:user.email }).select('username,email').maybeSingle();
-  profile = ins ?? null; refreshHeader();
-}
-
-function refreshHeader() {
-  const pill = document.getElementById('userPill'), btn = document.getElementById('authBtn');
-  if (me) {
-    document.getElementById('pillName').textContent = profile?.username || me.email.split('@')[0];
-    pill.classList.remove('hidden');
-    btn.textContent = 'Log out';
-    btn.onclick = () => { profile = null; db.auth.signOut().then(() => showToast('Logged out','success')); };
-  } else {
-    pill.classList.add('hidden');
-    btn.textContent = 'Log in'; btn.onclick = openAuthModal;
-  }
-}
-
-async function handleGoogleSignIn() {
-  const { error } = await db.auth.signInWithOAuth({
-    provider:'google',
-    options:{ redirectTo: location.origin + location.pathname, queryParams:{ access_type:'offline', prompt:'consent' } }
-  });
-  if (error) showToast('Google sign-in failed: ' + error.message, 'error');
-}
-
-function openAuthModal() {
-  document.getElementById('authOverlay').classList.add('open');
-  switchAuthTab('login');
-  setTimeout(() => document.getElementById('authIdent').focus(), 80);
-}
-function closeAuthModal() {
-  document.getElementById('authOverlay').classList.remove('open');
-  ['authIdent','authEmail','authUser','authPass'].forEach(id => {
-    const el = document.getElementById(id); if (el) el.value = '';
-  });
-  setAuthMsg('err',''); setAuthMsg('ok','');
-  const btn = document.getElementById('authSubmitBtn');
-  if (btn) { btn.disabled = false; btn.textContent = authMode==='login' ? 'Log in' : 'Create account'; }
-}
-function switchAuthTab(mode) {
-  authMode = mode;
-  document.getElementById('loginTab').classList.toggle('active', mode==='login');
-  document.getElementById('signupTab').classList.toggle('active', mode==='signup');
-  document.getElementById('authSubmitBtn').textContent = mode==='login' ? 'Log in' : 'Create account';
-  document.getElementById('identWrap').classList.toggle('hidden', mode==='signup');
-  document.getElementById('emailWrap').classList.toggle('hidden', mode==='login');
-  document.getElementById('userWrap').classList.toggle('hidden', mode==='login');
-  document.getElementById('authPass').autocomplete = mode==='login' ? 'current-password' : 'new-password';
-  setAuthMsg('err',''); setAuthMsg('ok','');
-}
-function setAuthMsg(t, txt) {
-  const el = document.getElementById(t==='err' ? 'authErr' : 'authOk'); if (!el) return;
-  el.textContent = txt; el.style.display = txt ? 'block' : 'none';
-  const other = document.getElementById(t==='err' ? 'authOk' : 'authErr');
-  if (other) other.style.display = 'none';
-}
-async function resolveEmail(ident) {
-  if (ident.includes('@')) return { email: ident };
-  const { data } = await db.from('profiles').select('email').eq('username', ident).maybeSingle();
-  return data?.email ? { email: data.email } : { err: 'No account found with that username.' };
-}
-async function handleAuthSubmit() {
-  const pass = document.getElementById('authPass').value;
-  const btn  = document.getElementById('authSubmitBtn');
-  if (!pass || pass.length < 6) { setAuthMsg('err','Password must be at least 6 characters.'); return; }
-  btn.disabled = true;
-  if (authMode === 'login') {
-    const ident = document.getElementById('authIdent').value.trim();
-    if (!ident) { setAuthMsg('err','Please enter your email or username.'); btn.disabled=false; return; }
-    btn.textContent = 'Logging in…';
-    const { email, err } = await resolveEmail(ident);
-    if (err) { setAuthMsg('err', err); btn.disabled=false; btn.textContent='Log in'; return; }
-    const { error } = await db.auth.signInWithPassword({ email, password: pass });
-    if (error) { setAuthMsg('err', niceErr(error.message)); btn.disabled=false; btn.textContent='Log in'; return; }
-  } else {
-    const email    = document.getElementById('authEmail').value.trim();
-    const username = document.getElementById('authUser').value.trim();
-    if (!email)    { setAuthMsg('err','Please enter your email.'); btn.disabled=false; btn.textContent='Create account'; return; }
-    if (!username) { setAuthMsg('err','Please choose a username.'); btn.disabled=false; btn.textContent='Create account'; return; }
-    if (!/^[a-zA-Z0-9_]{3,20}$/.test(username)) { setAuthMsg('err','Username: 3–20 chars, letters/numbers/underscores.'); btn.disabled=false; btn.textContent='Create account'; return; }
-    btn.textContent = 'Creating account…';
-    const { data: ex } = await db.from('profiles').select('id').eq('username', username).maybeSingle();
-    if (ex) { setAuthMsg('err','Username already taken.'); btn.disabled=false; btn.textContent='Create account'; return; }
-    const { data: sd, error } = await db.auth.signUp({ email, password:pass, options:{ data:{ username } } });
-    if (error) { setAuthMsg('err', niceErr(error.message)); btn.disabled=false; btn.textContent='Create account'; return; }
-    if (sd?.user) await db.from('profiles').upsert({ id:sd.user.id, username, email }, { onConflict:'id' });
-    if (sd?.session) { closeAuthModal(); showToast('Welcome to MINT!','success'); }
-    else { setAuthMsg('ok','Check your email to confirm, then log in.'); btn.disabled=false; btn.textContent='Create account'; }
-  }
-}
-function niceErr(m) {
-  if (!m) return 'Something went wrong.';
-  if (m.includes('Invalid login credentials')) return 'Incorrect email or password.';
-  if (m.includes('Email not confirmed'))       return 'Please confirm your email first.';
-  if (m.includes('User already registered'))   return 'An account with that email already exists.';
-  if (m.includes('Password should be'))        return 'Password must be at least 6 characters.';
-  return m;
 }
 
 /* ── IMAGE PREVIEW ────────────────────────────────────── */
@@ -231,8 +157,11 @@ function wireImagePreview(inputId, previewBoxId, previewImgId, removeId, stateOb
 function initPostDropdown() {
   const btn  = document.getElementById('postDropdownBtn');
   const menu = document.getElementById('postDropdownMenu');
-  btn.addEventListener('click', e => { e.stopPropagation(); menu.classList.toggle('open'); });
-  document.addEventListener('click', () => menu.classList.remove('open'));
+  btn.addEventListener('click', e => {
+    e.stopPropagation();
+    btn.setAttribute('aria-expanded', menu.classList.toggle('open'));
+  });
+  document.addEventListener('click', () => { menu.classList.remove('open'); btn.setAttribute('aria-expanded', 'false'); });
 
   document.getElementById('menuPostIntuition').addEventListener('click', () => {
     menu.classList.remove('open');
@@ -296,6 +225,7 @@ function renderTopicPickerGrid() {
     });
   });
 }
+
 const MAX_TOPIC_TAGS = 5;
 function renderNewQSscTags() {
   const wrap      = document.getElementById('newQSscWrap');
@@ -305,8 +235,8 @@ function renderNewQSscTags() {
   const makeTagBtn = (sub, name, type) => {
     const tagKey = sscTagName(sub, name, type), sel = selectedNewQTags.has(tagKey);
     const tc = type==='technique' ? 'var(--gold)' : 'var(--blue)';
-    const bg = sel ? (type==='technique'?'rgba(240,192,96,.25)':'rgba(122,176,245,.25)') : (type==='technique'?'rgba(240,192,96,.1)':'rgba(122,176,245,.1)');
-    const border = sel ? (type==='technique'?'rgba(240,192,96,.5)':'rgba(122,176,245,.5)') : (type==='technique'?'rgba(240,192,96,.2)':'rgba(122,176,245,.2)');
+    const bg = sel ? (type==='technique'?'rgba(217,180,95,.25)':'rgba(143,179,224,.25)') : (type==='technique'?'rgba(217,180,95,.1)':'rgba(143,179,224,.1)');
+    const border = sel ? (type==='technique'?'rgba(217,180,95,.5)':'rgba(143,179,224,.5)') : (type==='technique'?'rgba(217,180,95,.2)':'rgba(143,179,224,.2)');
     return `<span class="sub-preview-tag ${type}" style="cursor:pointer;background:${bg};border-color:${border};color:${tc};outline:${sel?`2px solid ${tc}`:'none'};outline-offset:1px" data-tagkey="${tagKey}">${esc(name)}</span>`;
   };
   accordion.innerHTML = [...selectedSubTopics].map(sub => {
@@ -342,7 +272,7 @@ function renderNewQSscTags() {
   selectedEl.innerHTML = countLabel + [...selectedNewQTags].map(key => {
     const p = parseSscTag(key); if (!p) return '';
     const tc = p.type==='technique' ? 'var(--gold)' : 'var(--blue)';
-    return `<span style="display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:10px;font-size:11px;font-weight:600;background:${p.type==='technique'?'rgba(240,192,96,.12)':'rgba(122,176,245,.12)'};color:${tc};border:1px solid ${p.type==='technique'?'rgba(240,192,96,.25)':'rgba(122,176,245,.25)'}">
+    return `<span style="display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:3px;font-size:11px;font-weight:600;background:${p.type==='technique'?'rgba(217,180,95,.12)':'rgba(143,179,224,.12)'};color:${tc};border:1px solid ${p.type==='technique'?'rgba(217,180,95,.25)':'rgba(143,179,224,.25)'}">
       ${esc(p.name)}
       <button style="background:none;border:none;cursor:pointer;color:${tc};opacity:.7;padding:0;display:flex;align-items:center" data-rmtag="${key}">
         <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -356,6 +286,7 @@ function renderNewQSscTags() {
 
 async function submitSubtopic() {
   if (!me) { openAuthModal(); return; }
+  if (!throttle('post')) return;
   const title = document.getElementById('newQTitle').value.trim();
   const about = document.getElementById('newQAbout').value.trim();
   if (!title) { document.getElementById('postSubError').innerHTML='<div class="err-box">Please enter a topic title.</div>'; return; }
@@ -364,31 +295,42 @@ async function submitSubtopic() {
   const btn = document.getElementById('postSubSubmitBtn');
   btn.disabled=true; btn.textContent='Posting…';
   try {
-    const { data: qData, error: qErr } = await db.from('questions').insert({ title, about }).select('id').single();
-    if (qErr) throw qErr;
-    const qid = qData.id;
+    const qDoc = await databases.createDocument(DB_ID, COLLECTIONS.questions, ID.unique(), { title, about });
+    const qid = qDoc.$id;
+
     for (const tagName of [...selectedSubTopics, ...selectedNewQTags]) {
-      let { data: tagRow } = await db.from('tags').select('id').eq('name',tagName).eq('category',TOPIC_NAME).maybeSingle();
-      if (!tagRow) {
-        const { data: newTag } = await db.from('tags').insert({ name:tagName, category:TOPIC_NAME }).select('id').single();
-        tagRow = newTag;
+      let tagId;
+      try {
+        const existing = await databases.listDocuments(DB_ID, COLLECTIONS.tags, [
+          Query.equal('name', tagName),
+          Query.equal('category', TOPIC_NAME),
+          Query.limit(1),
+        ]);
+        tagId = existing.documents.length
+          ? existing.documents[0].$id
+          : (await databases.createDocument(DB_ID, COLLECTIONS.tags, ID.unique(), { name: tagName, category: TOPIC_NAME })).$id;
+      } catch(e) {
+        document.getElementById('postSubError').innerHTML=`<div class="err-box">Tag error: ${esc(e.message)}</div>`;
+        btn.disabled=false; btn.textContent='Post Topic'; return;
       }
-      if (tagRow?.id) await db.from('question_tags').insert({ question_id:qid, tag_id:tagRow.id });
+      await databases.createDocument(DB_ID, COLLECTIONS.question_tags, ID.unique(), {
+        question_id: qid, tag_id: tagId
+      });
     }
-    showToast('Topic posted!','success');
+
+    showToast('Topic posted!', 'success');
     closeSubModal();
     await loadQuestions();
     const newQ = questions.find(q => q.id === qid);
     if (newQ) openQuestion(qid);
   } catch(e) {
-    document.getElementById('postSubError').innerHTML=`<div class="err-box">Error: ${e.message}</div>`;
+    document.getElementById('postSubError').innerHTML=`<div class="err-box">Error: ${esc(e.message)}</div>`;
   }
   btn.disabled=false; btn.textContent='Post Topic';
 }
 
 /* ── GLOBAL INT MODAL ─────────────────────────────────── */
 function openGlobalIntModal(preselectedQId) {
-  // reset write/preview tabs if they exist
   ['intExpWriteTabModal','intExpWritePaneModal'].forEach(id => document.getElementById(id)?.classList.add('active'));
   ['intExpPreviewTabModal','intExpPreviewPaneModal'].forEach(id => document.getElementById(id)?.classList.remove('active'));
   const prevEl = document.getElementById('intExpPreviewContentModal');
@@ -504,7 +446,7 @@ function renderIntLinks() {
   const c = document.getElementById('intLinkList'); if (!c) return;
   c.innerHTML = gIntState.links.map((l,i) =>
     `<div class="link-item"><a href="${esc(l)}" target="_blank" rel="noopener">${esc(l)}</a>
-     <button class="remove-link-btn" onclick="removeGIntLink(${i})">
+     <button class="remove-link-btn" aria-label="Remove link" onclick="removeGIntLink(${i})">
        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
      </button></div>`
   ).join('');
@@ -514,7 +456,7 @@ function renderTakLinks() {
   const c = document.getElementById('takLinkList'); if (!c) return;
   c.innerHTML = gTakState.links.map((l,i) =>
     `<div class="link-item"><a href="${esc(l)}" target="_blank" rel="noopener">${esc(l)}</a>
-     <button class="remove-link-btn" onclick="removeGTakLink(${i})">
+     <button class="remove-link-btn" aria-label="Remove link" onclick="removeGTakLink(${i})">
        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
      </button></div>`
   ).join('');
@@ -524,6 +466,7 @@ function removeGTakLink(i) { gTakState.links.splice(i,1); renderTakLinks(); }
 /* ── SUBMIT INT (global modal) ────────────────────────── */
 async function submitGlobalIntuition() {
   if (!me) { openAuthModal(); return; }
+  if (!throttle('post')) return;
   let imageUrl = null;
   if (gIntState.imageFile) {
     try { imageUrl = await uploadImage(gIntState.imageFile); }
@@ -540,10 +483,19 @@ async function submitGlobalIntuition() {
   const exExp  = document.getElementById('intExampleExp').value.trim() || null;
   let posted=0, failed=0;
   for (const qid of [...gIntState.selectedQIds]) {
-    const { data:d, error:e } = await db.from('intuitions').insert({ question_id:qid, statement:stmt, explanation:exp, example_link:exLink, example_explanation:exExp, author_id:me.id, image_url:imageUrl }).select('id').single();
-    if (e) { failed++; continue; }
-    posted++;
-    if (gIntState.links.length && d) await db.from('links').insert(gIntState.links.map(url => ({ parent_id:d.id, parent_type:'intuition', url })));
+    try {
+      const d = await databases.createDocument(DB_ID, COLLECTIONS.intuitions, ID.unique(), {
+        question_id: qid, statement: stmt, explanation: exp,
+        example_link: exLink, example_explanation: exExp,
+        author_id: me.$id, image_url: imageUrl
+      }, mine());
+      for (const url of gIntState.links) {
+        await databases.createDocument(DB_ID, COLLECTIONS.links, ID.unique(), {
+          parent_id: d.$id, parent_type: 'intuition', url
+        }, mine());
+      }
+      posted++;
+    } catch { failed++; }
   }
   btn.disabled=false; btn.textContent='Post Intuition';
   if (failed) showToast(`${posted} posted, ${failed} failed.`, failed===gIntState.selectedQIds.size?'error':'success');
@@ -556,6 +508,7 @@ async function submitGlobalIntuition() {
 /* ── SUBMIT TAK (global modal) ────────────────────────── */
 async function submitGlobalTakeaway() {
   if (!me) { openAuthModal(); return; }
+  if (!throttle('post')) return;
   let imageUrl = null;
   if (gTakState.imageFile) {
     try { imageUrl = await uploadImage(gTakState.imageFile); }
@@ -568,10 +521,20 @@ async function submitGlobalTakeaway() {
   btn.disabled=true; btn.textContent='Posting…';
   let posted=0, failed=0;
   for (const qid of [...gTakState.selectedQIds]) {
-    const { data:d, error:e } = await db.from('takeaways').insert({ question_id:qid, image_url:imageUrl, content, author_id:me.id }).select('id').single();
-    if (e) { failed++; continue; }
-    posted++;
-    if (gTakState.links.length && d) await db.from('links').insert(gTakState.links.map(url => ({ parent_id:d.id, parent_type:'takeaway', url })));
+    try {
+      const d = await databases.createDocument(DB_ID, COLLECTIONS.takeaways, ID.unique(), {
+        question_id: qid,
+        image_url: imageUrl,
+        content,
+        author_id: me.$id
+      }, mine());
+      for (const url of gTakState.links) {
+        await databases.createDocument(DB_ID, COLLECTIONS.links, ID.unique(), {
+          parent_id: d.$id, parent_type: 'takeaway', url
+        }, mine());
+      }
+      posted++;
+    } catch { failed++; }
   }
   btn.disabled=false; btn.textContent='Post Takeaway';
   if (failed) showToast(`${posted} posted, ${failed} failed.`, failed===gTakState.selectedQIds.size?'error':'success');
@@ -589,7 +552,7 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => { _domReady=true; tryBoot(); });
 } else {
   _domReady = true;
-  if (window.renderMathInElement) _katexReady = true;
+  if (window.renderMathInElement || window._katexFailed) _katexReady = true;
   tryBoot();
 }
 
@@ -599,14 +562,25 @@ async function boot() {
     const t = document.documentElement.className === 'dark' ? 'light' : 'dark';
     localStorage.setItem('theme', t); applyTheme(t);
   });
-  bindEvents();
-  buildSidebar();
-  initPostDropdown();
-  wireQPickers();
-  await loadQuestions();
-  const qp = getParam('q');
-  if (qp) { const q = questions.find(x => x.id===qp); if (q) openQuestion(q.id); }
-  document.body.classList.add('ready');
+  try {
+    bindEvents();
+    await initAuth();
+    buildSidebar();
+    initPostDropdown();
+    wireQPickers();
+    await loadQuestions();
+    const qp = getParam('q');
+    if (qp) { const q = questions.find(x => x.id===qp); if (q) openQuestion(q.id); }
+  } catch (e) {
+    console.error('Boot failed', e);
+  } finally {
+    // A post link we couldn't open: fall back to the list instead of a stuck skeleton
+    if (getParam('q') && !selectedQuestion) {
+      document.getElementById('detailView').style.display = 'none';
+      document.getElementById('listView').style.display = 'block';
+    }
+    document.body.classList.add('ready');
+  }
 }
 
 /* ── SIDEBAR ──────────────────────────────────────────── */
@@ -665,13 +639,7 @@ function buildSidebar() {
 
 /* ── BIND EVENTS ──────────────────────────────────────── */
 function bindEvents() {
-  // Auth
-  document.getElementById('authOverlay').addEventListener('click', e => { if (e.target===e.currentTarget) closeAuthModal(); });
-  document.getElementById('googleSignInBtn').addEventListener('click', handleGoogleSignIn);
-  document.getElementById('loginTab').addEventListener('click', () => switchAuthTab('login'));
-  document.getElementById('signupTab').addEventListener('click', () => switchAuthTab('signup'));
-  document.getElementById('authCancelBtn').addEventListener('click', closeAuthModal);
-  document.getElementById('authSubmitBtn').addEventListener('click', handleAuthSubmit);
+  bindAuthModal();
 
   // Intuition modal
   document.getElementById('postIntModal').addEventListener('click', e => { if (e.target===e.currentTarget) closeGlobalIntModal(); });
@@ -689,7 +657,6 @@ function bindEvents() {
     gIntState.links.push(v); i.value=''; renderIntLinks();
   });
 
-  // Optional preview tabs in int modal (Algebra has them, Problem Solving doesn't)
   const intWriteTabModal   = document.getElementById('intExpWriteTabModal');
   const intPreviewTabModal = document.getElementById('intExpPreviewTabModal');
   if (intWriteTabModal) {
@@ -719,7 +686,6 @@ function bindEvents() {
     gTakState.links.push(v); i.value=''; renderTakLinks();
   });
 
-  // Optional preview tabs in tak modal
   const takWriteTabModal   = document.getElementById('takExpWriteTabModal');
   const takPreviewTabModal = document.getElementById('takExpPreviewTabModal');
   if (takWriteTabModal) {
@@ -744,7 +710,6 @@ function bindEvents() {
   document.getElementById('postSubCancelBtn').addEventListener('click', closeSubModal);
   document.getElementById('postSubSubmitBtn').addEventListener('click', submitSubtopic);
 
-  // Title + about preview toggles in post-topic modal
   const makePreviewToggle = (key, getVal) => {
     document.getElementById(`${key}WriteTab`).addEventListener('click', () => {
       document.getElementById(`${key}WriteTab`).classList.add('active');
@@ -800,48 +765,77 @@ function bindEvents() {
       document.getElementById('listView').style.display='block';
     }
   });
-
-  // Fade page transitions on internal links
-  document.querySelectorAll('a').forEach(a => {
-    const href = a.getAttribute('href');
-    if (!href || href.startsWith('#') || href.startsWith('javascript') || a.target==='_blank') return;
-    a.addEventListener('click', e => {
-      e.preventDefault();
-      document.body.style.opacity='0';
-      setTimeout(() => { window.location.href = a.href; }, 180);
-    });
-  });
 }
 
 /* ── LOAD QUESTIONS ───────────────────────────────────── */
 async function loadQuestions() {
-  document.getElementById('questionsList').innerHTML = '<div class="loading-state"><div class="spinner"></div>Loading questions…</div>';
+  document.getElementById('questionsList').innerHTML = listSkeleton(5);
   try {
-    const { data: tagData } = await db.from('tags').select('id,name').eq('category', TOPIC_NAME);
-    if (!tagData?.length) { questions=[]; renderQuestions(); return; }
-    const { data: qtData } = await db.from('question_tags').select('question_id').in('tag_id', tagData.map(t=>t.id));
-    if (!qtData?.length) { questions=[]; renderQuestions(); return; }
-    const qIds = [...new Set(qtData.map(qt=>qt.question_id))];
-    const { data, error } = await db.from('questions')
-      .select('id,title,about,created_at,question_tags(tags(name)),intuitions(id),takeaways(id)')
-      .in('id', qIds).order('created_at', { ascending:false });
-    if (error) throw error;
-    questions = (data||[]).map(q => ({
-      id:q.id, title:q.title, about:q.about,
-      createdAt:ago(q.created_at), createdAtRaw:q.created_at,
-      tags:(q.question_tags||[]).map(qt=>qt.tags?.name).filter(Boolean),
-      intuitionCount:(q.intuitions||[]).length, takeawayCount:(q.takeaways||[]).length,
-      upvotes:0, downvotes:0,
+    const tagRes = await databases.listDocuments(DB_ID, COLLECTIONS.tags, [
+      Query.equal('category', TOPIC_NAME), Query.limit(500)
+    ]);
+    if (!tagRes.documents.length) { questions=[]; renderQuestions(); return; }
+    const tagIds = tagRes.documents.map(t => t.$id);
+
+    const qtRes = await databases.listDocuments(DB_ID, COLLECTIONS.question_tags, [
+      Query.equal('tag_id', tagIds), Query.limit(1000)
+    ]);
+    if (!qtRes.documents.length) { questions=[]; renderQuestions(); return; }
+    const qIds = [...new Set(qtRes.documents.map(qt => qt.question_id))];
+
+    const qRes = await databases.listDocuments(DB_ID, COLLECTIONS.questions, [
+      Query.equal('$id', qIds), Query.orderDesc('$createdAt'), Query.limit(200)
+    ]);
+
+    const allQtRes = await databases.listDocuments(DB_ID, COLLECTIONS.question_tags, [
+      Query.equal('question_id', qIds), Query.limit(2000)
+    ]);
+    const tagNameMap = {};
+    tagRes.documents.forEach(t => { tagNameMap[t.$id] = t.name; });
+    const qTagsMap = {};
+    allQtRes.documents.forEach(qt => {
+      if (!qTagsMap[qt.question_id]) qTagsMap[qt.question_id] = [];
+      if (tagNameMap[qt.tag_id]) qTagsMap[qt.question_id].push(tagNameMap[qt.tag_id]);
+    });
+
+    const [intRes, takRes] = await Promise.all([
+      databases.listDocuments(DB_ID, COLLECTIONS.intuitions, [
+        Query.equal('question_id', qIds), Query.limit(1000)
+      ]),
+      databases.listDocuments(DB_ID, COLLECTIONS.takeaways, [
+        Query.equal('question_id', qIds), Query.limit(1000)
+      ]),
+    ]);
+    const intCount = {}, takCount = {};
+    intRes.documents.forEach(i => { intCount[i.question_id] = (intCount[i.question_id]||0)+1; });
+    takRes.documents.forEach(t => { takCount[t.question_id] = (takCount[t.question_id]||0)+1; });
+
+    questions = qRes.documents.map(q => ({
+      id: q.$id, title: q.title, about: q.about,
+      createdAt: ago(q.$createdAt), createdAtRaw: q.$createdAt,
+      tags: qTagsMap[q.$id] || [],
+      intuitionCount: intCount[q.$id] || 0,
+      takeawayCount:  takCount[q.$id] || 0,
+      upvotes: 0, downvotes: 0,
     }));
-    const vc = await fetchVoteCounts(qIds,'question');
-    questions.forEach(q => { const v=vc[q.id]||{}; q.upvotes=+v.upvotes||0; q.downvotes=+v.downvotes||0; });
+
+    const vc = await fetchVoteCounts(qIds, 'question');
+    questions.forEach(q => { const v=vc[q.id]||{}; q.upvotes=v.upvotes||0; q.downvotes=v.downvotes||0; });
+
     if (me) {
-      const { data:vd } = await db.from('votes').select('target_id,direction').eq('user_id',me.id).eq('target_type','question').in('target_id',qIds);
-      (vd||[]).forEach(v => { questionVotes[v.target_id]=v.direction; });
+      try {
+        const vRes = await databases.listDocuments(DB_ID, COLLECTIONS.votes, [
+          Query.equal('user_id', me.$id),
+          Query.equal('target_type', 'question'),
+          Query.equal('target_id', qIds),
+          Query.limit(500),
+        ]);
+        vRes.documents.forEach(v => { questionVotes[v.target_id] = v.direction; });
+      } catch {}
     }
     renderQuestions();
   } catch(e) {
-    document.getElementById('questionsList').innerHTML=`<div class="err-box">Failed to load: ${e.message}</div>`;
+    document.getElementById('questionsList').innerHTML = `<div class="err-box">Failed to load: ${esc(e.message)}</div>`;
   }
 }
 
@@ -914,8 +908,8 @@ function renderQuestions() {
   const container = document.getElementById('questionsList');
   if (!sorted.length) {
     container.innerHTML = query
-      ? `<div class="empty-state"><span class="empty-icon">🔍</span>No questions found for "<strong>${esc(query)}</strong>".<br><span style="font-size:12px;opacity:.7">Try a different keyword or browse by topic.</span></div>`
-      : `<div class="empty-state"><span class="empty-icon">💬</span>No questions yet${activeSubtopic?` in ${activeSubtopic}`:''}. Be the first!</div>`;
+      ? `<div class="empty-state">No questions found for "<strong>${esc(query)}</strong>".<br><span style="font-size:12px;opacity:.7">Try a different keyword or browse by topic.</span></div>`
+      : `<div class="empty-state">No questions yet${activeSubtopic?` in ${activeSubtopic}`:''}. Be the first!</div>`;
     return;
   }
   container.innerHTML = sorted.map((q,i)=>questionCardHTML(q,i,query)).join('');
@@ -931,11 +925,11 @@ function questionCardHTML(q, i=0, searchQuery='') {
   const aboutHTML = searchQuery ? highlightText(q.about||'',searchQuery) : esc(q.about||'');
   return `<div class="question-card" data-qid="${q.id}" style="animation-delay:${i*35}ms">
     <div class="vote-col">
-      <button class="vote-btn ${vu==='up'?'voted-up':''}" data-vid="${q.id}" data-vdir="up">
+      <button class="vote-btn ${vu==='up'?'voted-up':''}" data-vid="${q.id}" data-vdir="up" aria-label="Upvote">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="${vu==='up'?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M7 11l5-5 5 5M7 17l5-5 5 5"/></svg>
       </button>
       <span class="vote-score ${sc}">${score}</span>
-      <button class="vote-btn ${vu==='down'?'voted-down':''}" data-vid="${q.id}" data-vdir="down">
+      <button class="vote-btn ${vu==='down'?'voted-down':''}" data-vid="${q.id}" data-vdir="down" aria-label="Downvote">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="${vu==='down'?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M7 7l5 5 5-5M7 13l5 5 5-5"/></svg>
       </button>
       <div class="bulb-count"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 1 7 7c0 2.5-1.3 4.7-3.3 6l-.7.6V18H9v-2.4l-.7-.6A7 7 0 0 1 12 2z"/></svg>${q.intuitionCount}</div>
@@ -946,10 +940,10 @@ function questionCardHTML(q, i=0, searchQuery='') {
       <div class="tags">${q.tags.map((t,idx)=>{
         const ssc=parseSscTag(t);
         if (ssc) {
-          const col=ssc.type==='technique'?'rgba(240,192,96,.15)':'rgba(122,176,245,.15)';
-          const bdr=ssc.type==='technique'?'rgba(240,192,96,.3)':'rgba(122,176,245,.3)';
+          const col=ssc.type==='technique'?'rgba(217,180,95,.15)':'rgba(143,179,224,.15)';
+          const bdr=ssc.type==='technique'?'rgba(217,180,95,.3)':'rgba(143,179,224,.3)';
           const tc =ssc.type==='technique'?'var(--gold)':'var(--blue)';
-          return `<span style="text-align:center;padding:3px 11px;border-radius:20px;font-size:var(--text-about);font-weight:700;background:${col};color:${tc};border:1px solid ${bdr};cursor:pointer" onclick="event.stopPropagation();setSearchQuery('${t.split('::')[1]}')">${ssc.name}</span>`;
+          return `<span style="text-align:center;padding:3px 11px;border-radius:3px;font-size:var(--text-about);font-weight:700;background:${col};color:${tc};border:1px solid ${bdr};cursor:pointer" data-q="${esc(t.split('::')[1]||'')}" onclick="event.stopPropagation();setSearchQuery(this.dataset.q)">${esc(ssc.name)}</span>`;
         }
         return `<span class="${idx===0?'tag-primary':'tag-secondary'}">${searchQuery?highlightText(t,searchQuery):esc(t)}</span>`;
       }).join('')}</div>
@@ -972,12 +966,18 @@ function setSearchQuery(val) {
 /* ── REPORT ───────────────────────────────────────────── */
 async function handleReport(id, type) {
   if (!me) { openAuthModal(); return; }
+  if (!throttle('report')) return;
   const label = type==='question'?'question':type==='intuition'?'intuition':'takeaway';
   const reason = prompt(`Why are you reporting this ${label}?`);
   if (!reason?.trim()) return;
-  const { error } = await db.from('reports').insert({ target_id:id, target_type:type, reason:reason.trim(), user_id:me.id });
-  if (error) showToast('Report failed: '+error.message,'error');
-  else showToast('Reported — thanks for keeping MINT clean.','success');
+  try {
+    await databases.createDocument(DB_ID, COLLECTIONS.reports, ID.unique(), {
+      target_id: id, target_type: type, reason: reason.trim(), user_id: me.$id
+    });
+    showToast('Reported — thanks for keeping MINT clean.','success');
+  } catch(e) {
+    showToast('Report failed: '+e.message,'error');
+  }
 }
 
 /* ── DETAIL VIEW ──────────────────────────────────────── */
@@ -986,8 +986,8 @@ async function openQuestion(id) {
   document.getElementById('listView').style.display='none';
   document.getElementById('detailView').style.display='block';
   renderDetailHeader();
-  document.getElementById('dtab-intuitions').innerHTML='<div class="loading-state"><div class="spinner"></div>Loading…</div>';
-  document.getElementById('dtab-takeaways').innerHTML ='<div class="loading-state"><div class="spinner"></div>Loading…</div>';
+  document.getElementById('dtab-intuitions').innerHTML=itemSkeleton(2);
+  document.getElementById('dtab-takeaways').innerHTML =itemSkeleton(2);
   history.pushState({ q:id }, '', `?q=${id}`);
   await loadDetailItems(id);
   renderDetailItems(); renderPostForm(); window.scrollTo(0,0);
@@ -1001,30 +1001,85 @@ function goBack() {
 }
 
 async function loadDetailItems(qid) {
-  const [{ data:intData }, { data:takData }] = await Promise.all([
-    db.from('intuitions').select('id,statement,explanation,example_link,example_explanation,image_url,created_at,author_id,profiles(username)').eq('question_id',qid).order('created_at',{ascending:false}),
-    db.from('takeaways').select('id,content,image_url,created_at,author_id,profiles(username)').eq('question_id',qid).order('created_at',{ascending:false}),
+  const [intRes, takRes] = await Promise.all([
+    databases.listDocuments(DB_ID, COLLECTIONS.intuitions, [
+      Query.equal('question_id', qid), Query.orderDesc('$createdAt'), Query.limit(500)
+    ]),
+    databases.listDocuments(DB_ID, COLLECTIONS.takeaways, [
+      Query.equal('question_id', qid), Query.orderDesc('$createdAt'), Query.limit(500)
+    ]),
   ]);
-  intuitions[qid] = (intData||[]).map(i=>({ id:i.id, statement:i.statement, explanation:i.explanation, exampleLink:i.example_link||'', exampleExplanation:i.example_explanation||'', image_url:i.image_url||'', author:i.profiles?.username||'Anonymous', author_id:i.author_id, createdAt:ago(i.created_at), createdAtRaw:i.created_at, upvotes:0, downvotes:0, explanationLinks:[], comments:[], edited:false }));
-  takeaways[qid]  = (takData||[]).map(t=>({ id:t.id, content:t.content, image_url:t.image_url||'', author:t.profiles?.username||'Anonymous', author_id:t.author_id, createdAt:ago(t.created_at), createdAtRaw:t.created_at, upvotes:0, downvotes:0, links:[], comments:[], edited:false }));
+
+  // Only trust an author_id the row's permissions back up (stops impersonation)
+  const ints = intRes.documents.filter(i => ownedRow(i, i.author_id));
+  const taks = takRes.documents.filter(t => ownedRow(t, t.author_id));
+  const authorMap = await fetchUsernames([...ints, ...taks].map(x => x.author_id));
+
+  intuitions[qid] = ints.map(i => ({
+    id: i.$id, statement: i.statement, explanation: i.explanation,
+    exampleLink: i.example_link||'', exampleExplanation: i.example_explanation||'',
+    image_url: i.image_url||'',
+    author: authorMap[i.author_id] || 'Unknown',
+    author_id: i.author_id,
+    createdAt: ago(i.$createdAt), createdAtRaw: i.$createdAt,
+    upvotes: 0, downvotes: 0, explanationLinks: [], comments: [], edited: false
+  }));
+  takeaways[qid] = taks.map(t => ({
+    id: t.$id, content: t.content, image_url: t.image_url||'',
+    author: authorMap[t.author_id] || 'Unknown',
+    author_id: t.author_id,
+    createdAt: ago(t.$createdAt), createdAtRaw: t.$createdAt,
+    upvotes: 0, downvotes: 0, links: [], comments: [], edited: false
+  }));
+
   const intIds = intuitions[qid].map(i=>i.id), takIds = takeaways[qid].map(t=>t.id);
   const allIds = [...intIds,...takIds];
+
   if (allIds.length) {
     try {
-      const { data:linkData } = await db.from('links').select('parent_id,parent_type,url').in('parent_id',allIds);
-      (linkData||[]).forEach(l => {
+      const cRes = await databases.listDocuments(DB_ID, COLLECTIONS.comments, [
+        Query.equal('parent_id', allIds), Query.orderAsc('$createdAt'), Query.limit(1000)
+      ]);
+      const comments = cRes.documents.filter(c => ownedRow(c, c.author_id));
+      const names = await fetchUsernames(comments.map(c => c.author_id));
+      comments.forEach(c => {
+        const list = c.parent_type === 'intuition' ? intuitions[qid] : takeaways[qid];
+        const item = list.find(x => x.id === c.parent_id);
+        if (item) item.comments.push({ id: c.$id, text: c.text, author: names[c.author_id] || 'Unknown', authorId: c.author_id, createdAt: ago(c.$createdAt) });
+      });
+    } catch {}
+  }
+
+  if (allIds.length) {
+    try {
+      const linkRes = await databases.listDocuments(DB_ID, COLLECTIONS.links, [
+        Query.equal('parent_id', allIds), Query.limit(1000)
+      ]);
+      linkRes.documents.forEach(l => {
         if (l.parent_type==='intuition') { const item=intuitions[qid].find(i=>i.id===l.parent_id); if(item) item.explanationLinks.push(l.url); }
         else if (l.parent_type==='takeaway') { const item=takeaways[qid].find(t=>t.id===l.parent_id); if(item) item.links.push(l.url); }
       });
     } catch {}
   }
-  const [ivc,tvc] = await Promise.all([fetchVoteCounts(intIds,'intuition'),fetchVoteCounts(takIds,'takeaway')]);
+
+  const [ivc, tvc] = await Promise.all([
+    fetchVoteCounts(intIds, 'intuition'),
+    fetchVoteCounts(takIds, 'takeaway'),
+  ]);
   intuitions[qid].forEach(i=>{ const v=ivc[i.id]||{}; i.upvotes=+v.upvotes||0; i.downvotes=+v.downvotes||0; });
   takeaways[qid].forEach(t=>{ const v=tvc[t.id]||{}; t.upvotes=+v.upvotes||0; t.downvotes=+v.downvotes||0; });
+
   if (me && allIds.length) {
     try {
-      const { data:vd } = await db.from('votes').select('target_id,target_type,direction').eq('user_id',me.id).in('target_id',allIds);
-      (vd||[]).forEach(v=>{ if(v.target_type==='intuition') intuitionVotes[v.target_id]=v.direction; if(v.target_type==='takeaway') takeawayVotes[v.target_id]=v.direction; });
+      const vRes = await databases.listDocuments(DB_ID, COLLECTIONS.votes, [
+        Query.equal('user_id', me.$id),
+        Query.equal('target_id', allIds),
+        Query.limit(500),
+      ]);
+      vRes.documents.forEach(v => {
+        if (v.target_type==='intuition') intuitionVotes[v.target_id]=v.direction;
+        if (v.target_type==='takeaway')  takeawayVotes[v.target_id]=v.direction;
+      });
     } catch {}
   }
 }
@@ -1032,9 +1087,9 @@ async function loadDetailItems(qid) {
 function renderDetailHeader() {
   const q=selectedQuestion, score=q.upvotes-q.downvotes, vu=questionVotes[q.id], sc=score>0?'positive':score<0?'negative':'';
   document.getElementById('detailVoteCol').innerHTML=`
-    <button class="vote-btn ${vu==='up'?'voted-up':''}" id="dvUp"><svg width="20" height="20" viewBox="0 0 24 24" fill="${vu==='up'?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M7 11l5-5 5 5M7 17l5-5 5 5"/></svg></button>
+    <button class="vote-btn ${vu==='up'?'voted-up':''}" id="dvUp" aria-label="Upvote"><svg width="20" height="20" viewBox="0 0 24 24" fill="${vu==='up'?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M7 11l5-5 5 5M7 17l5-5 5 5"/></svg></button>
     <span class="vote-score ${sc}" style="font-size:17px">${score}</span>
-    <button class="vote-btn ${vu==='down'?'voted-down':''}" id="dvDown"><svg width="20" height="20" viewBox="0 0 24 24" fill="${vu==='down'?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M7 7l5 5 5-5M7 13l5 5 5-5"/></svg></button>
+    <button class="vote-btn ${vu==='down'?'voted-down':''}" id="dvDown" aria-label="Downvote"><svg width="20" height="20" viewBox="0 0 24 24" fill="${vu==='down'?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M7 7l5 5 5-5M7 13l5 5 5-5"/></svg></button>
     <div class="bulb-count" style="flex-direction:column;gap:2px;margin-top:8px;text-align:center"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 1 7 7c0 2.5-1.3 4.7-3.3 6l-.7.6V18H9v-2.4l-.7-.6A7 7 0 0 1 12 2z"/></svg><span>${(intuitions[q.id]||[]).length}</span></div>`;
   document.getElementById('dvUp').addEventListener('click',()=>handleVote(q.id,'up','q'));
   document.getElementById('dvDown').addEventListener('click',()=>handleVote(q.id,'down','q'));
@@ -1043,7 +1098,7 @@ function renderDetailHeader() {
     <div class="detail-about"><span class="kr">${esc(q.about)}</span></div>
     <div class="tags" style="margin:10px 0">${q.tags.map((t,i)=>{
       const ssc=parseSscTag(t);
-      if(ssc){const col=ssc.type==='technique'?'rgba(240,192,96,.15)':'rgba(122,176,245,.15)';const bdr=ssc.type==='technique'?'rgba(240,192,96,.3)':'rgba(122,176,245,.3)';const tc=ssc.type==='technique'?'var(--gold)':'var(--blue)';return`<span style="padding:3px 11px;border-radius:20px;font-size:var(--text-about);font-weight:700;background:${col};color:${tc};border:1px solid ${bdr}">${ssc.name}</span>`;}
+      if(ssc){const col=ssc.type==='technique'?'rgba(217,180,95,.15)':'rgba(143,179,224,.15)';const bdr=ssc.type==='technique'?'rgba(217,180,95,.3)':'rgba(143,179,224,.3)';const tc=ssc.type==='technique'?'var(--gold)':'var(--blue)';return`<span style="padding:3px 11px;border-radius:3px;font-size:var(--text-about);font-weight:700;background:${col};color:${tc};border:1px solid ${bdr}">${esc(ssc.name)}</span>`;}
       return`<span class="${i===0?'tag-primary':'tag-secondary'}">${esc(t)}</span>`;
     }).join('')}</div>
     <div style="display:flex;align-items:center;justify-content:space-between">
@@ -1074,12 +1129,12 @@ function renderDetailItems() {
   document.getElementById('intCount').textContent=il.length;
   document.getElementById('takCount').textContent=tl.length;
   const ic=document.getElementById('dtab-intuitions'), si=sortItems(il,currentDetailSort);
-  ic.innerHTML=si.length?si.map((i,idx)=>intuitionCardHTML(i,idx)).join(''):'<div class="empty-state"><span class="empty-icon">💡</span>No intuitions yet. Be the first!</div>';
+  ic.innerHTML=si.length?si.map((i,idx)=>intuitionCardHTML(i,idx)).join(''):'<div class="empty-state">No intuitions yet. Be the first!</div>';
   ic.querySelectorAll('.kr').forEach(renderMath);
   ic.querySelectorAll('.vote-btn[data-vid]').forEach(btn=>btn.addEventListener('click',()=>handleVote(btn.dataset.vid,btn.dataset.vdir,'i')));
   ic.querySelectorAll('.btn-report[data-reportid]').forEach(btn=>btn.addEventListener('click',()=>handleReport(btn.dataset.reportid,btn.dataset.reporttype)));
   const tc=document.getElementById('dtab-takeaways'), st=sortItems(tl,currentDetailSort);
-  tc.innerHTML=st.length?st.map((t,idx)=>takeawayCardHTML(t,idx)).join(''):'<div class="empty-state"><span class="empty-icon">📝</span>No takeaways yet. Share what you learned!</div>';
+  tc.innerHTML=st.length?st.map((t,idx)=>takeawayCardHTML(t,idx)).join(''):'<div class="empty-state">No takeaways yet. Share what you learned!</div>';
   tc.querySelectorAll('.kr').forEach(renderMath);
   tc.querySelectorAll('.vote-btn[data-vid]').forEach(btn=>btn.addEventListener('click',()=>handleVote(btn.dataset.vid,btn.dataset.vdir,'t')));
   tc.querySelectorAll('.btn-report[data-reportid]').forEach(btn=>btn.addEventListener('click',()=>handleReport(btn.dataset.reportid,btn.dataset.reporttype)));
@@ -1088,16 +1143,17 @@ function renderDetailItems() {
 
 function intuitionCardHTML(item, idx=0) {
   const score=item.upvotes-item.downvotes,vu=intuitionVotes[item.id],sc=score>0?'positive':score<0?'negative':'';
-  const exp=item.explanation||'',trunc=exp.length>300,disp=trunc?exp.substring(0,300)+'…':exp;
-  const linksHTML=(item.explanationLinks||[]).length?`<div class="i-links">${item.explanationLinks.map(l=>`<a class="i-link" href="${esc(l)}" target="_blank" rel="noopener">${esc(l)}</a>`).join('')}</div>`:'';
-  const exHTML=(item.exampleLink||item.exampleExplanation)?`<div class="i-example"><div class="i-label">Example</div>${item.exampleLink?`<a class="i-link" href="${esc(item.exampleLink)}" target="_blank" rel="noopener">${esc(item.exampleLink)}</a>`:''}${item.exampleExplanation?`<div class="kr" style="font-size:13.5px;color:var(--text2);margin-top:6px">${processText(item.exampleExplanation)}</div>`:''}</div>`:'';
-  const imgHTML=item.image_url?`<img src="${esc(item.image_url)}" alt="Intuition image" style="max-width:100%;border-radius:8px;margin-top:10px;border:1px solid var(--border)" />`:'';
-  const cc=(item.comments||[]).length,cHTML=(item.comments||[]).map(c=>`<div class="comment-item"><div class="comment-text">${processText(c.text)}</div><div class="comment-meta">${esc(c.author)} · ${c.createdAt}</div></div>`).join('');
-  const isOwn=me&&me.id===item.author_id;
+  const exp=item.explanation||'',trunc=exp.length>300,disp=trunc?previewText(exp):exp;
+  const linksHTML=(item.explanationLinks||[]).length?`<div class="i-links">${item.explanationLinks.filter(safeUrl).map(l=>`<a class="i-link" href="${esc(safeUrl(l))}" target="_blank" rel="noopener noreferrer">${esc(l)}</a>`).join('')}</div>`:'';
+  const exHTML=(item.exampleLink||item.exampleExplanation)?`<div class="i-example"><div class="i-label">Example</div>${safeUrl(item.exampleLink)?`<a class="i-link" href="${esc(safeUrl(item.exampleLink))}" target="_blank" rel="noopener noreferrer">${esc(item.exampleLink)}</a>`:''}${item.exampleExplanation?`<div class="kr" style="font-size:13.5px;color:var(--text2);margin-top:6px">${processText(item.exampleExplanation)}</div>`:''}</div>`:'';
+  const imgHTML=safeUrl(item.image_url)?`<img src="${esc(safeUrl(item.image_url))}" alt="Intuition image" style="max-width:100%;border-radius:4px;margin-top:10px;border:1px solid var(--border)" />`:'';
+  const cc=(item.comments||[]).length,cHTML=(item.comments||[]).map(c=>`<div class="comment-item"><div class="comment-text">${processText(c.text)}</div><div class="comment-meta">${authorLink(c.author)} · ${c.createdAt}${canDelete(c.authorId)?` <button class="btn-report btn-delete" data-delid="${c.id}" data-deltype="c" data-parent="${item.id}" aria-label="Delete comment">Delete</button>`:''}</div></div>`).join('');
+  const isOwn=me&&me.$id===item.author_id;
   const editBtn=isOwn?`<button class="btn-edit" data-editid="${item.id}" data-edittype="i"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit</button>`:'';
+  const delBtn=canDelete(item.author_id)?`<button class="btn-edit btn-delete" data-delid="${item.id}" data-deltype="i"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>Delete</button>`:'';
   return `<div class="i-card" id="icard-${item.id}" style="animation-delay:${idx*40}ms">
     <div class="i-card-inner">
-      <div class="vote-col"><button class="vote-btn ${vu==='up'?'voted-up':''}" data-vid="${item.id}" data-vdir="up"><svg width="16" height="16" viewBox="0 0 24 24" fill="${vu==='up'?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M7 11l5-5 5 5M7 17l5-5 5 5"/></svg></button><span class="vote-score ${sc}">${score}</span><button class="vote-btn ${vu==='down'?'voted-down':''}" data-vid="${item.id}" data-vdir="down"><svg width="16" height="16" viewBox="0 0 24 24" fill="${vu==='down'?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M7 7l5 5 5-5M7 13l5 5 5-5"/></svg></button></div>
+      <div class="vote-col"><button class="vote-btn ${vu==='up'?'voted-up':''}" data-vid="${item.id}" data-vdir="up" aria-label="Upvote"><svg width="16" height="16" viewBox="0 0 24 24" fill="${vu==='up'?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M7 11l5-5 5 5M7 17l5-5 5 5"/></svg></button><span class="vote-score ${sc}">${score}</span><button class="vote-btn ${vu==='down'?'voted-down':''}" data-vid="${item.id}" data-vdir="down" aria-label="Downvote"><svg width="16" height="16" viewBox="0 0 24 24" fill="${vu==='down'?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M7 7l5 5 5-5M7 13l5 5 5-5"/></svg></button></div>
       <div class="i-content">
         <div class="i-label">Intuition</div>
         <div class="i-statement kr">${processText(item.statement)}</div>
@@ -1106,10 +1162,10 @@ function intuitionCardHTML(item, idx=0) {
         ${imgHTML}${trunc?`<button class="btn-link" id="iexpbtn-${item.id}">Show more</button>`:''}
         ${linksHTML}${exHTML}
         <div class="i-footer">
-          <span>By ${esc(item.author)} · ${item.createdAt}${item.edited?' <span style="color:var(--text3);font-size:11px">(edited)</span>':''}</span>
+          <span>By ${authorLink(item.author)} · ${item.createdAt}${item.edited?' <span style="color:var(--text3);font-size:11px">(edited)</span>':''}</span>
           <div style="display:flex;align-items:center;gap:6px">
             <button class="btn-report" data-reportid="${item.id}" data-reporttype="intuition"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Report</button>
-            ${editBtn}
+            ${editBtn}${delBtn}
             <button class="comment-btn" data-cid="${item.id}" data-ctype="i"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>${cc} comment${cc!==1?'s':''}</button>
           </div>
         </div>
@@ -1130,17 +1186,18 @@ function intuitionCardHTML(item, idx=0) {
 
 function takeawayCardHTML(item, idx=0) {
   const score=item.upvotes-item.downvotes,vu=takeawayVotes[item.id],sc=score>0?'positive':score<0?'negative':'';
-  const content=item.content||'',trunc=content.length>300,disp=trunc?content.substring(0,300)+'…':content;
-  const linksHTML=(item.links||[]).length?`<div class="i-links">${item.links.map(l=>`<a class="i-link" href="${esc(l)}" target="_blank" rel="noopener">${esc(l)}</a>`).join('')}</div>`:'';
-  const imgHTML=item.image_url?`<img src="${esc(item.image_url)}" alt="Takeaway image" style="max-width:100%;border-radius:8px;margin-top:10px;border:1px solid var(--border)" />`:'';
-  const cc=(item.comments||[]).length,cHTML=(item.comments||[]).map(c=>`<div class="comment-item"><div class="comment-text">${processText(c.text)}</div><div class="comment-meta">${esc(c.author)} · ${c.createdAt}</div></div>`).join('');
-  const isOwn=me&&me.id===item.author_id;
+  const content=item.content||'',trunc=content.length>300,disp=trunc?previewText(content):content;
+  const linksHTML=(item.links||[]).length?`<div class="i-links">${item.links.filter(safeUrl).map(l=>`<a class="i-link" href="${esc(safeUrl(l))}" target="_blank" rel="noopener noreferrer">${esc(l)}</a>`).join('')}</div>`:'';
+  const imgHTML=safeUrl(item.image_url)?`<img src="${esc(safeUrl(item.image_url))}" alt="Takeaway image" style="max-width:100%;border-radius:4px;margin-top:10px;border:1px solid var(--border)" />`:'';
+  const cc=(item.comments||[]).length,cHTML=(item.comments||[]).map(c=>`<div class="comment-item"><div class="comment-text">${processText(c.text)}</div><div class="comment-meta">${authorLink(c.author)} · ${c.createdAt}${canDelete(c.authorId)?` <button class="btn-report btn-delete" data-delid="${c.id}" data-deltype="c" data-parent="${item.id}" aria-label="Delete comment">Delete</button>`:''}</div></div>`).join('');
+  const isOwn=me&&me.$id===item.author_id;
   const editBtn=isOwn?`<button class="btn-edit" data-editid="${item.id}" data-edittype="t"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit</button>`:'';
+  const delBtn=canDelete(item.author_id)?`<button class="btn-edit btn-delete" data-delid="${item.id}" data-deltype="t"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>Delete</button>`:'';
   return `<div class="i-card" id="tcard-${item.id}" style="animation-delay:${idx*40}ms">
     <div class="i-card-inner">
-      <div class="vote-col"><button class="vote-btn ${vu==='up'?'voted-up':''}" data-vid="${item.id}" data-vdir="up"><svg width="16" height="16" viewBox="0 0 24 24" fill="${vu==='up'?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M7 11l5-5 5 5M7 17l5-5 5 5"/></svg></button><span class="vote-score ${sc}">${score}</span><button class="vote-btn ${vu==='down'?'voted-down':''}" data-vid="${item.id}" data-vdir="down"><svg width="16" height="16" viewBox="0 0 24 24" fill="${vu==='down'?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M7 7l5 5 5-5M7 13l5 5 5-5"/></svg></button></div>
+      <div class="vote-col"><button class="vote-btn ${vu==='up'?'voted-up':''}" data-vid="${item.id}" data-vdir="up" aria-label="Upvote"><svg width="16" height="16" viewBox="0 0 24 24" fill="${vu==='up'?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M7 11l5-5 5 5M7 17l5-5 5 5"/></svg></button><span class="vote-score ${sc}">${score}</span><button class="vote-btn ${vu==='down'?'voted-down':''}" data-vid="${item.id}" data-vdir="down" aria-label="Downvote"><svg width="16" height="16" viewBox="0 0 24 24" fill="${vu==='down'?'currentColor':'none'}" stroke="currentColor" stroke-width="2"><path d="M7 7l5 5 5-5M7 13l5 5 5-5"/></svg></button></div>
       <div class="i-content">
-        <div class="i-label">Takeaway by ${esc(item.author)}</div>
+        <div class="i-label">Takeaway by ${authorLink(item.author)}</div>
         <div class="i-explanation kr" id="texp-${item.id}">${processText(disp)}</div>
         ${imgHTML}${trunc?`<button class="btn-link" id="texpbtn-${item.id}">Show more</button>`:''}
         ${linksHTML}
@@ -1148,7 +1205,7 @@ function takeawayCardHTML(item, idx=0) {
           <span>${item.createdAt}${item.edited?' <span style="color:var(--text3);font-size:11px">(edited)</span>':''}</span>
           <div style="display:flex;align-items:center;gap:6px">
             <button class="btn-report" data-reportid="${item.id}" data-reporttype="takeaway"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Report</button>
-            ${editBtn}
+            ${editBtn}${delBtn}
             <button class="comment-btn" data-cid="${item.id}" data-ctype="t"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>${cc} comment${cc!==1?'s':''}</button>
           </div>
         </div>
@@ -1166,13 +1223,53 @@ function takeawayCardHTML(item, idx=0) {
   </div>`;
 }
 
-/* ── DELEGATED CLICKS (expand, comment, edit, save) ────── */
+/* ── DELETE (authors delete their own; admins can delete anything) ── */
+function canDelete(authorId) { return !!me && (isAdmin || authorId === me.$id); }
+function authorLink(name) {
+  return name && name !== 'Unknown' && name !== 'You'
+    ? `<a class="author-link" href="profile.html?u=${encodeURIComponent(name)}">${esc(name)}</a>` : esc(name);
+}
+async function deleteRows(table, field, value) {
+  try {
+    const res = await databases.listDocuments(DB_ID, table, [Query.equal(field, value), Query.limit(500)]);
+    for (const d of res.documents) {
+      if (isAdmin || rowOwner(d) === me.$id) await databases.deleteDocument(DB_ID, table, d.$id).catch(() => {});
+    }
+  } catch {}
+}
+async function deleteItem(id, type, parentId) {
+  const what = type === 'c' ? 'comment' : type === 'i' ? 'intuition' : 'takeaway';
+  if (!confirm(`Delete this ${what}? This can't be undone.`)) return;
+  const qid = selectedQuestion.id;
+  try {
+    if (type === 'c') {
+      await databases.deleteDocument(DB_ID, COLLECTIONS.comments, id);
+      const list = [...(intuitions[qid] || []), ...(takeaways[qid] || [])];
+      const parent = list.find(x => x.id === parentId);
+      if (parent) parent.comments = parent.comments.filter(c => c.id !== id);
+    } else {
+      await deleteRows(COLLECTIONS.links, 'parent_id', id);
+      await deleteRows(COLLECTIONS.comments, 'parent_id', id);
+      await databases.deleteDocument(DB_ID, type === 'i' ? COLLECTIONS.intuitions : COLLECTIONS.takeaways, id);
+      if (type === 'i') intuitions[qid] = (intuitions[qid] || []).filter(x => x.id !== id);
+      else takeaways[qid] = (takeaways[qid] || []).filter(x => x.id !== id);
+    }
+    showToast(`${what[0].toUpperCase() + what.slice(1)} deleted.`, 'success');
+    renderDetailItems();
+    if (type !== 'c') renderDetailHeader();
+  } catch (e) { showToast('Delete failed: ' + e.message, 'error'); }
+}
+
+/* ── DELEGATED CLICKS (expand, comment, edit, delete, save) ────── */
 document.addEventListener('click', e => {
   const expBtn = e.target.closest('[id^="iexpbtn-"],[id^="texpbtn-"]');
   if (expBtn) { const m=expBtn.id.match(/^([it])expbtn-(.+)$/); if(m) toggleExpand(m[2],m[1]); return; }
 
   const cBtn = e.target.closest('.comment-btn[data-cid]');
   if (cBtn) { toggleComments(cBtn.dataset.cid, cBtn.dataset.ctype); return; }
+
+  const delBtn = e.target.closest('button[data-delid]');
+  if (delBtn) { deleteItem(delBtn.dataset.delid, delBtn.dataset.deltype, delBtn.dataset.parent); return; }
 
   const postBtn = e.target.closest('button[data-postid]');
   if (postBtn) { addComment(postBtn.dataset.postid, postBtn.dataset.posttype); return; }
@@ -1217,7 +1314,7 @@ function toggleExpand(id, type) {
   const content=type==='i'?item.explanation:item.content, ex=expandState[key];
   const el=document.getElementById((type==='i'?'iexp':'texp')+'-'+id);
   const btn=document.getElementById((type==='i'?'iexpbtn':'texpbtn')+'-'+id);
-  if (el) { el.innerHTML=processText(ex?content:content.substring(0,300)+'…'); renderMath(el); }
+  if (el) { el.innerHTML=processText(ex?content:previewText(content)); renderMath(el); }
   if (btn) btn.textContent=ex?'Show less':'Show more';
 }
 function toggleComments(id,type) { document.getElementById(`comments-${type}-${id}`)?.classList.toggle('open'); }
@@ -1244,34 +1341,45 @@ async function saveEdit(id, type) {
   if (!me) { openAuthModal(); return; }
   const saveBtn=document.querySelector(`button[data-saveid="${id}"][data-savetype="${type}"]`);
   if (saveBtn) { saveBtn.disabled=true; saveBtn.textContent='Saving…'; }
-  if (type==='i') {
-    const stmt=document.getElementById(`edit-stmt-${id}`)?.value.trim();
-    const exp =document.getElementById(`edit-exp-${id}`)?.value.trim();
-    if (!stmt||!exp) { showToast('Statement and explanation cannot be empty.','error'); if(saveBtn){saveBtn.disabled=false;saveBtn.textContent='Save';} return; }
-    if (exp.split(/\s+/).filter(Boolean).length>2000) { showToast('Explanation exceeds 2000 words.','error'); if(saveBtn){saveBtn.disabled=false;saveBtn.textContent='Save';} return; }
-    const { error }=await db.from('intuitions').update({ statement:stmt, explanation:exp }).eq('id',id).eq('author_id',me.id);
-    if (error) { showToast('Save failed: '+error.message,'error'); if(saveBtn){saveBtn.disabled=false;saveBtn.textContent='Save';} return; }
-    const item=(intuitions[selectedQuestion.id]||[]).find(x=>x.id===id);
-    if (item) { item.statement=stmt; item.explanation=exp; item.edited=true; }
-  } else {
-    const content=document.getElementById(`edit-tak-${id}`)?.value.trim();
-    if (!content) { showToast('Takeaway cannot be empty.','error'); if(saveBtn){saveBtn.disabled=false;saveBtn.textContent='Save';} return; }
-    const { error }=await db.from('takeaways').update({ content }).eq('id',id).eq('author_id',me.id);
-    if (error) { showToast('Save failed: '+error.message,'error'); if(saveBtn){saveBtn.disabled=false;saveBtn.textContent='Save';} return; }
-    const item=(takeaways[selectedQuestion.id]||[]).find(x=>x.id===id);
-    if (item) { item.content=content; item.edited=true; }
+  try {
+    if (type==='i') {
+      const stmt=document.getElementById(`edit-stmt-${id}`)?.value.trim();
+      const exp =document.getElementById(`edit-exp-${id}`)?.value.trim();
+      if (!stmt||!exp) { showToast('Statement and explanation cannot be empty.','error'); if(saveBtn){saveBtn.disabled=false;saveBtn.textContent='Save';} return; }
+      if (exp.split(/\s+/).filter(Boolean).length>2000) { showToast('Explanation exceeds 2000 words.','error'); if(saveBtn){saveBtn.disabled=false;saveBtn.textContent='Save';} return; }
+      await databases.updateDocument(DB_ID, COLLECTIONS.intuitions, id, { statement:stmt, explanation:exp });
+      const item=(intuitions[selectedQuestion.id]||[]).find(x=>x.id===id);
+      if (item) { item.statement=stmt; item.explanation=exp; item.edited=true; }
+    } else {
+      const content=document.getElementById(`edit-tak-${id}`)?.value.trim();
+      if (!content) { showToast('Takeaway cannot be empty.','error'); if(saveBtn){saveBtn.disabled=false;saveBtn.textContent='Save';} return; }
+      await databases.updateDocument(DB_ID, COLLECTIONS.takeaways, id, { content });
+      const item=(takeaways[selectedQuestion.id]||[]).find(x=>x.id===id);
+      if (item) { item.content=content; item.edited=true; }
+    }
+    showToast('Saved!','success'); renderDetailItems();
+  } catch(e) {
+    showToast('Save failed: '+e.message,'error');
+    if(saveBtn){saveBtn.disabled=false;saveBtn.textContent='Save';}
   }
-  showToast('Saved!','success'); renderDetailItems();
 }
 
-function addComment(id, type) {
+async function addComment(id, type) {
   if (!me) { openAuthModal(); return; }
   const el=document.getElementById(`ctext-${type}-${id}`), text=el?.value.trim(); if (!text) return;
-  const comment={ id:'c'+(++idCounter), text, author:profile?.username||'You', createdAt:'just now' };
+  if (text.length > COMMENT_MAX) { showToast(`Comments can be at most ${COMMENT_MAX} characters.`,'error'); return; }
+  if (!throttle('comment')) return;
   const list=type==='i'?(intuitions[selectedQuestion.id]||[]):(takeaways[selectedQuestion.id]||[]);
   const item=list.find(x=>x.id===id);
-  if (item) { if(!item.comments) item.comments=[]; item.comments.push(comment); }
-  db.from('comments').insert({ parent_id:id, parent_type:type==='i'?'intuition':'takeaway', text, author_id:me.id });
+  try {
+    const d = await databases.createDocument(DB_ID, COLLECTIONS.comments, ID.unique(), {
+      parent_id: id,
+      parent_type: type === 'i' ? 'intuition' : 'takeaway',
+      text,
+      author_id: me.$id
+    }, mine());
+    if (item) item.comments.push({ id:d.$id, text, author:profile?.username||'You', authorId:me.$id, createdAt:'just now' });
+  } catch(e) { showToast('Comment failed: '+e.message,'error'); return; }
   renderDetailItems();
   setTimeout(()=>document.getElementById(`comments-${type}-${id}`)?.classList.add('open'),10);
 }
@@ -1290,9 +1398,25 @@ async function handleVote(id, dir, type) {
   else if (type==='i'&&selectedQuestion) { const i=(intuitions[selectedQuestion.id]||[]).find(x=>x.id===id); if(i) applyDelta(i); renderDetailItems(); }
   else if (type==='t'&&selectedQuestion) { const t=(takeaways[selectedQuestion.id]||[]).find(x=>x.id===id); if(t) applyDelta(t); renderDetailItems(); }
   try {
-    if (next===null) await db.from('votes').delete().eq('user_id',me.id).eq('target_id',id).eq('target_type',ttype);
-    else if (cur===null) await db.from('votes').insert({ user_id:me.id, target_id:id, target_type:ttype, direction:next });
-    else await db.from('votes').update({ direction:next }).eq('user_id',me.id).eq('target_id',id).eq('target_type',ttype);
+    if (next === null) {
+      const existing = await databases.listDocuments(DB_ID, COLLECTIONS.votes, [
+        Query.equal('user_id', me.$id), Query.equal('target_id', id),
+        Query.equal('target_type', ttype), Query.limit(1)
+      ]);
+      if (existing.documents.length)
+        await databases.deleteDocument(DB_ID, COLLECTIONS.votes, existing.documents[0].$id);
+    } else if (cur === null) {
+      await databases.createDocument(DB_ID, COLLECTIONS.votes, ID.unique(), {
+        user_id: me.$id, target_id: id, target_type: ttype, direction: next
+      }, mine());
+    } else {
+      const existing = await databases.listDocuments(DB_ID, COLLECTIONS.votes, [
+        Query.equal('user_id', me.$id), Query.equal('target_id', id),
+        Query.equal('target_type', ttype), Query.limit(1)
+      ]);
+      if (existing.documents.length)
+        await databases.updateDocument(DB_ID, COLLECTIONS.votes, existing.documents[0].$id, { direction: next });
+    }
   } catch(e) {
     showToast('Vote failed: '+e.message,'error');
     vm[id]=cur;
@@ -1314,7 +1438,6 @@ function renderPostForm() {
     const elEl=document.getElementById('pf-exampleLink'), eeEl=document.getElementById('pf-exampleExp');
     if (elEl) { elEl.value=formState.exampleLink;        elEl.addEventListener('input',e=>{formState.exampleLink=e.target.value;}); }
     if (eeEl) { eeEl.value=formState.exampleExplanation; eeEl.addEventListener('input',e=>{formState.exampleExplanation=e.target.value;}); }
-    // optional write/preview tabs
     document.getElementById('intExpWriteTab')?.addEventListener('click',()=>{
       document.getElementById('intExpWriteTab').classList.add('active');document.getElementById('intExpPreviewTab').classList.remove('active');
       document.getElementById('intExpWritePane').classList.add('active');document.getElementById('intExpPreviewPane').classList.remove('active');
@@ -1356,21 +1479,21 @@ function intuitionFormHTML() {
   return `<div class="form-card">
     <div class="form-title">Share Your Intuition</div>
     ${!li?`<div class="login-notice">You need to <button class="btn-link" id="loginPrompt">log in</button> to post an intuition.</div>`:''}
-    <div class="form-group"><label class="form-label">Intuition Statement</label><input class="form-input" id="pf-statement" placeholder="e.g. It factors because of a common root" ${!li?'disabled':''} /></div>
+    <div class="form-group"><label class="form-label" for="pf-statement">Intuition Statement</label><input class="form-input" id="pf-statement" placeholder="e.g. It factors because of a common root" ${!li?'disabled':''} /></div>
     <div class="form-group">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><label class="form-label" style="margin:0">Explanation</label><span id="wordCount" class="word-count">0 / 2000 words</span></div>
       <div class="preview-toggle"><button class="preview-tab active" id="intExpWriteTab">Write</button><button class="preview-tab" id="intExpPreviewTab">Preview</button></div>
       <div class="preview-pane active" id="intExpWritePane"><textarea class="form-textarea" id="pf-explanation" style="min-height:120px" ${!li?'disabled':''} placeholder="Explain your intuition… ($LaTeX$ and ||spoiler|| supported)"></textarea></div>
       <div class="preview-pane" id="intExpPreviewPane"><div class="preview-rendered kr" id="intExpPreviewContent" style="min-height:120px"></div></div>
     </div>
-    <div class="form-group"><label class="form-label">Add Image (optional)</label>
+    <div class="form-group"><label class="form-label" for="pf-intImage">Add Image (optional)</label>
       <input type="file" id="pf-intImage" accept="image/*" style="color:var(--text2);font-size:13px" ${!li?'disabled':''} />
-      <div class="img-preview-box" id="pf-intImagePreviewBox" style="display:none"><img id="pf-intImagePreview" src="" alt="Preview" /><button class="img-preview-remove" id="pf-intImageRemove"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+      <div class="img-preview-box" id="pf-intImagePreviewBox" style="display:none"><img id="pf-intImagePreview" src="" alt="Preview" /><button class="img-preview-remove" aria-label="Remove image" id="pf-intImageRemove"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
     </div>
     <div class="form-group"><label class="form-label">Links (optional, max 3)</label><div class="link-input-row"><input class="form-input" id="pf-link" placeholder="https://…" style="flex:1" ${!li?'disabled':''} /><button class="btn btn-ghost btn-sm" id="pf-addlink" ${!li?'disabled':''}>Add</button></div><div class="link-list" id="int-links"></div></div>
     <hr class="form-divider"/>
-    <div class="form-group"><label class="form-label">Problem Link (optional)</label><input class="form-input" id="pf-exampleLink" placeholder="https://…" ${!li?'disabled':''} /></div>
-    <div class="form-group"><label class="form-label">Additional Context (optional)</label><textarea class="form-textarea" id="pf-exampleExp" style="min-height:70px" ${!li?'disabled':''}></textarea></div>
+    <div class="form-group"><label class="form-label" for="pf-exampleLink">Problem Link (optional)</label><input class="form-input" id="pf-exampleLink" placeholder="https://…" ${!li?'disabled':''} /></div>
+    <div class="form-group"><label class="form-label" for="pf-exampleExp">Additional Context (optional)</label><textarea class="form-textarea" id="pf-exampleExp" style="min-height:70px" ${!li?'disabled':''}></textarea></div>
     <button class="btn btn-primary" id="pf-submitInt" ${!li?'disabled':''}>Post Intuition</button>
   </div>`;
 }
@@ -1385,9 +1508,9 @@ function takeawayFormHTML() {
       <div class="preview-pane active" id="takExpWritePane"><textarea class="form-textarea" id="pf-takeaway" style="min-height:130px" ${!li?'disabled':''} placeholder="Share your insights… ($LaTeX$ and ||spoiler|| supported)"></textarea></div>
       <div class="preview-pane" id="takExpPreviewPane"><div class="preview-rendered kr" id="takExpPreviewContent" style="min-height:130px"></div></div>
     </div>
-    <div class="form-group"><label class="form-label">Add Image (optional)</label>
+    <div class="form-group"><label class="form-label" for="pf-takImage">Add Image (optional)</label>
       <input type="file" id="pf-takImage" accept="image/*" style="color:var(--text2);font-size:13px" ${!li?'disabled':''} />
-      <div class="img-preview-box" id="pf-takImagePreviewBox" style="display:none"><img id="pf-takImagePreview" src="" alt="Preview" /><button class="img-preview-remove" id="pf-takImageRemove"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+      <div class="img-preview-box" id="pf-takImagePreviewBox" style="display:none"><img id="pf-takImagePreview" src="" alt="Preview" /><button class="img-preview-remove" aria-label="Remove image" id="pf-takImageRemove"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
     </div>
     <div class="form-group"><label class="form-label">Links (optional)</label><div class="link-input-row"><input class="form-input" id="pf-taklink" placeholder="https://…" style="flex:1" ${!li?'disabled':''} /><button class="btn btn-ghost btn-sm" id="pf-addtaklink" ${!li?'disabled':''}>Add</button></div><div class="link-list" id="tak-links"></div></div>
     <button class="btn btn-primary" id="pf-submitTak" ${!li?'disabled':''}>Post Takeaway</button>
@@ -1420,11 +1543,12 @@ function renderLinkList(type) {
   const c=document.getElementById(type+'-links'); if (!c) return;
   const links=type==='int'?formState.explanationLinks:formState.takeawayLinks;
   const fn=type==='int'?'removeIntLink':'removeTakLink';
-  c.innerHTML=links.map((l,i)=>`<div class="link-item"><a href="${esc(l)}" target="_blank" rel="noopener">${esc(l)}</a><button class="remove-link-btn" onclick="${fn}(${i})"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>`).join('');
+  c.innerHTML=links.map((l,i)=>`<div class="link-item"><a href="${esc(l)}" target="_blank" rel="noopener">${esc(l)}</a><button class="remove-link-btn" aria-label="Remove link" onclick="${fn}(${i})"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>`).join('');
 }
 
 async function submitIntuition() {
   if (!me) { openAuthModal(); return; }
+  if (!throttle('post')) return;
   let imageUrl=null;
   if (formState.intImageFile) { try { imageUrl=await uploadImage(formState.intImageFile); } catch(e) { showToast('Image upload failed: '+e.message,'error'); return; } }
   const stmt=document.getElementById('pf-statement')?.value.trim();
@@ -1435,30 +1559,57 @@ async function submitIntuition() {
   btn.disabled=true; btn.textContent='Posting…';
   const exLink=document.getElementById('pf-exampleLink')?.value.trim()||null;
   const exExp =document.getElementById('pf-exampleExp')?.value.trim()||null;
-  const { data:d, error:e }=await db.from('intuitions').insert({ question_id:selectedQuestion.id, statement:stmt, explanation:exp, example_link:exLink, example_explanation:exExp, author_id:me.id, image_url:imageUrl }).select('id').single();
-  if (e) { showToast('Error posting: '+e.message,'error'); btn.disabled=false; btn.textContent='Post Intuition'; return; }
-  if (formState.explanationLinks.length&&d) await db.from('links').insert(formState.explanationLinks.map(url=>({ parent_id:d.id, parent_type:'intuition', url })));
-  Object.assign(formState,{ statement:'', explanation:'', explanationLinks:[], exampleLink:'', exampleExplanation:'', intImageFile:null });
-  showToast('Intuition posted!','success');
-  await loadDetailItems(selectedQuestion.id);
-  renderDetailItems(); renderPostForm();
-  window.scrollTo({ top:document.getElementById('dtab-intuitions').offsetTop-80, behavior:'smooth' });
+  try {
+    const d = await databases.createDocument(DB_ID, COLLECTIONS.intuitions, ID.unique(), {
+      question_id: selectedQuestion.id, statement: stmt, explanation: exp,
+      example_link: exLink, example_explanation: exExp,
+      author_id: me.$id, image_url: imageUrl
+    }, mine());
+    if (formState.explanationLinks.length) {
+      for (const url of formState.explanationLinks) {
+        await databases.createDocument(DB_ID, COLLECTIONS.links, ID.unique(), {
+          parent_id: d.$id, parent_type: 'intuition', url
+        }, mine());
+      }
+    }
+    Object.assign(formState,{ statement:'', explanation:'', explanationLinks:[], exampleLink:'', exampleExplanation:'', intImageFile:null });
+    showToast('Intuition posted!','success');
+    await loadDetailItems(selectedQuestion.id);
+    renderDetailItems(); renderPostForm();
+    window.scrollTo({ top:document.getElementById('dtab-intuitions').offsetTop-80, behavior:'smooth' });
+  } catch(e) {
+    showToast('Error posting: '+e.message,'error');
+    btn.disabled=false; btn.textContent='Post Intuition';
+  }
 }
 
 async function submitTakeaway() {
   if (!me) { openAuthModal(); return; }
+  if (!throttle('post')) return;
   let imageUrl=null;
   if (formState.takImageFile) { try { imageUrl=await uploadImage(formState.takImageFile); } catch(e) { showToast('Image upload failed: '+e.message,'error'); return; } }
   const content=document.getElementById('pf-takeaway')?.value.trim();
   if (!content) { showToast('Please write your takeaway.','error'); return; }
   const btn=document.getElementById('pf-submitTak');
   btn.disabled=true; btn.textContent='Posting…';
-  const { data:d, error:e }=await db.from('takeaways').insert({ question_id:selectedQuestion.id, content, image_url:imageUrl, author_id:me.id }).select('id').single();
-  if (e) { showToast('Error posting: '+e.message,'error'); btn.disabled=false; btn.textContent='Post Takeaway'; return; }
-  if (formState.takeawayLinks.length&&d) await db.from('links').insert(formState.takeawayLinks.map(url=>({ parent_id:d.id, parent_type:'takeaway', url })));
-  Object.assign(formState,{ takeawayContent:'', takeawayLinks:[], takImageFile:null });
-  showToast('Takeaway posted!','success');
-  await loadDetailItems(selectedQuestion.id);
-  renderDetailItems(); renderPostForm();
-  window.scrollTo({ top:document.getElementById('dtab-takeaways').offsetTop-80, behavior:'smooth' });
+  try {
+    const d = await databases.createDocument(DB_ID, COLLECTIONS.takeaways, ID.unique(), {
+      question_id: selectedQuestion.id, content, image_url: imageUrl, author_id: me.$id
+    }, mine());
+    if (formState.takeawayLinks.length) {
+      for (const url of formState.takeawayLinks) {
+        await databases.createDocument(DB_ID, COLLECTIONS.links, ID.unique(), {
+          parent_id: d.$id, parent_type: 'takeaway', url
+        }, mine());
+      }
+    }
+    Object.assign(formState,{ takeawayContent:'', takeawayLinks:[], takImageFile:null });
+    showToast('Takeaway posted!','success');
+    await loadDetailItems(selectedQuestion.id);
+    renderDetailItems(); renderPostForm();
+    window.scrollTo({ top:document.getElementById('dtab-takeaways').offsetTop-80, behavior:'smooth' });
+  } catch(e) {
+    showToast('Error posting: '+e.message,'error');
+    btn.disabled=false; btn.textContent='Post Takeaway';
+  }
 }

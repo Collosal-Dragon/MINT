@@ -1,0 +1,9 @@
+# Local secrets (Appwrite API key etc.) — never commit
+.env
+.env.local
+
+# Database backups (contain user data) — never commit
+backups/
+
+# Local editor/tool settings — not part of the site
+.claude/
