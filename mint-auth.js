@@ -1,27 +1,19 @@
 'use strict';
-/* ═══════════════════════════════════════════
-   MINT — Shared login code
-   Used by index.html and every topic page. Expects these globals
-   from the page: account, databases, DB_ID, COLLECTIONS, Query, ID,
-   showToast(). A page can define onAuthChange() to react to log in/out.
-   ═══════════════════════════════════════════ */
 
-const MIN_PASSWORD = 8;   // Appwrite's own minimum
+
+const MIN_PASSWORD = 8;  
 const PASSWORD_RULE = 'Use at least 8 characters, with an uppercase letter, a lowercase letter and a number.';
-/* Same rules as Auth → Policies → Password strength in Appwrite */
+
 function passwordProblem(p) {
   return (p.length < MIN_PASSWORD || !/[A-Z]/.test(p) || !/[a-z]/.test(p) || !/[0-9]/.test(p)) ? PASSWORD_RULE : '';
 }
-const USERNAME_LOGIN_FN = 'username-login';   // Appwrite Function, see appwrite/functions/
+const USERNAME_LOGIN_FN = 'username-login'; 
 let me = null, profile = null, authMode = 'login', isAdmin = false;
-const ADMIN_TEAM = 'admins';   // Appwrite team whose members can moderate
+const ADMIN_TEAM = 'admins';   
 
-/* Row permissions: only the author can edit or delete what they post */
 function ownedBy(uid) { return [`update("user:${uid}")`, `delete("user:${uid}")`]; }
 function mine() { return ownedBy(me.$id); }
 
-/* Who really created a row. Appwrite only lets a user grant rights to
-   themselves, so update("user:X") on a row proves X made it. */
 function rowOwner(row) {
   for (const p of row.$permissions || []) {
     const m = /^update\("user:([^"]+)"\)$/.exec(p);
@@ -31,7 +23,6 @@ function rowOwner(row) {
 }
 function ownedRow(row, claimedId) { return !!claimedId && rowOwner(row) === claimedId; }
 
-/* Only plain web links: blocks javascript:, data: and similar tricks */
 function safeUrl(u) {
   try {
     const x = new URL(u);
@@ -39,7 +30,6 @@ function safeUrl(u) {
   } catch { return ''; }
 }
 
-/* Usernames for a set of user ids, ignoring profiles someone else created */
 async function fetchUsernames(ids) {
   const uniq = [...new Set(ids.filter(Boolean))], names = {};
   for (let i = 0; i < uniq.length; i += 100) {
@@ -53,7 +43,6 @@ async function fetchUsernames(ids) {
   return names;
 }
 
-/* Which topic page shows a question, worked out from its tags' category */
 const CATEGORY_PAGES = {
   'Algebra': 'algebra.html', 'Combinatorics': 'combinatorics.html', 'Geometry': 'geometry.html',
   'Number Theory': 'number-theory.html', 'Problem Solving': 'problem-solving.html',
@@ -79,8 +68,7 @@ async function questionLinks(qIds) {
   return links;
 }
 
-/* Vote totals, kept up to date on the server by the vote-tally function.
-   Returns { itemId: { up, down } } for the ids asked for. */
+
 async function fetchVoteTotals(ids) {
   const out = {};
   const uniq = [...new Set(ids.filter(Boolean))];
@@ -95,7 +83,6 @@ async function fetchVoteTotals(ids) {
   return out;
 }
 
-/* Slow down accidental double posts and casual spam. Real limits live in Appwrite. */
 const COMMENT_MAX = 2000;
 const _lastAction = {};
 function throttle(kind, ms = 3000) {
@@ -108,7 +95,6 @@ function throttle(kind, ms = 3000) {
   return true;
 }
 
-/* ── SESSION ── */
 async function initAuth() {
   await finishGoogleLogin();
   try {
@@ -339,7 +325,7 @@ async function handleAuthSubmit() {
     if (!email) return setAuthMsg('err', 'Please enter the email you signed up with.');
     btn.disabled = true; btn.textContent = 'Sending…';
     try {
-      await account.createRecovery(email, location.origin + '/reset.html');
+      await account.createRecovery(email, new URL('reset.html', location.href).href);   // works under /MINT/ on GitHub Pages too
     } catch (e) {
       if (e?.type === 'general_rate_limit_exceeded') return fail(niceErr(e));
       // Any other error (e.g. no such account): say the same thing, so emails can't be probed
