@@ -557,7 +557,7 @@ if (document.readyState === 'loading') {
 }
 
 async function boot() {
-  applyTheme(localStorage.getItem('theme') || 'dark');
+  applyTheme(localStorage.getItem('theme') || 'light');
   document.getElementById('themeBtn').addEventListener('click', () => {
     const t = document.documentElement.className === 'dark' ? 'light' : 'dark';
     localStorage.setItem('theme', t); applyTheme(t);

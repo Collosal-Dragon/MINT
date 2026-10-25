@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+<meta charset="UTF-8" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: blob: https://sgp.cloud.appwrite.io; connect-src 'self' https://sgp.cloud.appwrite.io wss://sgp.cloud.appwrite.io; object-src 'none'; base-uri 'self'; form-action 'self'" />
+<meta name="referrer" content="strict-origin-when-cross-origin" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex" />
+<title>Admin — MINT</title>
+<!-- Pick the theme and paint the background before anything loads (no white flash) -->
+<script>try{document.documentElement.className=localStorage.getItem('theme')==='dark'?'dark':'light'}catch(e){}</script>
+<style>html{background:#f5f1e6;color-scheme:light}html.dark{background:#0f1724;color-scheme:dark}</style>
+<link rel="icon" type="image/svg+xml" href="logo.svg" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400;1,700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&family=Roboto+Slab:wght@400;700;900&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous" />
+<link rel="stylesheet" href="mint-shared.css" />
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/appwrite@16.1.0" integrity="sha384-2SlRm45+3L4tLlQD0d0MZ0SZb9sJIHAnO3IPJifBX5gEg7m8fdj/GBUXVClL8DKq" crossorigin="anonymous"></script>
+<script src="mint-auth.js"></script>
+<script src="mint-page.js"></script>
+</head>
+<body class="ready">
+<header id="siteHeader"></header>
+<main>
+  <div class="topic-header"><div><h1 class="topic-name">Admin</h1><div class="topic-desc">Review reports and remove posts that break the rules.</div></div></div>
+  <div id="adminGate" class="empty-state">Checking your access…</div>
+  <div id="adminArea" hidden>
+    <div class="sec-hd"><h2 class="sec-title">Reports (<span id="repCount">0</span>)</h2><span class="sec-line"></span></div>
+    <div id="reportList" class="activity-list"></div>
+    <div class="sec-hd" style="margin-top:36px"><h2 class="sec-title">Recent posts</h2><span class="sec-line"></span></div>
+    <div class="tabs-list" style="display:inline-flex;margin-bottom:16px">
+      <button class="tab-btn active" data-atab="questions">Questions</button>
+      <button class="tab-btn" data-atab="intuitions">Intuitions</button>
+      <button class="tab-btn" data-atab="takeaways">Takeaways</button>
+      <button class="tab-btn" data-atab="comments">Comments</button>
+    </div>
+    <div id="recentList" class="activity-list"></div>
+  </div>
+</main>
+<script>
+const TYPE_TABLE = { question: 'questions', intuition: 'intuitions', takeaway: 'takeaways', comment: 'comments' };
+const TABLE_TYPE = { questions: 'question', intuitions: 'intuition', takeaways: 'takeaway', comments: 'comment' };
+let aTab = 'questions';
+
+async function idsWhere(table, field, values) {
+  if (!values.length) return [];
+  const res = await databases.listDocuments(DB_ID, table, [Query.equal(field, values), Query.limit(500)]);
+  return res.documents.map(d => d.$id);
+}
+async function del(table, id) {
+  try { await databases.deleteDocument(DB_ID, table, id); }
+  catch (e) { if (e?.code !== 404) throw e; }
+}
+/* Remove a post and everything hanging off it, plus any reports about it */
+async function deleteContent(type, id) {
+  if (type === 'question') {
+    for (const i of await idsWhere('intuitions', 'question_id', [id])) await deleteContent('intuition', i);
+    for (const t of await idsWhere('takeaways', 'question_id', [id])) await deleteContent('takeaway', t);
+    for (const qt of await idsWhere('question_tags', 'question_id', [id])) await del('question_tags', qt);
+  } else if (type === 'intuition' || type === 'takeaway') {
+    for (const c of await idsWhere('comments', 'parent_id', [id])) await del('comments', c);
+    for (const l of await idsWhere('links', 'parent_id', [id])) await del('links', l);
+  }
+  await del(TYPE_TABLE[type], id);
+  for (const r of await idsWhere('reports', 'target_id', [id])) await del('reports', r);
+}
+
+function textOf(d) { return d ? (d.title || d.statement || d.content || d.text || '') : ''; }
+function snippet(s) { return esc(s.length > 200 ? s.slice(0, 200) + '…' : s); }
+
+async function loadReports() {
+  const el = document.getElementById('reportList');
+  el.innerHTML = '<div class="empty-state">Loading…</div>';
+  const res = await databases.listDocuments(DB_ID, COLLECTIONS.reports, [Query.orderDesc('$createdAt'), Query.limit(100)]);
+  const reps = res.documents;
+  document.getElementById('repCount').textContent = reps.length;
+  if (!reps.length) { el.innerHTML = '<div class="empty-state">No reports. All quiet.</div>'; return; }
+  const byType = {};
+  reps.forEach(r => (byType[r.target_type] = byType[r.target_type] || []).push(r.target_id));
+  const targets = {};
+  for (const [type, ids] of Object.entries(byType)) {
+    const table = TYPE_TABLE[type]; if (!table) continue;
+    const r = await databases.listDocuments(DB_ID, table, [Query.equal('$id', [...new Set(ids)].slice(0, 100)), Query.limit(100)]);
+    r.documents.forEach(d => { targets[d.$id] = d; });
+  }
+  const qIds = Object.values(targets).map(d => d.question_id || (d.title ? d.$id : null));
+  const [links, names] = await Promise.all([questionLinks(qIds), fetchUsernames(reps.map(r => r.user_id))]);
+  el.innerHTML = reps.map(r => {
+    const t = targets[r.target_id], qid = t && (t.question_id || (t.title ? t.$id : null));
+    return `<div class="activity-row">
+      <div class="activity-body">
+        <div class="activity-meta"><strong>${esc(r.target_type)}</strong> reported by ${esc(names[r.user_id] || 'unknown')} · ${ago(r.$createdAt)}</div>
+        ${r.reason ? `<div class="activity-text">Reason: ${esc(r.reason)}</div>` : ''}
+        ${r.details ? `<div class="activity-meta">${esc(r.details)}</div>` : ''}
+        <blockquote class="reported-text kr">${t ? snippet(textOf(t)) : '<em>Already deleted</em>'}</blockquote>
+      </div>
+      <div class="activity-actions">
+        ${qid && links[qid] ? `<a class="btn btn-ghost btn-sm" href="${esc(links[qid])}" target="_blank" rel="noopener">Open</a>` : ''}
+        ${t ? `<button class="btn btn-danger btn-sm" data-del="${esc(r.target_type)}" data-id="${esc(r.target_id)}">Delete post</button>` : ''}
+        <button class="btn btn-ghost btn-sm" data-dismiss="${esc(r.$id)}">Dismiss</button>
+      </div></div>`;
+  }).join('');
+  renderMath(el);
+}
+
+async function loadRecent() {
+  document.querySelectorAll('[data-atab]').forEach(b => b.classList.toggle('active', b.dataset.atab === aTab));
+  const el = document.getElementById('recentList');
+  el.innerHTML = '<div class="empty-state">Loading…</div>';
+  const res = await databases.listDocuments(DB_ID, aTab, [Query.orderDesc('$createdAt'), Query.limit(25)]);
+  const docs = res.documents;
+  const qIds = docs.map(d => d.question_id || (aTab === 'questions' ? d.$id : null));
+  const [links, names] = await Promise.all([questionLinks(qIds), fetchUsernames(docs.map(d => d.author_id))]);
+  el.innerHTML = docs.length ? docs.map(d => {
+    const qid = d.question_id || (aTab === 'questions' ? d.$id : null);
+    return `<div class="activity-row">
+      <div class="activity-body">
+        <div class="activity-text kr">${snippet(textOf(d))}</div>
+        <div class="activity-meta">${d.author_id ? 'by ' + esc(names[d.author_id] || 'unknown') + ' · ' : ''}${ago(d.$createdAt)}</div>
+      </div>
+      <div class="activity-actions">
+        ${qid && links[qid] ? `<a class="btn btn-ghost btn-sm" href="${esc(links[qid])}" target="_blank" rel="noopener">Open</a>` : ''}
+        <button class="btn btn-danger btn-sm" data-del="${TABLE_TYPE[aTab]}" data-id="${esc(d.$id)}">Delete</button>
+      </div></div>`;
+  }).join('') : '<div class="empty-state">Nothing here.</div>';
+  renderMath(el);
+}
+
+document.addEventListener('click', async e => {
+  const delBtn = e.target.closest('[data-del]'), dismissBtn = e.target.closest('[data-dismiss]'), tab = e.target.closest('[data-atab]');
+  if (tab) { aTab = tab.dataset.atab; loadRecent(); return; }
+  if (delBtn) {
+    const type = delBtn.dataset.del;
+    const extra = type === 'question' ? ' This also deletes all its intuitions, takeaways and comments.' : '';
+    if (!confirm(`Delete this ${type} for good?${extra}`)) return;
+    delBtn.disabled = true;
+    try { await deleteContent(type, delBtn.dataset.id); showToast('Deleted.'); }
+    catch (err) { showToast('Delete failed: ' + err.message, 'error'); }
+    loadReports(); loadRecent();
+  }
+  if (dismissBtn) {
+    dismissBtn.disabled = true;
+    try { await del('reports', dismissBtn.dataset.dismiss); showToast('Report dismissed.'); }
+    catch (err) { showToast('Could not dismiss: ' + err.message, 'error'); }
+    loadReports();
+  }
+});
+
+(async () => {
+  await startPage();
+  const gate = document.getElementById('adminGate');
+  if (!me) { gate.innerHTML = 'Please <a href="index.html">log in on the home page</a> with an admin account first.'; return; }
+  if (!isAdmin) { gate.textContent = 'This account does not have admin access.'; return; }
+  gate.hidden = true;
+  document.getElementById('adminArea').hidden = false;
+  try { await Promise.all([loadReports(), loadRecent()]); }
+  catch (e) { gate.hidden = false; gate.textContent = 'Could not load admin data: ' + e.message; }
+})();
+</script>
+</body>
+</html>
