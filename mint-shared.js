@@ -566,6 +566,7 @@ async function boot() {
     bindEvents();
     await initAuth();
     buildSidebar();
+    { const f = filterFromURL(); if (f.sub) applyFilter(f.sub, f.ssc, f.type, false); }
     initPostDropdown();
     wireQPickers();
     await loadQuestions();
@@ -612,13 +613,7 @@ function buildSidebar() {
       if (btn.classList.contains('active') && !isAll) {
         btn.classList.toggle('open', !wasOpen); if (panel) panel.classList.toggle('open', !wasOpen); return;
       }
-      list.querySelectorAll('.subtopic-btn').forEach(b => b.classList.remove('active','open'));
-      list.querySelectorAll('.ssc-panel').forEach(p => p.classList.remove('open'));
-      list.querySelectorAll('.ssc-btn').forEach(b => b.classList.remove('active','active-technique'));
-      btn.classList.add('active');
-      activeSubtopic = sub || null; activeSsc = null; activeSscType = null;
-      if (!isAll && panel) { btn.classList.add('open'); panel.classList.add('open'); }
-      renderQuestions();
+      applyFilter(sub || null, null, null, true);
     });
   });
   list.querySelectorAll('.ssc-btn').forEach(btn => {
@@ -626,16 +621,75 @@ function buildSidebar() {
       e.stopPropagation();
       const sub=btn.dataset.sub, ssc=btn.dataset.ssc, type=btn.dataset.ssctype;
       const isSame = activeSsc===ssc && activeSscType===type;
-      list.querySelectorAll('.ssc-btn').forEach(b => b.classList.remove('active','active-technique'));
-      list.querySelectorAll('.subtopic-btn').forEach(b => b.classList.remove('active'));
-      const parentBtn = list.querySelector(`.subtopic-btn[data-sub="${sub}"]`);
-      if (parentBtn) parentBtn.classList.add('active','open');
-      if (isSame) { activeSsc=null; activeSscType=null; }
-      else { btn.classList.add(type==='technique'?'active-technique':'active'); activeSubtopic=sub; activeSsc=ssc; activeSscType=type; }
-      renderQuestions();
+      applyFilter(sub, isSame?null:ssc, isSame?null:type, true);
     });
   });
 }
+
+/* ── FILTER LINKS ─────────────────────────────────────── */
+/* Every sidebar filter has its own URL, e.g. algebra.html?sub=functional-equations&structure=wrapped */
+const slugify = s => s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+function filterQuery() {
+  if (!activeSubtopic) return '';
+  let s = `?sub=${slugify(activeSubtopic)}`;
+  if (activeSsc) s += `&${activeSscType}=${slugify(activeSsc)}`;
+  return s;
+}
+function filterFromURL() {
+  const p = new URLSearchParams(window.location.search);
+  const sub = SUBS.find(s => slugify(s)===p.get('sub')) || null;
+  if (sub) for (const type of ['structure','technique']) {
+    const v = p.get(type), ssc = v && (SSC[sub]?.[type]||[]).find(n => slugify(n)===v);
+    if (ssc) return { sub, ssc, type };
+  }
+  return { sub, ssc:null, type:null };
+}
+function applyFilter(sub, ssc, type, pushUrl) {
+  activeSubtopic=sub; activeSsc=ssc; activeSscType=type;
+  const list = document.getElementById('subtopicList');
+  list.querySelectorAll('.subtopic-btn').forEach(b => {
+    const on = (b.dataset.sub||null)===sub;
+    b.classList.toggle('active', on); b.classList.toggle('open', on && !!sub);
+  });
+  const panelId = sub ? `ssc-panel-${sub.replace(/[^a-z0-9]/gi,'-')}` : null;
+  list.querySelectorAll('.ssc-panel').forEach(p => p.classList.toggle('open', p.id===panelId));
+  list.querySelectorAll('.ssc-btn').forEach(b => {
+    b.classList.remove('active','active-technique');
+    if (ssc && b.dataset.sub===sub && b.dataset.ssc===ssc && b.dataset.ssctype===type)
+      b.classList.add(type==='technique'?'active-technique':'active');
+  });
+  if (pushUrl) history.pushState({}, '', window.location.pathname + filterQuery());
+  renderQuestions();
+}
+
+/* Tag pills on cards and posts link to the same filter as the sidebar */
+function tagPill(t, idx, searchQuery) {
+  const ssc = parseSscTag(t);
+  const sub = ssc ? ssc.sub : t;
+  const linked = SUBS.includes(sub);
+  const attrs = linked
+    ? `href="${window.location.pathname}?sub=${slugify(sub)}${ssc?`&${ssc.type}=${slugify(ssc.name)}`:''}" data-fsub="${esc(sub)}" data-fssc="${esc(ssc?ssc.name:'')}" data-ftype="${ssc?ssc.type:''}"`
+    : '';
+  const tag = linked ? 'a' : 'span';
+  if (ssc) {
+    const col=ssc.type==='technique'?'rgba(217,180,95,.15)':'rgba(143,179,224,.15)';
+    const bdr=ssc.type==='technique'?'rgba(217,180,95,.3)':'rgba(143,179,224,.3)';
+    const tc =ssc.type==='technique'?'var(--gold)':'var(--blue)';
+    return `<${tag} ${attrs} style="text-align:center;padding:3px 11px;border-radius:3px;font-size:var(--text-about);font-weight:700;background:${col};color:${tc};border:1px solid ${bdr};text-decoration:none">${esc(ssc.name)}</${tag}>`;
+  }
+  return `<${tag} ${attrs} class="${idx===0?'tag-primary':'tag-secondary'}" style="text-decoration:none">${searchQuery?highlightText(t,searchQuery):esc(t)}</${tag}>`;
+}
+/* Plain click on a pill filters in place; ctrl/middle-click still opens the link in a new tab */
+document.addEventListener('click', e => {
+  const a = e.target.closest('a[data-fsub]');
+  if (!a || e.ctrlKey || e.metaKey || e.shiftKey || e.button!==0) return;
+  e.preventDefault(); e.stopPropagation();
+  selectedQuestion=null;
+  document.getElementById('detailView').style.display='none';
+  document.getElementById('listView').style.display='block';
+  applyFilter(a.dataset.fsub, a.dataset.fssc||null, a.dataset.ftype||null, true);
+  window.scrollTo(0,0);
+}, true);
 
 /* ── BIND EVENTS ──────────────────────────────────────── */
 function bindEvents() {
@@ -763,6 +817,7 @@ function bindEvents() {
       selectedQuestion=null;
       document.getElementById('detailView').style.display='none';
       document.getElementById('listView').style.display='block';
+      const f = filterFromURL(); applyFilter(f.sub, f.ssc, f.type, false);
     }
   });
 }
@@ -937,16 +992,7 @@ function questionCardHTML(q, i=0, searchQuery='') {
     <div class="card-content">
       <div class="card-title kr">${titleHTML}</div>
       <div class="card-about"><span class="kr">${aboutHTML}</span></div>
-      <div class="tags">${q.tags.map((t,idx)=>{
-        const ssc=parseSscTag(t);
-        if (ssc) {
-          const col=ssc.type==='technique'?'rgba(217,180,95,.15)':'rgba(143,179,224,.15)';
-          const bdr=ssc.type==='technique'?'rgba(217,180,95,.3)':'rgba(143,179,224,.3)';
-          const tc =ssc.type==='technique'?'var(--gold)':'var(--blue)';
-          return `<span style="text-align:center;padding:3px 11px;border-radius:3px;font-size:var(--text-about);font-weight:700;background:${col};color:${tc};border:1px solid ${bdr};cursor:pointer" data-q="${esc(t.split('::')[1]||'')}" onclick="event.stopPropagation();setSearchQuery(this.dataset.q)">${esc(ssc.name)}</span>`;
-        }
-        return `<span class="${idx===0?'tag-primary':'tag-secondary'}">${searchQuery?highlightText(t,searchQuery):esc(t)}</span>`;
-      }).join('')}</div>
+      <div class="tags">${q.tags.map((t,idx)=>tagPill(t, idx, searchQuery)).join('')}</div>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px">
         <div class="card-meta">${q.createdAt}</div>
         <button class="btn-report" data-reportid="${q.id}" data-reporttype="question" title="Report this question">
@@ -996,7 +1042,7 @@ function goBack() {
   selectedQuestion=null;
   document.getElementById('detailView').style.display='none';
   document.getElementById('listView').style.display='block';
-  history.pushState({}, '', window.location.pathname);
+  history.pushState({}, '', window.location.pathname + filterQuery());
   loadQuestions();
 }
 
@@ -1096,11 +1142,7 @@ function renderDetailHeader() {
   document.getElementById('detailContent').innerHTML=`
     <div class="detail-title kr">${esc(q.title)}</div>
     <div class="detail-about"><span class="kr">${esc(q.about)}</span></div>
-    <div class="tags" style="margin:10px 0">${q.tags.map((t,i)=>{
-      const ssc=parseSscTag(t);
-      if(ssc){const col=ssc.type==='technique'?'rgba(217,180,95,.15)':'rgba(143,179,224,.15)';const bdr=ssc.type==='technique'?'rgba(217,180,95,.3)':'rgba(143,179,224,.3)';const tc=ssc.type==='technique'?'var(--gold)':'var(--blue)';return`<span style="padding:3px 11px;border-radius:3px;font-size:var(--text-about);font-weight:700;background:${col};color:${tc};border:1px solid ${bdr}">${esc(ssc.name)}</span>`;}
-      return`<span class="${i===0?'tag-primary':'tag-secondary'}">${esc(t)}</span>`;
-    }).join('')}</div>
+    <div class="tags" style="margin:10px 0">${q.tags.map((t,i)=>tagPill(t, i, "")).join('')}</div>
     <div style="display:flex;align-items:center;justify-content:space-between">
       <div class="detail-meta">${q.createdAt}</div>
       <button class="btn-report" data-reportid="${q.id}" data-reporttype="question" onclick="handleReport('${q.id}','question')">
