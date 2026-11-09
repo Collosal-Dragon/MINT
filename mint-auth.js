@@ -109,7 +109,7 @@ async function initAuth() {
 }
 
 /* Admin = member of the "admins" team. The server enforces what admins can do;
-   this only decides whether to show the Admin button. */
+   this only decides whether to show delete buttons on other people's posts. */
 async function checkAdmin() {
   isAdmin = false;
   if (!me) return;
@@ -144,17 +144,9 @@ function refreshHeader() {
     pill.classList.add('hidden');
     pill.onclick = null;
     btn.textContent = 'Log in';
-    // Pages without a login box (admin, profile, reset) send people to the home page to log in
+    // Pages without a login box (profile, reset) send people to the home page to log in
     btn.onclick = document.getElementById('authOverlay') ? openAuthModal : () => { location.href = 'index.html'; };
   }
-  let adminLink = document.getElementById('adminLink');
-  if (me && isAdmin && !adminLink) {
-    adminLink = document.createElement('a');
-    adminLink.id = 'adminLink'; adminLink.className = 'btn btn-ghost btn-sm'; adminLink.href = 'admin.html';
-    adminLink.textContent = 'Admin';
-    btn.before(adminLink);
-  }
-  if (adminLink) adminLink.classList.toggle('hidden', !(me && isAdmin));
   if (typeof onAuthChange === 'function') onAuthChange();
 }
 

@@ -1,0 +1,146 @@
+Algebra
+Functional Equations
+Reals (structure)
+Positive Reals (structure)
+Rationals/Integers (structure)
+Natural Numbers (structure)
+Wrapped (structure)
+Injectivity/Surjectivity (structure)
+Additive (structure)
+Adding new variables (structure)
+Transformation (technique)
+Inequality
+2 Variable (structure)
+3 Variable (structure)
+Geometric Inequalities (structure)
+Convex/Concavity (technique)
+Tangent Line Trick (technique)
+Smoothing (technique)
+Homogenous (technique)
+AM-GM (technique)
+Cauchy Schwarz Inequality (technique)
+Substitution (technique)
+Sequences
+Periodic (structure)
+Bounded (structure)
+Monotonic (structure)
+Recurrence Relations (technique)
+Summation Methods (technique)
+Polynomials
+Coefficients (structure)
+Degree (structure)
+Integer Polynomials (structure)
+Rational Polynomials (structure)
+Real Polynomials (structure)
+Roots (structure)
+Factorisation (structure)
+Inequalities (technique)
+Symmetry (technique)
+Others
+Calculus (technique)
+Size (technique)
+Bounding (technique)
+Geometry
+Angle Chasing
+Parallel lines (structure)
+Tangents (structure)
+Directed angles (structure)
+Good lines/bad lines (technique)
+Spiral similarity (technique)
+Circles
+Coaxial circles (structure)
+Concurrent circles (structure)
+Radical axis (structure)
+Triangle
+Centers (structure)
+Configurations (structure)
+Isogonal lines/points (structure)
+Quadrilaterals
+Complete quadrilaterals (structure)
+Length chasing
+Power of point (technique)
+Trigonometry (technique)
+Ceva/Menelaus (technique)
+Symmetry
+Transformations
+Homothety (technique)
+Inversion (technique)
+Computational
+Cartesian coordinates (technique)
+Complex numbers (technique)
+Barycentric coordinates (technique)
+Method of Moving Points (technique)
+Projective tools
+Construction
+Adding points (technique)
+Simplification
+Removing points (technique)
+Others
+Concurrent lines (structure)
+Combinatorics
+Counting
+Double Counting (technique)
+Bijections (technique)
+Local techniques
+Induction (technique)
+Extremal principle (technique)
+Pigeonhole Principle (technique)
+Global techniques
+Invariants/monovariants (technique)
+Colourings (technique)
+Weightings (technique)
+Probabilistic methods (technique)
+Graph Theory
+Trees (structure)
+Directed Graphs (structure)
+Cycles (structure)
+Cliques (structure)
+Grids
+Processes
+Algorithms (structure)
+Games (structure)
+Constructive processes
+Bounding
+Others
+Number Theory
+Divisibility
+Euclid’s algorithm (structure)
+GCD/LCM (technique)
+Primes
+Size (technique)
+Modular arithmetic
+Fermat’s little theorem (structure)
+Euler’s theorem (structure)
+Wilson’s theorem (structure)
+Chinese remainder theorem (structure)
+Primitive roots (structure)
+Quadratic residues (technique)
+Modular contradictions (technique)
+Inverses (technique)
+Special functions
+Divisor function (structure)
+Euler totient function (structure)
+Digit sum function (structure)
+Base systems (structure)
+P-adic valuation
+Lifting the exponent lemma (structure)
+Legendre’s formula (structure)
+Diophantines
+Pell’s equation (structure)
+Descent
+Vieta Jumping (structure)
+Expressions
+Exponents (technique)
+Factorials (technique)
+Bounding
+Integer polynomials
+Constructions
+Others
+Problem Solving
+Symmetry
+Equality case
+Generalisation
+Reduction
+Equivalent statements
+Competition mentality
+General advice

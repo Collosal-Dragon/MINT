@@ -1,6 +1,6 @@
 'use strict';
 /* ═══════════════════════════════════════════
-   MINT — Shared setup for the standalone pages (admin, profile, reset).
+   MINT — Shared setup for the standalone pages (profile, reset).
    Load after the Appwrite SDK and mint-auth.js. Each page puts
    <header id="siteHeader"></header> in its body and calls startPage().
    ═══════════════════════════════════════════ */
