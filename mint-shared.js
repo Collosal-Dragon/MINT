@@ -51,12 +51,8 @@ function parseSscTag(tag) {
 }
 
 /* ── GENERAL HELPERS ──────────────────────────────────── */
-function ago(ts) {
-  const d=Date.now()-new Date(ts),m=~~(d/6e4),h=~~(d/36e5),dy=~~(d/864e5);
-  return m<1?'just now':m<60?`${m}m ago`:h<24?`${h}h ago`:dy<7?`${dy}d ago`:`${~~(dy/7)}w ago`;
-}
 function esc(s) {
-  return s ? s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;') : '';
+  return s ? String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;') : '';
 }
 /* ||text|| becomes a Discord-style spoiler: each block hides on its own and a click reveals just that one */
 function processText(raw) {
@@ -587,7 +583,7 @@ async function boot() {
 /* ── SIDEBAR ──────────────────────────────────────────── */
 function buildSidebar() {
   const list = document.getElementById('subtopicList');
-  list.innerHTML = `<button class="subtopic-btn active" data-sub="" data-ssc="" data-ssctype="">All Questions
+  list.innerHTML = `<button class="subtopic-btn active" data-sub="" data-ssc="" data-ssctype="">All Topics
     <svg class="subtopic-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:none"><polyline points="9 18 15 12 9 6"/></svg>
   </button>`;
   SUBS.forEach(sub => {
@@ -658,6 +654,10 @@ function applyFilter(sub, ssc, type, pushUrl) {
     if (ssc && b.dataset.sub===sub && b.dataset.ssc===ssc && b.dataset.ssctype===type)
       b.classList.add(type==='technique'?'active-technique':'active');
   });
+  // Show where you are next to the subject title, e.g. Algebra › Inequality › 2 Variable
+  const subEl = document.getElementById('topicSub');
+  if (subEl) subEl.innerHTML = [sub, ssc].filter(Boolean)
+    .map(s => `<span class="topic-crumb"><span class="topic-sub-sep" aria-hidden="true">›</span>${esc(s)}</span>`).join('');
   if (pushUrl) history.pushState({}, '', window.location.pathname + filterQuery());
   renderQuestions();
 }
@@ -867,7 +867,7 @@ async function loadQuestions() {
 
     questions = qRes.documents.map(q => ({
       id: q.$id, title: q.title, about: q.about,
-      createdAt: ago(q.$createdAt), createdAtRaw: q.$createdAt,
+      createdAtRaw: q.$createdAt,
       tags: qTagsMap[q.$id] || [],
       intuitionCount: intCount[q.$id] || 0,
       takeawayCount:  takCount[q.$id] || 0,
@@ -944,7 +944,7 @@ function renderQuestions() {
   } else { sorted = sortItems(filtered, currentSort); }
 
   const scopeLabel = activeSsc ? `${activeSsc} (${activeSscType})` : activeSubtopic||'';
-  document.getElementById('qCount').textContent = `${sorted.length} question${sorted.length!==1?'s':''}${scopeLabel?` · ${scopeLabel}`:''}`;
+  document.getElementById('qCount').textContent = `${sorted.length} topic${sorted.length!==1?'s':''}${scopeLabel?` · ${scopeLabel}`:''}`;
 
   const pillEl = document.getElementById('activeFilterPill');
   if (query) {
@@ -963,8 +963,8 @@ function renderQuestions() {
   const container = document.getElementById('questionsList');
   if (!sorted.length) {
     container.innerHTML = query
-      ? `<div class="empty-state">No questions found for "<strong>${esc(query)}</strong>".<br><span style="font-size:12px;opacity:.7">Try a different keyword or browse by topic.</span></div>`
-      : `<div class="empty-state">No questions yet${activeSubtopic?` in ${activeSubtopic}`:''}. Be the first!</div>`;
+      ? `<div class="empty-state">No topics found for "<strong>${esc(query)}</strong>".<br><span style="font-size:12px;opacity:.7">Try a different keyword or clear the filter.</span></div>`
+      : `<div class="empty-state">No topics yet${activeSubtopic?` in ${activeSubtopic}`:''}. Be the first!</div>`;
     return;
   }
   container.innerHTML = sorted.map((q,i)=>questionCardHTML(q,i,query)).join('');
@@ -993,8 +993,7 @@ function questionCardHTML(q, i=0, searchQuery='') {
       <div class="card-title kr">${titleHTML}</div>
       <div class="card-about"><span class="kr">${aboutHTML}</span></div>
       <div class="tags">${q.tags.map((t,idx)=>tagPill(t, idx, searchQuery)).join('')}</div>
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px">
-        <div class="card-meta">${q.createdAt}</div>
+      <div style="display:flex;align-items:center;justify-content:flex-end;margin-top:8px">
         <button class="btn-report" data-reportid="${q.id}" data-reporttype="question" title="Report this question">
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
           Report
@@ -1067,14 +1066,14 @@ async function loadDetailItems(qid) {
     image_url: i.image_url||'',
     author: authorMap[i.author_id] || 'Unknown',
     author_id: i.author_id,
-    createdAt: ago(i.$createdAt), createdAtRaw: i.$createdAt,
+    createdAtRaw: i.$createdAt,
     upvotes: 0, downvotes: 0, explanationLinks: [], comments: [], edited: false
   }));
   takeaways[qid] = taks.map(t => ({
     id: t.$id, content: t.content, image_url: t.image_url||'',
     author: authorMap[t.author_id] || 'Unknown',
     author_id: t.author_id,
-    createdAt: ago(t.$createdAt), createdAtRaw: t.$createdAt,
+    createdAtRaw: t.$createdAt,
     upvotes: 0, downvotes: 0, links: [], comments: [], edited: false
   }));
 
@@ -1091,7 +1090,7 @@ async function loadDetailItems(qid) {
       comments.forEach(c => {
         const list = c.parent_type === 'intuition' ? intuitions[qid] : takeaways[qid];
         const item = list.find(x => x.id === c.parent_id);
-        if (item) item.comments.push({ id: c.$id, text: c.text, author: names[c.author_id] || 'Unknown', authorId: c.author_id, createdAt: ago(c.$createdAt) });
+        if (item) item.comments.push({ id: c.$id, text: c.text, author: names[c.author_id] || 'Unknown', authorId: c.author_id });
       });
     } catch {}
   }
@@ -1143,8 +1142,7 @@ function renderDetailHeader() {
     <div class="detail-title kr">${esc(q.title)}</div>
     <div class="detail-about"><span class="kr">${esc(q.about)}</span></div>
     <div class="tags" style="margin:10px 0">${q.tags.map((t,i)=>tagPill(t, i, "")).join('')}</div>
-    <div style="display:flex;align-items:center;justify-content:space-between">
-      <div class="detail-meta">${q.createdAt}</div>
+    <div style="display:flex;align-items:center;justify-content:flex-end">
       <button class="btn-report" data-reportid="${q.id}" data-reporttype="question" onclick="handleReport('${q.id}','question')">
         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
         Report
@@ -1189,7 +1187,7 @@ function intuitionCardHTML(item, idx=0) {
   const linksHTML=(item.explanationLinks||[]).length?`<div class="i-links">${item.explanationLinks.filter(safeUrl).map(l=>`<a class="i-link" href="${esc(safeUrl(l))}" target="_blank" rel="noopener noreferrer">${esc(l)}</a>`).join('')}</div>`:'';
   const exHTML=(item.exampleLink||item.exampleExplanation)?`<div class="i-example"><div class="i-label">Example</div>${safeUrl(item.exampleLink)?`<a class="i-link" href="${esc(safeUrl(item.exampleLink))}" target="_blank" rel="noopener noreferrer">${esc(item.exampleLink)}</a>`:''}${item.exampleExplanation?`<div class="kr" style="font-size:13.5px;color:var(--text2);margin-top:6px">${processText(item.exampleExplanation)}</div>`:''}</div>`:'';
   const imgHTML=safeUrl(item.image_url)?`<img src="${esc(safeUrl(item.image_url))}" alt="Intuition image" style="max-width:100%;border-radius:4px;margin-top:10px;border:1px solid var(--border)" />`:'';
-  const cc=(item.comments||[]).length,cHTML=(item.comments||[]).map(c=>`<div class="comment-item"><div class="comment-text">${processText(c.text)}</div><div class="comment-meta">${authorLink(c.author)} · ${c.createdAt}${canDelete(c.authorId)?` <button class="btn-report btn-delete" data-delid="${c.id}" data-deltype="c" data-parent="${item.id}" aria-label="Delete comment">Delete</button>`:''}</div></div>`).join('');
+  const cc=(item.comments||[]).length,cHTML=(item.comments||[]).map(c=>`<div class="comment-item"><div class="comment-text">${processText(c.text)}</div><div class="comment-meta">${authorLink(c.author)}${canDelete(c.authorId)?` <button class="btn-report btn-delete" data-delid="${c.id}" data-deltype="c" data-parent="${item.id}" aria-label="Delete comment">Delete</button>`:''}</div></div>`).join('');
   const isOwn=me&&me.$id===item.author_id;
   const editBtn=isOwn?`<button class="btn-edit" data-editid="${item.id}" data-edittype="i"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit</button>`:'';
   const delBtn=canDelete(item.author_id)?`<button class="btn-edit btn-delete" data-delid="${item.id}" data-deltype="i"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>Delete</button>`:'';
@@ -1204,7 +1202,7 @@ function intuitionCardHTML(item, idx=0) {
         ${imgHTML}${trunc?`<button class="btn-link" id="iexpbtn-${item.id}">Show more</button>`:''}
         ${linksHTML}${exHTML}
         <div class="i-footer">
-          <span>By ${authorLink(item.author)} · ${item.createdAt}${item.edited?' <span style="color:var(--text3);font-size:11px">(edited)</span>':''}</span>
+          <span>By ${authorLink(item.author)}${item.edited?' <span style="color:var(--text3);font-size:11px">(edited)</span>':''}</span>
           <div style="display:flex;align-items:center;gap:6px">
             <button class="btn-report" data-reportid="${item.id}" data-reporttype="intuition"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Report</button>
             ${editBtn}${delBtn}
@@ -1231,7 +1229,7 @@ function takeawayCardHTML(item, idx=0) {
   const content=item.content||'',trunc=content.length>300,disp=trunc?previewText(content):content;
   const linksHTML=(item.links||[]).length?`<div class="i-links">${item.links.filter(safeUrl).map(l=>`<a class="i-link" href="${esc(safeUrl(l))}" target="_blank" rel="noopener noreferrer">${esc(l)}</a>`).join('')}</div>`:'';
   const imgHTML=safeUrl(item.image_url)?`<img src="${esc(safeUrl(item.image_url))}" alt="Takeaway image" style="max-width:100%;border-radius:4px;margin-top:10px;border:1px solid var(--border)" />`:'';
-  const cc=(item.comments||[]).length,cHTML=(item.comments||[]).map(c=>`<div class="comment-item"><div class="comment-text">${processText(c.text)}</div><div class="comment-meta">${authorLink(c.author)} · ${c.createdAt}${canDelete(c.authorId)?` <button class="btn-report btn-delete" data-delid="${c.id}" data-deltype="c" data-parent="${item.id}" aria-label="Delete comment">Delete</button>`:''}</div></div>`).join('');
+  const cc=(item.comments||[]).length,cHTML=(item.comments||[]).map(c=>`<div class="comment-item"><div class="comment-text">${processText(c.text)}</div><div class="comment-meta">${authorLink(c.author)}${canDelete(c.authorId)?` <button class="btn-report btn-delete" data-delid="${c.id}" data-deltype="c" data-parent="${item.id}" aria-label="Delete comment">Delete</button>`:''}</div></div>`).join('');
   const isOwn=me&&me.$id===item.author_id;
   const editBtn=isOwn?`<button class="btn-edit" data-editid="${item.id}" data-edittype="t"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit</button>`:'';
   const delBtn=canDelete(item.author_id)?`<button class="btn-edit btn-delete" data-delid="${item.id}" data-deltype="t"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>Delete</button>`:'';
@@ -1244,7 +1242,7 @@ function takeawayCardHTML(item, idx=0) {
         ${imgHTML}${trunc?`<button class="btn-link" id="texpbtn-${item.id}">Show more</button>`:''}
         ${linksHTML}
         <div class="i-footer">
-          <span>${item.createdAt}${item.edited?' <span style="color:var(--text3);font-size:11px">(edited)</span>':''}</span>
+          <span>${item.edited?' <span style="color:var(--text3);font-size:11px">(edited)</span>':''}</span>
           <div style="display:flex;align-items:center;gap:6px">
             <button class="btn-report" data-reportid="${item.id}" data-reporttype="takeaway"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Report</button>
             ${editBtn}${delBtn}
@@ -1420,7 +1418,7 @@ async function addComment(id, type) {
       text,
       author_id: me.$id
     }, mine());
-    if (item) item.comments.push({ id:d.$id, text, author:profile?.username||'You', authorId:me.$id, createdAt:'just now' });
+    if (item) item.comments.push({ id:d.$id, text, author:profile?.username||'You', authorId:me.$id });
   } catch(e) { showToast('Comment failed: '+e.message,'error'); return; }
   renderDetailItems();
   setTimeout(()=>document.getElementById(`comments-${type}-${id}`)?.classList.add('open'),10);

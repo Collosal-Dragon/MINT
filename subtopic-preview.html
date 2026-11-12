@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex" />
+<title>MINT subtopic preview</title>
+<!-- Standalone page: it uses none of the site's own CSS or JS. It only embeds the live site in a frame. -->
+<style>
+:root{
+  --bg:#f5f1e6;--panel:#fffdf8;--bar:#efe9da;--border:#d6cdb8;--text:#1f2328;--text2:#5a5f66;--accent:#2a7a68;
+  --font:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#0f1724;--panel:#142033;--bar:#1a283e;--border:#2c3d5a;--text:#ede8dc;--text2:#a9b1bf;--accent:#8fd9c4;
+}}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;padding:28px 20px 40px;line-height:1.5}
+.wrap{max-width:1100px;margin:0 auto}
+h1{font-size:22px;font-weight:700;margin-bottom:4px}
+.lead{color:var(--text2);font-size:14px;margin-bottom:20px}
+.pickers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:16px}
+label{display:block;font-size:12px;font-weight:600;color:var(--text2);margin-bottom:5px}
+select{
+  width:100%;padding:10px 12px;font:inherit;font-size:14px;color:var(--text);
+  background:var(--panel);border:1px solid var(--border);border-radius:6px;cursor:pointer;
+}
+select:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+select:disabled{opacity:.5;cursor:not-allowed}
+.frame{border:1px solid var(--border);border-radius:10px;overflow:hidden;background:var(--panel);box-shadow:0 8px 28px rgba(0,0,0,.12)}
+.bar{display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--bar);border-bottom:1px solid var(--border)}
+.dots{display:flex;gap:6px;flex-shrink:0}
+.dots i{width:10px;height:10px;border-radius:50%;background:var(--border)}
+.url{
+  flex:1;min-width:0;padding:5px 12px;font-size:12.5px;color:var(--text2);background:var(--panel);
+  border:1px solid var(--border);border-radius:999px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.bar a,.bar button{
+  flex-shrink:0;font:inherit;font-size:12.5px;font-weight:600;color:var(--accent);background:none;border:none;
+  cursor:pointer;text-decoration:none;padding:4px 6px;border-radius:4px;
+}
+.bar a:hover,.bar button:hover{text-decoration:underline}
+.view{position:relative;height:72vh;min-height:420px}
+iframe{display:block;width:100%;height:100%;border:0;background:var(--panel)}
+.loading{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  background:var(--panel);color:var(--text2);font-size:14px;transition:opacity .2s;
+}
+.loading.done{opacity:0;pointer-events:none}
+@media (max-width:640px){
+  body{padding:18px 12px 28px}
+  .pickers{grid-template-columns:1fr}
+  .dots{display:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>MINT subtopic preview</h1>
+  <p class="lead">Pick a subtopic to see how it looks on the live site, math-intuitions.org. You can scroll and click inside the preview.</p>
+
+  <div class="pickers">
+    <div><label for="subject">Subject</label><select id="subject"></select></div>
+    <div><label for="sub">Subtopic</label><select id="sub"></select></div>
+    <div><label for="tag">Tag (optional)</label><select id="tag"></select></div>
+  </div>
+
+  <div class="frame">
+    <div class="bar">
+      <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span class="url" id="url"></span>
+      <button type="button" id="reload">Reload</button>
+      <a id="open" target="_blank" rel="noopener">Open in new tab</a>
+    </div>
+    <div class="view">
+      <iframe id="site" title="Preview of math-intuitions.org" loading="eager"></iframe>
+      <div class="loading" id="loading">Loading preview…</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SITE = 'https://math-intuitions.org/';
+
+/* Snapshot of the site's subjects: [subtopic, structure tags, technique tags] */
+const SUBJECTS = {
+  'Algebra': { page: 'algebra', subs: [
+    ['Functional Equations', ['Reals','Positive Reals','Rationals/Integers','Natural Numbers','Wrapped','Injectivity/Surjectivity','Additive','Adding new variables'], ['Transformation']],
+    ['Inequality', ['2 Variable','3 Variable','Geometric Inequalities'], ['Convex/Concavity','Tangent Line Trick','Smoothing','Homogenous','AM-GM','Cauchy Schwarz Inequality','Substitution']],
+    ['Sequences', ['Periodic','Bounded','Monotonic'], ['Recurrence Relations','Summation Methods']],
+    ['Polynomials', ['Coefficients','Degree','Integer Polynomials','Rational Polynomials','Real Polynomials','Roots','Factorisation'], ['Inequalities','Symmetry']],
+    ['Others', [], ['Calculus','Size','Bounding']],
+  ]},
+  'Combinatorics': { page: 'combinatorics', subs: [
+    ['Counting', [], ['Double Counting','Bijections']],
+    ['Local techniques', [], ['Induction','Extremal principle','Pigeonhole Principle']],
+    ['Global techniques', [], ['Invariants/monovariants','Colourings','Weightings','Probabilistic methods']],
+    ['Graph Theory', ['Trees','Directed Graphs','Cycles','Cliques'], []],
+    ['Grids', [], []],
+    ['Processes', ['Algorithms','Games'], []],
+    ['Constructive processes', [], []],
+    ['Bounding', [], []],
+    ['Others', [], []],
+  ]},
+  'Geometry': { page: 'geometry', subs: [
+    ['Angle Chasing', ['Parallel lines','Tangents','Directed angles'], ['Good lines/bad lines','Spiral similarity']],
+    ['Circles', ['Coaxial circles','Concurrent circles','Radical axis'], []],
+    ['Triangle', ['Centers','Configurations','Isogonal lines/points'], []],
+    ['Quadrilaterals', ['Complete quadrilaterals'], []],
+    ['Length chasing', [], ['Power of point','Trigonometry','Ceva/Menelaus']],
+    ['Symmetry', [], []],
+    ['Transformations', [], ['Homothety','Inversion']],
+    ['Computational', [], ['Cartesian coordinates','Complex numbers','Barycentric coordinates','Method of Moving Points']],
+    ['Projective tools', [], []],
+    ['Construction', [], ['Adding points']],
+    ['Simplification', [], ['Removing points']],
+    ['Others', ['Concurrent lines'], []],
+  ]},
+  'Number Theory': { page: 'number-theory', subs: [
+    ['Divisibility', ['Euclid’s algorithm'], ['GCD/LCM']],
+    ['Primes', [], ['Size']],
+    ['Modular arithmetic', ['Fermat’s little theorem','Euler’s theorem','Wilson’s theorem','Chinese remainder theorem','Primitive roots'], ['Quadratic residues','Modular contradictions','Inverses']],
+    ['Special functions', ['Divisor function','Euler totient function','Digit sum function','Base systems'], []],
+    ['P-adic valuation', ['Lifting the exponent lemma',"Legendre's formula"], []],
+    ['Diophantines', ['Pell’s equation'], []],
+    ['Descent', ['Vieta Jumping'], []],
+    ['Expressions', [], ['Exponents','Factorials']],
+    ['Bounding', [], []],
+    ['Integer polynomials', [], []],
+    ['Constructions', [], []],
+    ['Others', [], []],
+  ]},
+  'Problem Solving': { page: 'problem-solving', subs: [
+    ['Symmetry', [], []], ['Equality case', [], []], ['Generalisation', [], []], ['Reduction', [], []],
+    ['Equivalent statements', [], []], ['Competition mentality', [], []], ['General advice', [], []],
+  ]},
+};
+
+const $ = id => document.getElementById(id);
+const subjectEl = $('subject'), subEl = $('sub'), tagEl = $('tag');
+/* Same rule the site uses to turn a name into its link form */
+const slugify = s => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+const option = (value, text) => { const o = document.createElement('option'); o.value = value; o.textContent = text; return o; };
+
+function currentSub() {
+  return SUBJECTS[subjectEl.value].subs.find(s => s[0] === subEl.value) || null;
+}
+
+function fillSubs() {
+  subEl.replaceChildren(option('', 'All topics'), ...SUBJECTS[subjectEl.value].subs.map(s => option(s[0], s[0])));
+  fillTags();
+}
+
+function fillTags() {
+  const sub = currentSub();
+  tagEl.replaceChildren(option('', sub ? 'Whole subtopic' : 'Pick a subtopic first'));
+  if (sub) [['structure', 'Structure', sub[1]], ['technique', 'Technique', sub[2]]].forEach(([type, label, names]) => {
+    if (!names.length) return;
+    const group = document.createElement('optgroup'); group.label = label;
+    names.forEach(n => group.appendChild(option(type + '|' + n, n)));
+    tagEl.appendChild(group);
+  });
+  tagEl.disabled = tagEl.options.length < 2;
+  if (sub && tagEl.disabled) tagEl.options[0].textContent = 'No tags in this subtopic';
+}
+
+function buildUrl() {
+  let url = SITE + SUBJECTS[subjectEl.value].page;
+  if (subEl.value) {
+    url += '?sub=' + slugify(subEl.value);
+    if (tagEl.value) { const [type, name] = tagEl.value.split('|'); url += '&' + type + '=' + slugify(name); }
+  }
+  return url;
+}
+
+function show() {
+  const url = buildUrl();
+  $('url').textContent = url.replace('https://', '');
+  $('open').href = url;
+  $('loading').classList.remove('done');
+  $('site').src = url;
+}
+
+subjectEl.append(...Object.keys(SUBJECTS).map(n => option(n, n)));
+subjectEl.addEventListener('change', () => { fillSubs(); show(); });
+subEl.addEventListener('change', () => { fillTags(); show(); });
+tagEl.addEventListener('change', show);
+$('reload').addEventListener('click', show);
+$('site').addEventListener('load', () => $('loading').classList.add('done'));
+
+fillSubs();
+show();
+</script>
+</body>
+</html>

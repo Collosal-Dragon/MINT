@@ -20,10 +20,6 @@ const COLLECTIONS = {
 function esc(s) {
   return s ? String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;') : '';
 }
-function ago(ts) {
-  const d = Date.now() - new Date(ts), m = ~~(d/6e4), h = ~~(d/36e5), dy = ~~(d/864e5);
-  return m<1 ? 'just now' : m<60 ? `${m}m ago` : h<24 ? `${h}h ago` : dy<7 ? `${dy}d ago` : `${~~(dy/7)}w ago`;
-}
 function showToast(msg, type = 'success') {
   document.querySelector('.toast')?.remove();
   const t = document.createElement('div'); t.className = `toast ${type}`; t.setAttribute('role', 'status');

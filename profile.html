@@ -64,7 +64,7 @@ function activityRow(item, links, titles, totals) {
     <div class="activity-score ${score > 0 ? 'positive' : score < 0 ? 'negative' : ''}" title="Score">${score}</div>
     <div class="activity-body">
       <div class="activity-text kr">${esc(text.length > 220 ? text.slice(0, 220) + '…' : text)}</div>
-      <div class="activity-meta">on ${href ? `<a href="${esc(href)}">${esc(titles[item.question_id] || 'a question')}</a>` : 'a deleted question'} · ${ago(item.$createdAt)}</div>
+      <div class="activity-meta">on ${href ? `<a href="${esc(href)}">${esc(titles[item.question_id] || 'a topic')}</a>` : 'a deleted topic'}</div>
     </div></div>`;
 }
 async function renderTab() {
@@ -100,7 +100,7 @@ document.querySelectorAll('[data-ptab]').forEach(b => b.addEventListener('click'
     const score = Object.values(totals).reduce((s, t) => s + t.up - t.down, 0);
     head.innerHTML = `<div class="topic-left"><div>
       <h1 class="topic-name">${esc(p.username)}</h1>
-      <div class="topic-desc">Joined ${ago(p.$createdAt)} · ${all.length} post${all.length === 1 ? '' : 's'} · ${score} total score</div></div></div>`;
+      <div class="topic-desc">${all.length} post${all.length === 1 ? '' : 's'} · ${score} total score</div></div></div>`;
     document.getElementById('pIntCount').textContent = pData.intuitions.length;
     document.getElementById('pTakCount').textContent = pData.takeaways.length;
     renderTab();

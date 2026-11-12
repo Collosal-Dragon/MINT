@@ -256,6 +256,9 @@ main { max-width: 1060px; margin: 0 auto; padding: 32px 32px 70px; position: rel
 .topic-left  { display: flex; align-items: center; gap: 16px; }
 .topic-glyph { font-size: 2.4rem; line-height: 1; color: var(--blue); }
 .topic-name  { font-family: var(--font-disp); font-size: var(--text-3xl); font-weight: 900; letter-spacing: -.01em; }
+.topic-sub   { font-size: .62em; font-weight: 700; color: var(--text2); letter-spacing: 0; }
+.topic-crumb { display: inline-block; }   /* a name like "2 Variable" wraps as one piece */
+.topic-sub-sep { margin: 0 .5em; color: var(--text3); font-weight: 400; }
 .topic-desc  { font-size: var(--text-base); color: var(--text2); margin-top: 3px; font-family: var(--font-serif); line-height: 1.5; }
 
 /* ── LAYOUT GRID ── */

@@ -56,7 +56,7 @@ main{padding:0 32px 70px}
 html.light .search-input:focus{box-shadow:0 0 0 3px rgba(42,122,104,.1),var(--shadow)}
 .search-clear{right:13px;padding:4px;align-items:center}
 .sec-hd{display:flex;align-items:baseline;gap:14px;margin-bottom:24px}
-.sec-title{font-family:var(--font-disp);font-size:var(--text-xl);font-weight:700;color:var(--text);letter-spacing:-.01em;white-space:nowrap}
+.sec-title{font-family:var(--font-disp);font-size:var(--text-xl);font-weight:700;color:var(--text);letter-spacing:-.01em;white-space:nowrap;line-height:1.7}
 .sec-line{flex:1;height:1px;background:var(--border)}
 .topic-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:48px}
 .topic-card{display:flex;flex-direction:column;gap:8px;background:var(--card-bg);border:1px solid var(--border);padding:14px 16px;text-decoration:none;color:var(--text);transition:border-color .15s,background .15s}
@@ -80,7 +80,11 @@ html.light .search-input:focus{box-shadow:0 0 0 3px rgba(42,122,104,.1),var(--sh
 .qtag-default{background:rgba(143,217,196,.1);color:var(--green);border:1px solid rgba(143,217,196,.2)}
 .qtag-structure{background:rgba(143,179,224,.1);color:var(--blue);border:1px solid rgba(143,179,224,.2)}
 .qtag-technique{background:rgba(179,157,219,.1);color:var(--purple);border:1px solid rgba(179,157,219,.2)}
-.q-meta{font-size:var(--text-xs);color:var(--text3);margin-top:10px;font-family:var(--font-mono);font-weight:500}
+.q-more{display:block;padding:13px 20px;border-top:1px solid var(--border2);background:var(--bg3);text-align:center;font-size:var(--text-sm);color:var(--text2);text-decoration:none;transition:color .15s,background .15s}
+.q-more strong{color:var(--text)}
+.q-more:hover{color:var(--primary);background:var(--bg4)}
+#browse{scroll-margin-top:88px}
+.search-input::-webkit-search-cancel-button{display:none}
 .search-count{font-size:var(--text-base);color:var(--text3);margin-bottom:18px;font-family:var(--font-body)}
 .search-count strong{color:var(--text);font-style:normal;font-weight:700}
 .modal-overlay{z-index:500;align-items:center;padding:24px}
@@ -152,19 +156,25 @@ html.light .form-input:focus{box-shadow:0 0 0 3px rgba(42,122,104,.1)}
   </div>
 
   <div id="searchSec" class="hidden">
-    <div class="sec-hd"><span class="sec-title">Search Results</span><span class="sec-line"></span></div>
+    <div class="sec-hd"><h2 class="sec-title">Search Results</h2><span class="sec-line"></span></div>
     <p class="search-count" id="searchCount"></p>
     <div id="searchList" class="q-list"></div>
   </div>
 
   <div id="browseSec">
-    <div class="sec-hd"><span class="sec-title">Browse by Subject</span><span class="sec-line"></span></div>
+    <div class="sec-hd" id="browse"><h2 class="sec-title">Browse by Subject</h2><span class="sec-line"></span></div>
     <div class="topic-grid" id="topicGrid"></div>
-    <div class="sec-hd"><span class="sec-title">Recent Topics</span><span class="sec-line"></span></div>
-    <div id="recentList" class="q-list">
+    <div class="sec-hd"><h2 class="sec-title">Popular Topics</h2><span class="sec-line"></span></div>
+    <div id="popularList" class="q-list">
     </div>
   </div>
 </main>
+
+<footer>
+  <p>Report issues, make suggestions, or join the team by contacting
+    <a href="mailto:mint.forum.contact@gmail.com">mint.forum.contact@gmail.com</a>
+  </p>
+</footer>
 
 <!-- AUTH MODAL -->
 <div class="modal-overlay" id="authOverlay">
@@ -254,8 +264,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     localStorage.setItem('theme', t); applyTheme(t);
   });
   buildGrid();
-  document.getElementById('recentList').innerHTML = homeSkeleton(5);
-  // Show the page straight away; the recent list shows skeletons until data arrives
+  document.getElementById('popularList').innerHTML = homeSkeleton(5);
+  // Show the page straight away; the popular list shows skeletons until data arrives
   document.body.classList.add('ready');
   try { await initHomeAuth(); }
   catch (e) { console.error('Boot failed', e); }
@@ -264,13 +274,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 /* ── AUTH ── (shared login code lives in mint-auth.js) */
 async function initHomeAuth() {
   if (!account) {
-    document.getElementById('recentList').innerHTML = OFFLINE_MSG;
+    document.getElementById('popularList').innerHTML = OFFLINE_MSG;
     document.getElementById('authBtn').classList.add('hidden');
     return;
   }
   bindAuthModal();
+  // Topics are public, so load them alongside the login check instead of after it
+  loadPopular();
   await initAuth();
-  loadRecent();
 }
 
 /* ── THEME ── */
@@ -281,7 +292,7 @@ function applyTheme(t) {
 }
 
 /* ── HELPERS ── */
-/* Grey placeholders shaped like the recent-topic cards */
+/* Grey placeholders shaped like the topic cards */
 function homeSkeleton(n) {
   const bar = (w, h, extra='') => `<span class="skel" style="width:${w};height:${h}px;${extra}"></span>`;
   const titles = ['58%', '72%', '46%', '64%', '52%'];
@@ -290,14 +301,10 @@ function homeSkeleton(n) {
     out += `<div class="q-card skel-card" aria-hidden="true">
       <div class="v-col">${bar('14px',10)}${bar('14px',16)}${bar('14px',10)}${bar('22px',10,'margin-top:6px')}</div>
       <div class="q-body">${bar(titles[i % 5],17,'margin-bottom:10px')}${bar('80%',11,'margin-bottom:12px')}
-        <span class="skel-tags">${bar('110px',20)}${bar('80px',20)}${bar('95px',20)}</span>${bar('60px',10,'margin-top:12px')}</div>
+        <span class="skel-tags">${bar('110px',20)}${bar('80px',20)}${bar('95px',20)}</span></div>
     </div>`;
   }
   return out;
-}
-function ago(ts) {
-  const d=Date.now()-new Date(ts), m=~~(d/6e4), h=~~(d/36e5), dy=~~(d/864e5);
-  return m<1?'just now':m<60?`${m}m ago`:h<24?`${h}h ago`:dy<7?`${dy}d ago`:`${~~(dy/7)}w ago`;
 }
 function esc(s) { return s ? String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;') : ''; }
 function renderMath(el) {
@@ -321,72 +328,94 @@ function buildGrid() {
     </a>`).join('');
 }
 
-/* ── LOAD RECENT ── */
-async function loadRecent() {
-  document.getElementById('recentList').innerHTML =
-    homeSkeleton(5);
+/* ── TOPIC CARDS ── */
+/* How many intuitions each topic has */
+async function countIntuitions(ids) {
+  const n = {};
+  for (let i = 0; i < ids.length; i += 100) {
+    const res = await databases.listDocuments(DB_ID, COLLECTIONS.intuitions, [
+      Query.equal('question_id', ids.slice(i, i + 100)), Query.limit(2000),
+    ]);
+    res.documents.forEach(d => { n[d.question_id] = (n[d.question_id] || 0) + 1; });
+  }
+  return n;
+}
+
+/* Turn raw topic rows into card data: tags, subject, intuition count and votes */
+async function buildCards(docs, votes, counts) {
+  if (!docs.length) return [];
+  const qIds = docs.map(q => q.$id);
+  const [qtRes, vm, intCount] = await Promise.all([
+    databases.listDocuments(DB_ID, COLLECTIONS.question_tags, [
+      Query.equal('question_id', qIds), Query.limit(1000),
+    ]),
+    votes || getVotes(qIds),
+    counts || countIntuitions(qIds),
+  ]);
+
+  const tagIds = [...new Set(qtRes.documents.map(qt => qt.tag_id))], tagMap = {};
+  for (let i = 0; i < tagIds.length; i += 100) {
+    const tagRes = await databases.listDocuments(DB_ID, COLLECTIONS.tags, [
+      Query.equal('$id', tagIds.slice(i, i + 100)), Query.limit(100),
+    ]);
+    tagRes.documents.forEach(t => { tagMap[t.$id] = t; });
+  }
+
+  return docs.map(q => {
+    const linkedTags = qtRes.documents
+      .filter(qt => qt.question_id === q.$id)
+      .map(qt => tagMap[qt.tag_id]).filter(Boolean);
+    const tags = [...new Map(linkedTags.map(t => {
+      const p = t.name.split('::');
+      return [p[1]||p[0], { label:p[1]||p[0], type:p[2]||'default' }];
+    })).values()];
+    const category = linkedTags.map(t => t.category).find(c => c && c in CATS) || null;
+    const v = vm[q.$id] || {};
+    return {
+      id: q.$id, title: q.title, about: q.about, category, tags,
+      n: intCount[q.$id]||0, up: v.up||0, dn: v.dn||0,
+    };
+  });
+}
+
+/* ── LOAD POPULAR ── */
+/* Popular = most upvoted and most discussed, out of every topic on the site */
+const POPULAR_COUNT = 10;
+async function loadPopular() {
+  const el = document.getElementById('popularList');
+  el.innerHTML = homeSkeleton(5);
   try {
     const qRes = await databases.listDocuments(DB_ID, COLLECTIONS.questions, [
-      Query.orderDesc('$createdAt'), Query.limit(10),
+      Query.orderDesc('$createdAt'), Query.limit(500),
     ]);
-    if (!qRes.documents.length) {
-      document.getElementById('recentList').innerHTML =
-        '<div class="empty-state">No topics yet — be the first to post!</div>';
+    const docs = qRes.documents.filter(q => q.title);
+    if (!docs.length) {
+      el.innerHTML = '<div class="empty-state">No topics yet — be the first to post!</div>';
       return;
     }
-    const qIds = qRes.documents.map(q => q.$id);
+    const ids = docs.map(q => q.$id);
+    const [vm, counts] = await Promise.all([getVotes(ids), countIntuitions(ids)]);
+    const popularity = id => {
+      const v = vm[id] || {};
+      return ((v.up||0) - (v.dn||0)) * 0.7 + (counts[id]||0) * 0.5;
+    };
+    // Ties keep their newest-first order
+    const top = [...docs].sort((a, b) => popularity(b.$id) - popularity(a.$id)).slice(0, POPULAR_COUNT);
+    const cards = await buildCards(top, vm, counts);
 
-    const [qtRes, intRes] = await Promise.all([
-      databases.listDocuments(DB_ID, COLLECTIONS.question_tags, [
-        Query.equal('question_id', qIds), Query.limit(500),
-      ]),
-      databases.listDocuments(DB_ID, COLLECTIONS.intuitions, [
-        Query.equal('question_id', qIds), Query.limit(1000),
-      ]),
-    ]);
-
-    const tagIds = [...new Set(qtRes.documents.map(qt => qt.tag_id))];
-    let tagMap = {};
-    if (tagIds.length) {
-      const tagRes = await databases.listDocuments(DB_ID, COLLECTIONS.tags, [
-        Query.equal('$id', tagIds), Query.limit(500),
-      ]);
-      tagRes.documents.forEach(t => { tagMap[t.$id] = t; });
-    }
-
-    const intCount = {};
-    intRes.documents.forEach(i => { intCount[i.question_id]=(intCount[i.question_id]||0)+1; });
-
-    const qs = qRes.documents.map(q => {
-      const linkedTags = qtRes.documents
-        .filter(qt => qt.question_id === q.$id)
-        .map(qt => tagMap[qt.tag_id]).filter(Boolean);
-      const tags = [...new Map(linkedTags.map(t => {
-        const p = t.name.split('::');
-        return [p[1]||p[0], { label:p[1]||p[0], type:p[2]||'default' }];
-      })).values()];
-      const category = linkedTags.map(t => t.category).find(c => c && c in CATS) || null;
-      return {
-        id: q.$id, title: q.title, about: q.about,
-        at: ago(q.$createdAt), category, tags,
-        n: intCount[q.$id]||0, up:0, dn:0,
-      };
-    });
-
-    const vm = await getVotes(qIds, 'question');
-    qs.forEach(q => { const v=vm[q.id]||{}; q.up=v.up||0; q.dn=v.dn||0; });
-
-    const el = document.getElementById('recentList');
-    el.innerHTML = qs.map((q,i) => cardHTML(q,i)).filter(Boolean).join('');
+    const total = Math.max(qRes.total || 0, docs.length);
+    const more = total > cards.length
+      ? `<a class="q-more" href="#browse">Browse a subject to see all topics</a>`
+      : '';
+    el.innerHTML = cards.map(cardHTML).join('') + more;
     el.querySelectorAll('.kr').forEach(renderMath);
   } catch(e) {
-    document.getElementById('recentList').innerHTML =
-      `<div class="err-box">Could not load: ${esc(e.message)}</div>`;
+    el.innerHTML = `<div class="err-box">Could not load: ${esc(e.message)}</div>`;
   }
 }
 
 /* ── CARD HTML ── */
-function cardHTML(q, i=0) {
+function cardHTML(q) {
   const score=q.up-q.dn, sc=score>0?'pos':score<0?'neg':'zero';
   const sortedTags = [...(q.tags||[])].sort((a,b) => {
     const aC = Object.keys(CATS).some(k=>k.toLowerCase()===a.label?.toLowerCase()) ? 0 : 1;
@@ -396,12 +425,12 @@ function cardHTML(q, i=0) {
   const catPage = (q.category && CATS[q.category]) ? CATS[q.category].page : 'problem-solving.html';
   if (!q.title) return '';
   return `<a class="q-card" href="${catPage}?q=${q.id}">
-    <div class="v-col">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text3)"><polyline points="18 15 12 9 6 15"/></svg>
+    <div class="v-col" title="${score} vote${Math.abs(score)!==1?'s':''} · ${q.n} intuition${q.n!==1?'s':''}">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text3)" aria-hidden="true"><polyline points="18 15 12 9 6 15"/></svg>
       <span class="v-score ${sc}">${score}</span>
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text3)"><polyline points="6 9 12 15 18 9"/></svg>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text3)" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
       <div class="bulb">
-        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 1 7 7c0 2.5-1.3 4.7-3.3 6l-.7.6V18H9v-2.4l-.7-.6A7 7 0 0 1 12 2z"/></svg>
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 1 7 7c0 2.5-1.3 4.7-3.3 6l-.7.6V18H9v-2.4l-.7-.6A7 7 0 0 1 12 2z"/></svg>
         ${q.n}
       </div>
     </div>
@@ -409,18 +438,19 @@ function cardHTML(q, i=0) {
       <div class="q-title kr">${esc(q.title)}</div>
       <div class="q-about"><span class="q-lbl">About </span><span class="kr">${esc(q.about)}</span></div>
       <div class="q-tags">${sortedTags.map(t=>`<span class="qtag qtag-${t.type}">${esc(t.label)}</span>`).join('')}</div>
-      <div class="q-meta">${q.at}</div>
     </div>
   </a>`;
 }
 
 /* ── SEARCH ── */
+let searchSeq = 0;   // ignore answers to searches the user has already typed past
 function handleSearch() {
   const v = document.getElementById('globalSearch').value;
   document.getElementById('searchClear').classList.toggle('hidden', !v);
   clearTimeout(searchTimer); searchTimer = setTimeout(doSearch, 280);
 }
 function clearSearch() {
+  clearTimeout(searchTimer); searchSeq++;
   document.getElementById('globalSearch').value = '';
   document.getElementById('searchClear').classList.add('hidden');
   document.getElementById('browseSec').classList.remove('hidden');
@@ -429,64 +459,26 @@ function clearSearch() {
 async function doSearch() {
   const q = document.getElementById('globalSearch').value.trim();
   if (!q) { clearSearch(); return; }
+  const seq = ++searchSeq;
   document.getElementById('browseSec').classList.add('hidden');
   document.getElementById('searchSec').classList.remove('hidden');
-  if (!databases) { document.getElementById('searchList').innerHTML = OFFLINE_MSG; return; }
-  document.getElementById('searchList').innerHTML =
-    homeSkeleton(3);
+  const el = document.getElementById('searchList');
+  if (!databases) { el.innerHTML = OFFLINE_MSG; return; }
+  document.getElementById('searchCount').textContent = 'Searching…';
+  el.innerHTML = homeSkeleton(3);
   try {
-    const qRes = { documents: await searchQuestions(q) };
-    const qIds = qRes.documents.map(r => r.$id);
-
-    const [qtRes, intRes] = await Promise.all([
-      qIds.length ? databases.listDocuments(DB_ID, COLLECTIONS.question_tags, [
-        Query.equal('question_id', qIds), Query.limit(500),
-      ]) : Promise.resolve({ documents:[] }),
-      qIds.length ? databases.listDocuments(DB_ID, COLLECTIONS.intuitions, [
-        Query.equal('question_id', qIds), Query.limit(1000),
-      ]) : Promise.resolve({ documents:[] }),
-    ]);
-
-    const tagIds = [...new Set(qtRes.documents.map(qt => qt.tag_id))];
-    let tagMap = {};
-    if (tagIds.length) {
-      const tagRes = await databases.listDocuments(DB_ID, COLLECTIONS.tags, [
-        Query.equal('$id', tagIds), Query.limit(500),
-      ]);
-      tagRes.documents.forEach(t => { tagMap[t.$id] = t; });
-    }
-    const intCount = {};
-    intRes.documents.forEach(i => { intCount[i.question_id]=(intCount[i.question_id]||0)+1; });
-
-    const rs = qRes.documents.map(r => {
-      const linkedTags = qtRes.documents
-        .filter(qt => qt.question_id === r.$id)
-        .map(qt => tagMap[qt.tag_id]).filter(Boolean);
-      const tags = [...new Map(linkedTags.map(t => {
-        const p = t.name.split('::');
-        return [p[1]||p[0], { label:p[1]||p[0], type:p[2]||'default' }];
-      })).values()];
-      const category = linkedTags.map(t => t.category).find(c => c && c in CATS) || null;
-      return {
-        id: r.$id, title: r.title, about: r.about,
-        at: ago(r.$createdAt), category, tags,
-        n: intCount[r.$id]||0, up:0, dn:0,
-      };
-    });
-
-    const vm = await getVotes(qIds, 'question');
-    rs.forEach(r => { const v=vm[r.id]||{}; r.up=v.up||0; r.dn=v.dn||0; });
-
+    const rs = (await buildCards(await searchQuestions(q))).filter(r => r.title);
+    if (seq !== searchSeq) return;
     document.getElementById('searchCount').innerHTML =
       `<strong>${rs.length}</strong> result${rs.length!==1?'s':''} for "<em>${esc(q)}</em>"`;
-    const el = document.getElementById('searchList');
     el.innerHTML = rs.length
-      ? rs.map((r,i) => cardHTML(r,i)).filter(Boolean).join('')
-      : '<div class="empty-state">No results found.</div>';
+      ? rs.map(cardHTML).join('')
+      : '<div class="empty-state">No results found. Try a different keyword or browse by subject.</div>';
     el.querySelectorAll('.kr').forEach(renderMath);
   } catch(e) {
-    document.getElementById('searchList').innerHTML =
-      `<div class="err-box">Search error: ${esc(e.message)}</div>`;
+    if (seq !== searchSeq) return;
+    document.getElementById('searchCount').textContent = '';
+    el.innerHTML = `<div class="err-box">Search error: ${esc(e.message)}</div>`;
   }
 }
 

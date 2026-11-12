@@ -9,7 +9,7 @@
           + bar('14px', 10) + bar('18px', 16) + bar('14px', 10) + bar('22px', 10, 'margin-top:6px') + '</div>'
           + '<div class="card-content">' + bar(TITLE_W[i % 5], 17, 'margin-bottom:10px') + bar('85%', 11, 'margin-bottom:12px')
           + '<span class="skel-tags">' + bar('90px', 20) + bar('70px', 20) + '</span>'
-          + '<div style="display:flex;justify-content:space-between;margin-top:12px">' + bar('60px', 10) + bar('50px', 10) + '</div></div></div>';
+          + '<div style="display:flex;justify-content:flex-end;margin-top:12px">' + bar('50px', 10) + '</div></div></div>';
       }
       return out;
     };
@@ -18,7 +18,7 @@
     };
     window.postContentSkeleton = function () {      // the question at the top of a post
       return bar('70%', 26, 'margin-bottom:14px') + bar('95%', 12, 'margin-bottom:8px') + bar('60%', 12, 'margin-bottom:16px')
-        + '<span class="skel-tags">' + bar('90px', 20) + bar('110px', 20) + bar('70px', 20) + '</span>' + bar('80px', 10, 'margin-top:14px');
+        + '<span class="skel-tags">' + bar('90px', 20) + bar('110px', 20) + bar('70px', 20) + '</span>';
     };
     window.itemSkeleton = function (n) {            // intuition / takeaway cards
       let out = '';
@@ -27,7 +27,7 @@
           + bar('16px', 16) + bar('18px', 14) + bar('16px', 16) + '</div><div class="i-content">'
           + bar('60px', 10, 'margin-bottom:8px') + bar(TITLE_W[(i + 1) % 5], 17, 'margin-bottom:16px')
           + bar('70px', 10, 'margin-bottom:8px') + bar('100%', 11, 'margin-bottom:7px') + bar('92%', 11, 'margin-bottom:7px') + bar('55%', 11)
-          + '<div class="i-footer">' + bar('140px', 10) + bar('90px', 10) + '</div></div></div></div>';
+          + '<div class="i-footer">' + bar('90px', 10) + bar('90px', 10) + '</div></div></div></div>';
       }
       return out;
     };
@@ -116,7 +116,7 @@
     <div class="topic-header">
       <div class="topic-left">
         <span class="topic-glyph" style="color:${TOPIC_COLORS[window.TOPIC_NAME] || 'var(--blue)'}">${window.TOPIC_GLYPH}</span>
-        <div><div class="topic-name">${window.TOPIC_NAME}</div><div class="topic-desc"></div></div>
+        <div><div class="topic-name">${window.TOPIC_NAME}<span class="topic-sub" id="topicSub"></span></div><div class="topic-desc"></div></div>
       </div>
     </div>
     <div class="topic-layout">
@@ -125,7 +125,7 @@
         <div class="toolbar">
           <div class="search-wrap">
             <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input class="search-input" id="questionSearch" type="text" placeholder="Search topics, and tags" autocomplete="off" autocorrect="off" spellcheck="false" />
+            <input class="search-input" id="questionSearch" type="text" placeholder="Search topics and tags" autocomplete="off" autocorrect="off" spellcheck="false" />
             <button class="search-clear hidden" id="searchClear" aria-label="Clear search"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
           </div>
           <div class="tabs-list">
